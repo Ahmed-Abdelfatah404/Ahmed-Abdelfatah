@@ -304,10 +304,7 @@
                         <span>Lectures Catalog</span>
                     </button>
 
-                    <button onclick="switchTab('chat')" id="nav-chat" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 hover:translate-x-1 transition-all duration-300 ease-out">
-                        <i data-lucide="message-square" class="w-4 h-4"></i>
-                        <span>Help Bot AI</span>
-                    </button>
+                    
 
                     <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 hover:translate-x-1 transition-all duration-300 ease-out">
                         <i data-lucide="megaphone" class="w-4 h-4"></i>
@@ -607,36 +604,6 @@
                         </div>
                     </div>
 
-                    <!-- 4. HELP BOT AI (Connected to GROQ securely) -->
-                    <div id="view-chat" class="view-panel space-y-6 hidden">
-                        <div>
-                            <h2 class="text-lg font-bold text-white mb-1">Help Bot AI Math Tutor</h2>
-                            <p class="text-xs text-gray-400">Interact with our physics, science, and math tutor, fully synced with your academy guidelines</p>
-                        </div>
-
-                        <div class="border border-[#1f2937] bg-[#0b0f19] rounded-2xl flex flex-col h-[500px] overflow-hidden shadow-sm">
-                            <!-- Messages Area -->
-                            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-8 h-8 bg-indigo-950 border border-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 text-xs font-bold shrink-0 aspect-square rounded-xl object-cover">H</div>
-                                    <div class="bg-[#05070c] border border-[#1f2937] rounded-2xl px-4 py-3 text-xs max-w-[80%] leading-relaxed space-y-1">
-                                        <div class="font-bold text-indigo-400">Help Bot Tutor</div>
-                                        <p>Ahlan! I am Help Bot, your professional mathematics and science assistant. I am fully integrated into MR. Ahmed Abd-ElFatah's curriculum. What math formula or science problem can we solve step-by-step today?</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Input Form -->
-                            <form onsubmit="handleSendMessage(event)" class="p-3 border-t border-[#1f2937] bg-[#05070c]/50 flex gap-2">
-                                <input type="text" id="chat-input" required placeholder="Type math equations or science questions..." class="flex-1 bg-[#05070c] border border-[#1f2937] rounded-xl px-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
-                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shrink-0 flex items-center gap-1">
-                                    <span>Send</span>
-                                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
                     <!-- 5. COMMUNITY FEED (ANNOUNCEMENTS & COMEMNTS) -->
                     <div id="view-feed" class="view-panel space-y-6 hidden">
                         <div class="flex items-center justify-between">
@@ -838,6 +805,19 @@
 
         // Automatic Local Simulation vs Cloud D1 Detection
         const IS_LOCAL_MOCK = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:";
+
+        // Case-insensitive key retriever to align with SQLite varying casing
+        function getValCI(obj, key) {
+            if (!obj) return undefined;
+            const lowerKey = key.toLowerCase();
+            for (const k in obj) {
+                if (k.toLowerCase() === lowerKey) {
+                    return obj[k];
+                }
+            }
+            return undefined;
+        }
+
 
         
         function handleAvatarError(img) {
@@ -1886,58 +1866,11 @@
             }
         }
 
-        // Help Bot Tutor Chat Integration
-        async function handleSendMessage(event) {
-            event.preventDefault();
-            const input = document.getElementById("chat-input");
-            const query = input.value.trim();
-            if (!query) return;
+        
 
-            appendChatMessage("user", currentUser.name, query);
-            input.value = "";
+        
 
-            const thinkingId = appendChatMessage("bot", "Help Bot Tutor", "Analyzing scientific concept...");
-
-            try {
-                // Fetch course grade alignment to guide response specificity
-                const gradeLabel = GRADE_MAPPING[currentUser.grade];
-                const res = await apiCall("chat", "POST", { query, name: currentUser.name, grade: gradeLabel });
-                updateChatMessage(thinkingId, res.response);
-            } catch(error) {
-                updateChatMessage(thinkingId, `Error communicating with artificial intelligence server. Tunnelling connection retry...`);
-            }
-        }
-
-        function appendChatMessage(sender, author, text) {
-            const container = document.getElementById("chat-messages");
-            const msgId = "msg-" + Date.now() + Math.random().toString(36).substr(2, 4);
-
-            const isBot = sender === "bot";
-            const avatarColor = isBot ? "bg-indigo-950 border border-indigo-500/20 text-indigo-400" : "bg-[#1f2937] text-white";
-            const alignment = isBot ? "justify-start" : "justify-end";
-
-            container.innerHTML += `
-                <div class="flex items-start gap-3 ${alignment}">
-                    ${isBot ? `<div class="w-8 h-8 ${avatarColor} rounded-xl flex items-center justify-center text-xs font-bold shrink-0 aspect-square rounded-xl object-cover">H</div>` : ""}
-                    <div class="bg-[#05070c] border border-[#1f2937] rounded-2xl px-4 py-3 text-xs max-w-[80%] leading-relaxed space-y-1">
-                        <div class="font-extrabold ${isBot ? 'text-indigo-400' : 'text-slate-300'}">${author}</div>
-                        <p id="text-${msgId}" class="whitespace-pre-wrap">${text}</p>
-                    </div>
-                </div>
-            `;
-
-            container.scrollTop = container.scrollHeight;
-            return msgId;
-        }
-
-        function updateChatMessage(msgId, newText) {
-            const target = document.getElementById(`text-${msgId}`);
-            if (target) {
-                target.innerText = newText;
-                const chatContainer = document.getElementById("chat-messages");
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-        }
+        
 
         // Community Feed Render
         async function renderFeed() {
@@ -2255,25 +2188,32 @@
             try {
                 const students = await apiCall("students");
                 students.forEach(s => {
-                    const levelName = GRADE_MAPPING[s.grade] ? GRADE_MAPPING[s.grade].split(" (")[0] : s.grade;
-                    const isAdmin = s.role === "admin";
+                    const sId = getValCI(s, 'id');
+                    const sGrade = getValCI(s, 'grade');
+                    const sRole = getValCI(s, 'role');
+                    const sName = getValCI(s, 'name');
+                    const sPhone = getValCI(s, 'phone');
+                    const sGender = getValCI(s, 'gender');
+                    
+                    const levelName = GRADE_MAPPING[sGrade] ? GRADE_MAPPING[sGrade].split(" (")[0] : sGrade;
+                    const isAdmin = sRole === "admin";
                     list.innerHTML += `
                         <div class="p-3 bg-[#05070c]/50 border border-[#1f2937] rounded-xl flex items-center justify-between text-xs hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 ease-out fade-in-item">
                             <div>
                                 <h4 class="font-bold text-white flex items-center gap-1.5">
-                                    <span>${s.name}</span>
+                                    <span>${sName}</span>
                                     ${isAdmin ? '<span class="text-red-400 text-[9px] bg-red-950 px-1.5 py-0.5 rounded-md font-semibold">Admin</span>' : ""}
                                 </h4>
-                                <p class="text-[9px] text-gray-500 mt-1 uppercase font-mono">ID: ${s.phone} · ${levelName} · ${s.gender === "female" ? "Girl" : "Boy"}</p>
+                                <p class="text-[9px] text-gray-500 mt-1 uppercase font-mono">ID: ${sPhone} · ${levelName} · ${sGender === "female" ? "Girl" : "Boy"}</p>
                             </div>
                             <div class="flex gap-1.5">
-                                <button onclick="toggleAdminPrivilege(${s.id !== undefined ? s.id : s.ID})" class="bg-slate-800 hover:bg-slate-700 text-gray-300 px-2 py-1 rounded-lg text-[9px] font-semibold transition" title="Toggle Admin status">
+                                <button onclick="toggleAdminPrivilege(${sId})" class="bg-slate-800 hover:bg-slate-700 text-gray-300 px-2 py-1 rounded-lg text-[9px] font-semibold transition" title="Toggle Admin status">
                                     Privilege
                                 </button>
-                                <button onclick="editStudent(${s.id !== undefined ? s.id : s.ID})" class="bg-indigo-900/40 hover:bg-indigo-900 text-indigo-300 p-1.5 rounded-lg">
+                                <button onclick="editStudent(${sId})" class="bg-indigo-900/40 hover:bg-indigo-900 text-indigo-300 p-1.5 rounded-lg">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 </button>
-                                <button onclick="deleteStudent(${s.id !== undefined ? s.id : s.ID})" class="bg-red-950/40 hover:bg-red-900 text-red-400 p-1.5 rounded-lg">
+                                <button onclick="deleteStudent(${sId})" class="bg-red-950/40 hover:bg-red-900 text-red-400 p-1.5 rounded-lg">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
@@ -2545,21 +2485,7 @@ Operation completed successfully.`;
     
 
 
-        function generateFallbackResponse(query) {
-            const q = query.toLowerCase();
-            const gradeText = GRADE_MAPPING[currentUser.grade] ? GRADE_MAPPING[currentUser.grade].split(" (")[0] : `Grade ${currentUser.grade}`;
-
-            if (q.includes("hi") || q.includes("hello") || q.includes("hey")) {
-                return `Ahlan ${currentUser.name}! I am Help Bot, your professional mathematical assistant. I see you are studying ${gradeText}. What math formula or science problem can we solve step-by-step today?`;
-            }
-            if (q.includes("building unit of matter") || q.includes("matter") || q.includes("unit of matter") || q.includes("building unit")) {
-                return `The building unit of matter is the **atom**!\n\nHere is a quick scientific breakdown of its structure:\n1. **Nucleus**: Found at the very center, containing protons (positively charged) and neutrons (neutral).\n2. **Electrons**: Tiny negatively charged particles that orbit the nucleus in specific energy clouds.\n\nWhen atoms join together, they form **molecules**, which build up all physical materials around us in MR. Ahmed's curriculum!`;
-            }
-            if (q.includes("algebra") || q.includes("equation") || q.includes("solve") || q.includes("formula")) {
-                return `Let's look at algebraic equations step-by-step:\n\n1. State the equation clearly (e.g., 2x + 8 = 16)\n2. Isolate the variable term by performing the inverse operation on both sides:\n   2x = 16 - 8\n   2x = 8\n3. Divide by the coefficient:\n   x = 8 / 2\n   x = 4\n\nLet me know if you want to break down a specific homework equation!`;
-            }
-            return `I have analyzed your coursework query regarding "${query}". As your dedicated physics and chemistry tutor, I highly recommend verifying the specific guidelines on your printed worksheets. Let me know if you would like me to solve a specific equation step-by-step!`;
-        }
+        
     
 
 
@@ -2904,54 +2830,7 @@ Operation completed successfully.`;
                 }
             }
 
-            if (cleanPath === "chat" && method === "POST") {
-                const sysPrompt = `You are a helpful AI assistant. Answer the user's math and science queries clearly and step-by-step.`;
-                
-                // Try Groq first directly (with the new working API key)
-                return fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer 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",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.1-8b-instant",
-                        messages: [
-                            { role: "system", content: sysPrompt },
-                            { role: "user", content: body.query }
-                        ],
-                        temperature: 0.6
-                    })
-                })
-                .then(r => {
-                    if (!r.ok) throw new Error("Groq API failed");
-                    return r.json();
-                })
-                .then(data => {
-                    const answer = data.choices && data.choices[0] ? data.choices[0].message.content : "";
-                    if (answer) return { response: answer };
-                    throw new Error("Empty response from Groq");
-                })
-                .catch(err => {
-                    console.log("Local Groq API fetch failed (possibly due to CORS or network). Falling back to Pollinations AI...", err);
-                    const fullPrompt = `${sysPrompt}\n\nStudent Question: ${body.query}`;
-                    return fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`)
-                        .then(r => {
-                            if (!r.ok) throw new Error("Pollinations GET failed");
-                            return r.text();
-                        })
-                        .then(text => {
-                            if (text && text.trim().length > 0) {
-                                return { response: text.trim() };
-                            }
-                            throw new Error("Empty reply");
-                        })
-                        .catch(e => {
-                            console.log("Pollinations fallback failed. Falling back to built-in answers.", e);
-                            return { response: generateFallbackResponse(body.query) };
-                        });
-                });
-            }
+            
 
             if (cleanPath === "export") {
                 return Promise.resolve({ students, videos, feed, materials });
