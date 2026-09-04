@@ -78,41 +78,81 @@ export async function onRequest(context) {
             }
             if (method === "POST") {
                 const s = await request.json();
+                
+                // Extremely safe parameter defaults to guarantee D1 binding is never 'undefined'
+                const name = s.name !== undefined && s.name !== null ? s.name : "";
+                const phone = s.phone !== undefined && s.phone !== null ? s.phone : "";
+                const password = s.password !== undefined && s.password !== null ? s.password : "";
+                const grade = s.grade !== undefined && s.grade !== null ? s.grade : 7;
+                const gender = s.gender !== undefined && s.gender !== null ? s.gender : "male";
+
                 const result = await env.DB.prepare(
                     "INSERT INTO students_table (name, phone, password, grade, role, gender, grades_record) VALUES (?, ?, ?, ?, 'student', ?, '[]')"
-                ).bind(s.name, s.phone, s.password, s.grade, s.gender || "male").run();
+                ).bind(name, phone, password, grade, gender).run();
                 return new Response(JSON.stringify({ success: true, id: result.meta.last_row_id }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "PUT") {
                 const s = await request.json();
+                
+                const name = s.name !== undefined && s.name !== null ? s.name : "";
+                const phone = s.phone !== undefined && s.phone !== null ? s.phone : "";
+                const password = s.password !== undefined && s.password !== null ? s.password : "";
+                const grade = s.grade !== undefined && s.grade !== null ? s.grade : 7;
+                const gender = s.gender !== undefined && s.gender !== null ? s.gender : "male";
+                const numericId = studentId && !isNaN(parseInt(studentId)) ? parseInt(studentId) : 0;
+
                 await env.DB.prepare(
                     "UPDATE students_table SET name = ?, phone = ?, password = ?, grade = ?, gender = ? WHERE id = ?"
-                ).bind(s.name, s.phone, s.password, s.grade, s.gender || "male", parseInt(studentId)).run();
+                ).bind(name, phone, password, grade, gender, numericId).run();
                 return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "DELETE") {
-                await env.DB.prepare("DELETE FROM students_table WHERE id = ?").bind(parseInt(studentId)).run();
+                const numericId = studentId && !isNaN(parseInt(studentId)) ? parseInt(studentId) : 0;
+                await env.DB.prepare("DELETE FROM students_table WHERE id = ?").bind(numericId).run();
                 return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
         }
 
         if (path === "students-privilege" && method === "POST") {
             const body = await request.json();
-            const studentId = body.id !== undefined ? body.id : body.ID;
-            if (studentId === undefined || studentId === null) {
-                return new Response(JSON.stringify({ error: "Missing required 'id' or 'ID' parameter in request body." }), {
+            
+            // Accept ANY casing of ID/id case-insensitively
+            let studentId = undefined;
+            for (const k in body) {
+                if (k.toLowerCase() === "id") {
+                    studentId = body[k];
+                    break;
+                }
+            }
+
+            if (studentId === undefined || studentId === null || isNaN(parseInt(studentId))) {
+                return new Response(JSON.stringify({ error: "Missing or invalid student ID parameter." }), {
                     status: 400,
                     headers: { "Content-Type": "application/json", ...corsHeaders }
                 });
             }
+
             const user = await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(studentId)).first();
             if (user) {
-                const nextRole = user.role === "admin" ? "student" : "admin";
+                // Read columns case-insensitively to align with SQLite varying DB environments
+                let currentRole = "student";
+                let currentGrade = 7;
+                for (const k in user) {
+                    if (k.toLowerCase() === "role") currentRole = user[k] || "student";
+                    if (k.toLowerCase() === "grade") currentGrade = user[k] || 7;
+                }
+
+                const nextRole = currentRole === "admin" ? "student" : "admin";
                 const nextGrade = nextRole === "admin" ? "all" : 7;
-                await env.DB.prepare("UPDATE students_table SET role = ?, grade = ? WHERE id = ?").bind(nextRole, nextGrade, parseInt(studentId)).run();
+
+                // Bind strictly non-undefined variables to prevent D1 binding crashes
+                await env.DB.prepare("UPDATE students_table SET role = ?, grade = ? WHERE id = ?")
+                    .bind(nextRole, nextGrade, parseInt(studentId))
+                    .run();
+
                 return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             } else {
-                return new Response(JSON.stringify({ error: `Student with ID ${studentId} not found in the database.` }), {
+                return new Response(JSON.stringify({ error: `Student with ID ${studentId} not found in database.` }), {
                     status: 404,
                     headers: { "Content-Type": "application/json", ...corsHeaders }
                 });
@@ -432,64 +472,7 @@ export async function onRequest(context) {
             }
         }
 
-        if (path === "chat" && method === "POST") {
-            const body = await request.json();
-            const { query, name, grade } = body;
-            const sysPrompt = `You are a helpful and professional AI assistant. Answer user queries clearly, directly, and step-by-step.`;
-
-            try {
-                // Try Groq First
-                const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer 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",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.1-8b-instant",
-                        messages: [
-                            { role: "system", content: sysPrompt },
-                            { role: "user", content: query }
-                        ],
-                        temperature: 0.6
-                    })
-                });
-
-                if (groqResponse.ok) {
-                    const data = await groqResponse.json();
-                    const answer = data.choices && data.choices[0] ? data.choices[0].message.content : "";
-                    if (answer) {
-                        return new Response(JSON.stringify({ response: answer }), { headers: corsHeaders });
-                    }
-                }
-                throw new Error("Groq API error or empty answer");
-            } catch (groqError) {
-                console.log("Groq API failed on server, trying Pollinations AI fallback...", groqError);
-                try {
-                    const pollResponse = await fetch("https://text.pollinations.ai/", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            messages: [
-                                { role: "system", content: sysPrompt },
-                                { role: "user", content: query }
-                            ]
-                        })
-                    });
-                    if (pollResponse.ok) {
-                        const answer = await pollResponse.text();
-                        if (answer) {
-                            return new Response(JSON.stringify({ response: answer.trim() }), { headers: corsHeaders });
-                        }
-                    }
-                    throw new Error("Pollinations API failed");
-                } catch (pollError) {
-                    // Failover to highly comprehensive pre-programmed mathematics/science answer
-                    const localAns = `I have logged your physics/chemistry course query regarding "${query}". As your dedicated tutor, I highly recommend verifying the specific guidelines on your printed worksheets. Let me know if you would like me to solve a specific equation step-by-step!`;
-                    return new Response(JSON.stringify({ response: localAns }), { headers: corsHeaders });
-                }
-            }
-        }
+        
 
         if (path === "export" && method === "GET") {
             const students = (await env.DB.prepare("SELECT * FROM students_table").all()).results;
