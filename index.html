@@ -2645,6 +2645,15 @@ Operation completed successfully.`;
             if (cleanPath === "login-bypass" && method === "POST") {
                 const devAdmin = students.find(s => s.role === "admin");
                 if (devAdmin) return Promise.resolve(devAdmin);
+                
+                const existingAdminUser = students.find(s => s.phone === "admin");
+                if (existingAdminUser) {
+                    existingAdminUser.role = "admin";
+                    existingAdminUser.grade = "all";
+                    localStorage.setItem("students_table", JSON.stringify(students));
+                    return Promise.resolve(existingAdminUser);
+                }
+
                 const defaultAdmin = { id: 1, name: "Default Administrator", phone: "admin", password: "admin", grade: "all", role: "admin", grades_record: "[]", watched_lessons: "[]" };
                 students.push(defaultAdmin);
                 localStorage.setItem("students_table", JSON.stringify(students));
