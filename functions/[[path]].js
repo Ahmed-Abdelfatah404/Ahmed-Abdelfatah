@@ -1,6 +1,12 @@
 export async function onRequest(context) {
     const { request, env } = context;
     const url = new URL(request.url);
+
+    // 🚀 BYPASS ENGINE: If the request is NOT for the API, serve the static frontend index.html!
+    if (!url.pathname.startsWith("/api/")) {
+        return await context.next();
+    }
+
     const path = url.pathname.replace(/^\/api\//, "");
     const method = request.method;
 
@@ -129,10 +135,10 @@ export async function onRequest(context) {
             }
         }
 
-                if (path.startsWith("feed/") && path.includes("/comment/") && path.endsWith("/like") && method === "POST") {
+        if (path.startsWith("feed/") && path.includes("/comment/") && path.endsWith("/like") && method === "POST") {
             const parts = path.split("/");
-            const postId = parseInt(parts[1]);
-            const commentId = parseInt(parts[3]);
+            const postId = parseInt(parts[2]);
+            const commentId = parseInt(parts[1]);
             const body = await request.json();
 
             const post = await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first();
@@ -161,7 +167,7 @@ export async function onRequest(context) {
         }
 
         if (path.startsWith("feed/") && path.endsWith("/like") && method === "POST") {
-            const postId = parseInt(path.split("/")[1]);
+            const postId = parseInt(path.split("/")[2]);
             const body = await request.json(); // Contains current user detail
             const post = await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first();
             if (post) {
@@ -253,7 +259,7 @@ export async function onRequest(context) {
 
                 if (groqResponse.ok) {
                     const data = await groqResponse.json();
-                    const answer = data.choices && data.choices[0] ? data.choices[0].message.content : "";
+                    const answer = data.choices && data.choices ? data.choices.message.content : "";
                     if (answer) {
                         return new Response(JSON.stringify({ response: answer }), { headers: corsHeaders });
                     }
