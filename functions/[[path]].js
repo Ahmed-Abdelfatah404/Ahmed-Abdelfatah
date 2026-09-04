@@ -61,11 +61,18 @@ export async function onRequest(context) {
             // Grab or auto-generate Master Teacher Admin
             let admin = await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first();
             if (!admin) {
-                await env.DB.prepare(
-                    "INSERT INTO students_table (name, phone, password, grade, role, grades_record) VALUES (?, ?, ?, ?, ?, ?)"
-                ).bind("Administrator", "admin", "admin", "all", "admin", "[]").run();
-                
-                admin = await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first();
+                const existingAdminUser = await env.DB.prepare("SELECT * FROM students_table WHERE phone = 'admin'").first();
+                if (existingAdminUser) {
+                    const existingId = existingAdminUser.id !== undefined ? existingAdminUser.id : existingAdminUser.ID;
+                    await env.DB.prepare("UPDATE students_table SET role = 'admin', grade = 'all' WHERE id = ?").bind(parseInt(existingId)).run();
+                    admin = await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(existingId)).first();
+                } else {
+                    await env.DB.prepare(
+                        "INSERT INTO students_table (name, phone, password, grade, role, grades_record) VALUES (?, ?, ?, ?, ?, ?)"
+                    ).bind("Administrator", "admin", "admin", "all", "admin", "[]").run();
+                    
+                    admin = await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first();
+                }
             }
             return new Response(JSON.stringify(admin), { headers: { "Content-Type": "application/json", ...corsHeaders } });
         }
