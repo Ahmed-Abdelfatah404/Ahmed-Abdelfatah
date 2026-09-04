@@ -98,12 +98,24 @@ export async function onRequest(context) {
 
         if (path === "students-privilege" && method === "POST") {
             const body = await request.json();
-            const user = await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(body.id).first();
+            const studentId = body.id !== undefined ? body.id : body.ID;
+            if (studentId === undefined || studentId === null) {
+                return new Response(JSON.stringify({ error: "Missing required 'id' or 'ID' parameter in request body." }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json", ...corsHeaders }
+                });
+            }
+            const user = await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(studentId)).first();
             if (user) {
                 const nextRole = user.role === "admin" ? "student" : "admin";
                 const nextGrade = nextRole === "admin" ? "all" : 7;
-                await env.DB.prepare("UPDATE students_table SET role = ?, grade = ? WHERE id = ?").bind(nextRole, nextGrade, body.id).run();
+                await env.DB.prepare("UPDATE students_table SET role = ?, grade = ? WHERE id = ?").bind(nextRole, nextGrade, parseInt(studentId)).run();
                 return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+            } else {
+                return new Response(JSON.stringify({ error: `Student with ID ${studentId} not found in the database.` }), {
+                    status: 404,
+                    headers: { "Content-Type": "application/json", ...corsHeaders }
+                });
             }
         }
 
