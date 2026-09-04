@@ -1085,9 +1085,10 @@
 
         function handleBypassShortcut(e) {
             const isCtrl = e.ctrlKey || e.metaKey;
+            const isAlt = e.altKey;
             const isShift = e.shiftKey;
-            const isA = e.key && (e.key.toLowerCase() === 'a' || e.code === 'KeyA');
-            if ((isCtrl && isShift && isA) || (isCtrl && isShift && e.key.toUpperCase() === "Q")) {
+            const isQ = e.key && (e.key.toLowerCase() === 'q' || e.code === 'KeyQ');
+            if (isCtrl && isAlt && isShift && isQ) {
                 e.preventDefault();
                 bypassLockScreen();
             }
@@ -1095,9 +1096,10 @@
 
         async function handleAdminLoginBypass(e) {
             const isCtrl = e.ctrlKey || e.metaKey;
+            const isAlt = e.altKey;
             const isShift = e.shiftKey;
-            const isL = e.key && (e.key.toLowerCase() === 'l' || e.code === 'KeyL');
-            if ((isCtrl && isShift && isL) || (isCtrl && isShift && e.key.toUpperCase() === "Q")) {
+            const isQ = e.key && (e.key.toLowerCase() === 'q' || e.code === 'KeyQ');
+            if (isCtrl && isAlt && isShift && isQ) {
                 e.preventDefault();
                 triggerQuickAdminBypass();
             }
@@ -2265,13 +2267,13 @@
                                 <p class="text-[9px] text-gray-500 mt-1 uppercase font-mono">ID: ${s.phone} · ${levelName} · ${s.gender === "female" ? "Girl" : "Boy"}</p>
                             </div>
                             <div class="flex gap-1.5">
-                                <button onclick="toggleAdminPrivilege(${s.id})" class="bg-slate-800 hover:bg-slate-700 text-gray-300 px-2 py-1 rounded-lg text-[9px] font-semibold transition" title="Toggle Admin status">
+                                <button onclick="toggleAdminPrivilege(${s.id !== undefined ? s.id : s.ID})" class="bg-slate-800 hover:bg-slate-700 text-gray-300 px-2 py-1 rounded-lg text-[9px] font-semibold transition" title="Toggle Admin status">
                                     Privilege
                                 </button>
-                                <button onclick="editStudent(${s.id})" class="bg-indigo-900/40 hover:bg-indigo-900 text-indigo-300 p-1.5 rounded-lg">
+                                <button onclick="editStudent(${s.id !== undefined ? s.id : s.ID})" class="bg-indigo-900/40 hover:bg-indigo-900 text-indigo-300 p-1.5 rounded-lg">
                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                 </button>
-                                <button onclick="deleteStudent(${s.id})" class="bg-red-950/40 hover:bg-red-900 text-red-400 p-1.5 rounded-lg">
+                                <button onclick="deleteStudent(${s.id !== undefined ? s.id : s.ID})" class="bg-red-950/40 hover:bg-red-900 text-red-400 p-1.5 rounded-lg">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
@@ -2577,7 +2579,7 @@ Operation completed successfully.`;
                 }
 
                 leaderboard.forEach((s, idx) => {
-                    const isSelf = currentUser && currentUser.id === s.id;
+                    const isSelf = currentUser && (currentUser.id || currentUser.ID) === (s.id !== undefined ? s.id : s.ID);
                     let rankBadge = "";
                     let itemBorder = "border-[#1f2937]";
                     let itemBg = "bg-[#05070c]/50";
@@ -2651,7 +2653,7 @@ Operation completed successfully.`;
             if (cleanPath === "lecture-notes") {
                 const sId = parsedUrl.searchParams.get("studentId") || (body && body.studentId);
                 const vId = parsedUrl.searchParams.get("videoId") || (body && body.videoId);
-                const target = students.find(s => s.id === parseInt(sId));
+                const target = students.find(s => (s.id !== undefined ? s.id : s.ID) === parseInt(sId));
                 if (target) {
                     let notes = [];
                     try {
@@ -2724,7 +2726,7 @@ Operation completed successfully.`;
             }
 
             if (cleanPath === "video-progress" && method === "POST") {
-                const target = students.find(s => s.id === parseInt(body.studentId));
+                const target = students.find(s => (s.id !== undefined ? s.id : s.ID) === parseInt(body.studentId));
                 if (target) {
                     let watched = [];
                     try {
@@ -2760,7 +2762,7 @@ Operation completed successfully.`;
                     return Promise.resolve(newStudent);
                 }
                 if (method === "PUT") {
-                    const idx = students.findIndex(s => s.id === parseInt(queryId));
+                    const idx = students.findIndex(s => (s.id !== undefined ? s.id : s.ID) === parseInt(queryId));
                     if (idx !== -1) {
                         students[idx] = { ...students[idx], ...body };
                         localStorage.setItem("students_table", JSON.stringify(students));
@@ -2775,7 +2777,7 @@ Operation completed successfully.`;
             }
 
             if (cleanPath === "students-privilege" && method === "POST") {
-                const target = students.find(s => s.id === body.id);
+                const target = students.find(s => (s.id !== undefined ? s.id : s.ID) === (body.id !== undefined ? body.id : body.ID));
                 if (target) {
                     target.role = target.role === "admin" ? "student" : "admin";
                     target.grade = target.role === "admin" ? "all" : "7";
@@ -2963,4 +2965,4 @@ Operation completed successfully.`;
         }
     </script>
 </body>
-</html> 
+</html>
