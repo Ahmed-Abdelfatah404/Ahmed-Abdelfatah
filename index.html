@@ -22,13 +22,173 @@
             border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #4f46e5;
+            background: #6366f1;
         }
         /* Lock pointer leaks on secure play elements */
         .no-select {
             user-select: none;
             -webkit-user-select: none;
             pointer-events: none;
+        }
+
+        /* 🚀 Premium Animations & Smooth Transitions */
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(16px) scale(0.985);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes modalScaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.93) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes toastSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(120%) scale(0.9);
+            }
+            70% {
+                transform: translateX(-8px) scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes toastSlideOut {
+            0% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(130%) scale(0.9);
+            }
+        }
+
+        @keyframes heartPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.45); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.35; }
+        }
+
+        /* Active page animations */
+        .view-panel {
+            animation: slideUpFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Modal animate states */
+        #student-modal:not(.hidden) > div,
+        #video-modal:not(.hidden) > div,
+        #material-upload-modal:not(.hidden) > div {
+            animation: modalScaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Liking bounce effect */
+        .fill-red-500 {
+            animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Custom Toast overrides */
+        .toast-slide-in {
+            animation: toastSlideIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .toast-slide-out {
+            animation: toastSlideOut 0.35s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+        }
+
+        /* Submitted items highlight transitions */
+        .fade-in-item {
+            animation: slideUpFade 0.35s ease-out forwards;
+        }
+
+        /* Premium glow-pulse on important workspace cards */
+        .premium-glow {
+            position: relative;
+            overflow: hidden;
+        }
+        .premium-glow::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* Interactive scaling on click states */
+        .interactive-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .interactive-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Extra high fidelity custom styles and gradients */
+        @keyframes floatSparks {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
+            50% { transform: translateY(-10px) rotate(180deg); opacity: 0.6; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 0.2; }
+        }
+        .animate-float-spark {
+            animation: floatSparks 6s ease-in-out infinite;
+        }
+        .radial-progress-ring {
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dashboard-header-glow {
+            box-shadow: 0 0 50px -12px rgba(99, 102, 241, 0.15);
+        }
+        .glass-panel {
+            background: rgba(11, 15, 25, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(31, 41, 55, 0.7);
+        }
+        .glass-panel:hover {
+            border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        }
+        .rank-emerald {
+            background: rgba(6, 78, 59, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+        .rank-blue {
+            background: rgba(30, 58, 138, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+        .rank-amber {
+            background: rgba(120, 53, 4, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+        }
+        .rank-red {
+            background: rgba(153, 27, 27, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
         }
     </style>
 </head>
@@ -134,22 +294,22 @@
                         <span>Dashboard</span>
                     </button>
                     
-                    <button onclick="switchTab('materials')" id="nav-materials" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 transition">
+                    <button onclick="switchTab('materials')" id="nav-materials" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 hover:translate-x-1 transition-all duration-300 ease-out">
                         <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
                         <span>Materials & Sheets</span>
                     </button>
 
-                    <button onclick="switchTab('videos')" id="nav-videos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 transition">
+                    <button onclick="switchTab('videos')" id="nav-videos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 hover:translate-x-1 transition-all duration-300 ease-out">
                         <i data-lucide="film" class="w-4 h-4"></i>
                         <span>Lectures Catalog</span>
                     </button>
 
-                    <button onclick="switchTab('chat')" id="nav-chat" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 transition">
+                    <button onclick="switchTab('chat')" id="nav-chat" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 hover:translate-x-1 transition-all duration-300 ease-out">
                         <i data-lucide="message-square" class="w-4 h-4"></i>
                         <span>Help Bot AI</span>
                     </button>
 
-                    <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 transition">
+                    <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 hover:translate-x-1 transition-all duration-300 ease-out">
                         <i data-lucide="megaphone" class="w-4 h-4"></i>
                         <span>Community Feed</span>
                     </button>
@@ -184,14 +344,116 @@
 
                     <!-- 1. DASHBOARD VIEW -->
                     <div id="view-dashboard" class="view-panel space-y-6">
-                        <!-- Welcome Board -->
-                        <div class="bg-gradient-to-r from-indigo-950/40 via-[#0b0f19] to-[#0b0f19] border border-[#1f2937] p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div>
-                                <h2 id="welcome-message" class="text-xl font-black text-white mb-1">Marhaban, Student!</h2>
-                                <p id="dashboard-grade-info" class="text-xs text-indigo-400 font-semibold">Loading grade level...</p>
+                        <!-- Upgraded 1000X Dashboard Header Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            <!-- Left: Profile and Level Card -->
+                            <div class="bg-gradient-to-br from-indigo-950/40 via-[#0b0f19] to-[#0b0f19] border border-[#1f2937] p-6 rounded-3xl flex flex-col justify-between space-y-6 relative overflow-hidden shadow-2xl group hover:border-indigo-500/20 transition-all duration-300">
+                                <!-- Decorative abstract light element -->
+                                <div class="absolute -top-12 -left-12 w-24 h-24 bg-indigo-600/10 rounded-full blur-2xl group-hover:bg-indigo-600/20 transition-all duration-500"></div>
+                                <div class="space-y-3 z-10">
+                                    <div class="flex items-center gap-2.5">
+                                        <h2 id="welcome-message" class="text-xl font-black text-white tracking-tight">Marhaban, Student!</h2>
+                                        <span class="flex h-2.5 w-2.5 relative mt-0.5" title="Live Database Sync Active">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                                        </span>
+                                    </div>
+                                    <p id="dashboard-grade-info" class="text-xs text-indigo-400 font-semibold tracking-wide">Loading grade level...</p>
+                                </div>
+                                
+                                <div class="pt-2 z-10">
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest font-black block mb-1">Your Academic Standing</span>
+                                    <div id="dashboard-rank-badge" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black shadow-lg border transition-all duration-300">
+                                        Calculating...
+                                    </div>
+                                </div>
                             </div>
-                            <div id="dashboard-lecture-count" class="text-xs bg-indigo-950 text-indigo-300 border border-indigo-500/10 font-bold px-3 py-1.5 rounded-xl">
-                                Loading materials...
+                            
+                            <!-- Center: The Radial Watch-Time Gradient Wheel -->
+                            <div class="bg-[#0b0f19]/60 backdrop-blur-md border border-[#1f2937] p-6 rounded-3xl flex flex-col items-center justify-center space-y-4 shadow-2xl relative overflow-hidden group hover:border-indigo-500/20 transition-all duration-300">
+                                <div class="absolute -right-12 -bottom-12 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/10 transition-all duration-500"></div>
+                                <div class="relative flex items-center justify-center w-32 h-32 z-10">
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                        <circle class="text-slate-800/40" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50"/>
+                                        <defs>
+                                            <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#6366f1" />
+                                                <stop offset="50%" stop-color="#4f46e5" />
+                                                <stop offset="100%" stop-color="#06b6d4" />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle id="dashboard-progress-ring" class="radial-progress-ring" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" stroke="url(#wheelGradient)" fill="transparent" r="40" cx="50" cy="50"/>
+                                    </svg>
+                                    <div class="absolute flex flex-col items-center justify-center text-center">
+                                        <span id="dashboard-progress-percent" class="text-xl font-black text-white tracking-tight">0%</span>
+                                        <span class="text-[8px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Watched</span>
+                                    </div>
+                                </div>
+                                <div class="text-center z-10">
+                                    <h4 class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Video Course Completion</h4>
+                                </div>
+                            </div>
+                            
+                            <!-- Right: Premium Statistics Card -->
+                            <div class="bg-[#0b0f19]/60 backdrop-blur-md border border-[#1f2937] p-6 rounded-3xl flex flex-col justify-between space-y-4 shadow-2xl relative overflow-hidden group hover:border-indigo-500/20 transition-all duration-300">
+                                <div class="absolute -top-12 -right-12 w-24 h-24 bg-violet-600/5 rounded-full blur-2xl group-hover:bg-violet-600/10 transition-all duration-500"></div>
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest z-10">Learning Analytics</h3>
+                                <div class="space-y-3 z-10">
+                                    <div class="flex items-center justify-between border-b border-[#1f2937]/50 pb-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-1.5 rounded-lg bg-indigo-950/80 text-indigo-400">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <span class="text-xs text-gray-300 font-medium">Total Watch Time</span>
+                                        </div>
+                                        <span id="dashboard-total-minutes" class="text-xs font-bold text-white font-mono">0 mins</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-[#1f2937]/50 pb-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-1.5 rounded-lg bg-indigo-950/80 text-indigo-400">
+                                                <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <span class="text-xs text-gray-300 font-medium">Lectures Finished</span>
+                                        </div>
+                                        <span id="dashboard-lectures-finished" class="text-xs font-bold text-white font-mono">0 / 0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-1.5 rounded-lg bg-indigo-950/80 text-indigo-400">
+                                                <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <span class="text-xs text-gray-300 font-medium">Syllabus Progress</span>
+                                        </div>
+                                        <span id="dashboard-syllabus-status" class="text-xs font-bold text-indigo-400">Active</span>
+                                    </div>
+                                </div>
+                                <div id="dashboard-lecture-count" class="text-[10px] text-gray-500 text-center tracking-wide z-10 pt-1 border-t border-[#1f2937]/30">
+                                    Loading dashboard...
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- High Fidelity Academy Leaderboard Panel -->
+                        <div class="bg-gradient-to-br from-indigo-950/10 via-[#0b0f19]/60 to-[#0b0f19]/60 backdrop-blur-md border border-[#1f2937] p-6 rounded-3xl space-y-4 shadow-2xl relative overflow-hidden group hover:border-indigo-500/10 transition-all duration-300">
+                            <div class="absolute -left-12 -top-12 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl group-hover:bg-indigo-600/10 transition-all duration-500"></div>
+                            <div class="flex items-center justify-between border-b border-[#1f2937]/50 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+                                        <i data-lucide="trophy" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-black text-white text-sm tracking-tight">Academy Hall of Fame · لوحة الشرف</h3>
+                                        <p class="text-[10px] text-gray-500 font-semibold tracking-wide">Top students ranked by total watched lecture minutes</p>
+                                    </div>
+                                </div>
+                                <span class="bg-amber-950 border border-amber-500/20 text-amber-400 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider font-mono">Live Ranking</span>
+                            </div>
+                            
+                            <!-- Leaderboard list grid (responsive 1 or 2 cols) -->
+                            <div id="dashboard-leaderboard-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[80px]">
+                                <!-- Rendered dynamically -->
                             </div>
                         </div>
 
@@ -270,8 +532,30 @@
                                     <video id="secure-player" class="w-full h-full object-cover hidden" controls controlsList="nodownload" oncontextmenu="return false;"></video>
                                     
                                     <!-- Floating Active Device Watermarks (Defense against local screen recorders) -->
-                                    <div id="video-watermark" class="absolute no-select text-white/10 font-bold font-mono text-[10px] select-none text-center pointer-events-none z-10 hidden">
-                                        WATERMARK_DUMMY
+                                    <div id="video-watermark-teacher" class="absolute no-select text-white/25 font-black tracking-widest font-mono text-[11px] select-none text-center pointer-events-none z-30 hidden" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: left 1s ease-in-out, top 1s ease-in-out;">
+                                        MR. Ahmed Abd-ElFatah
+                                    </div>
+                                    <div id="video-watermark-student" class="absolute no-select text-white/30 font-black font-mono text-[11px] select-none text-center pointer-events-none z-30 hidden" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: left 1s ease-in-out, top 1s ease-in-out;">
+                                        STUDENT_DUMMY
+                                    </div>
+                                    <!-- In-Video Quiz Checkpoint Overlay -->
+                                    <div id="video-checkpoint-overlay" class="absolute inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-20 hidden">
+                                        <div class="max-w-md w-full bg-[#0b0f19] border border-indigo-500/20 p-6 rounded-2xl shadow-2xl text-center space-y-4">
+                                            <div class="w-12 h-12 bg-indigo-950 border border-indigo-500/20 rounded-xl flex items-center justify-center mx-auto text-indigo-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-help-circle w-6 h-6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                            </div>
+                                            <div>
+                                                <span class="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-500/20 font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Lesson Checkpoint Quiz</span>
+                                                <h3 id="checkpoint-question" class="text-xs font-bold text-white mt-3 leading-relaxed">Question text goes here?</h3>
+                                            </div>
+                                            <div id="checkpoint-options" class="grid grid-cols-1 gap-2 text-left pt-2">
+                                                <!-- Dynamic buttons -->
+                                            </div>
+                                            <div id="checkpoint-feedback" class="hidden text-xs font-semibold p-2.5 rounded-xl"></div>
+                                            <button id="checkpoint-continue-btn" onclick="resumeVideoAfterQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition hidden">
+                                                Continue Lecture
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div id="player-placeholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 bg-[#05070c]">
@@ -285,6 +569,7 @@
                                     </div>
                                 </div>
 
+
                                 <div class="bg-[#0b0f19] border border-[#1f2937] p-5 rounded-2xl space-y-1">
                                     <div class="flex items-center gap-2">
                                         <span id="current-video-badge" class="bg-indigo-950 text-indigo-400 border border-indigo-500/10 text-[9px] font-bold px-2 py-0.5 rounded-full">LECTURE</span>
@@ -292,6 +577,32 @@
                                     </div>
                                     <p id="current-video-desc" class="text-xs text-gray-400 leading-relaxed pt-2">Click on any recorded lesson from your playlist menu to load secure encrypted frames.</p>
                                 </div>
+
+                                <!-- Lecture Bookmarks & Personal Study Notes -->
+                                <div id="video-notes-panel" class="bg-[#0b0f19]/60 backdrop-blur-md border border-[#1f2937] p-5 rounded-2xl space-y-4 hidden">
+                                    <div class="flex items-center justify-between border-b border-[#1f2937]/50 pb-2">
+                                        <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                            <i data-lucide="bookmark" class="w-3.5 h-3.5 text-indigo-400"></i>
+                                            <span>Lecture Bookmarks & Personal Study Notes</span>
+                                        </h4>
+                                        <span class="text-[9px] text-gray-500 uppercase tracking-widest font-black">Private Workspace</span>
+                                    </div>
+                                    
+                                    <!-- Add Note Form -->
+                                    <div class="flex gap-2">
+                                        <input type="text" id="lecture-note-input" placeholder="Write a custom study note at this video timestamp..." class="flex-1 bg-[#05070c] border border-[#1f2937] rounded-xl px-3 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 font-medium">
+                                        <button onclick="saveLectureNote()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 rounded-xl text-xs transition flex items-center gap-1.5 shrink-0 interactive-btn">
+                                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                            <span>Add Bookmark</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Scrollable Notes List -->
+                                    <div id="lecture-notes-list" class="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                                        <!-- Rendered dynamically -->
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -564,12 +875,55 @@
         let currentUser = null;
         let loginRoleSelected = "student";
         let activeTab = "dashboard";
+        let activePlayingVideoId = null;
+        let triggeredCheckpoints = [];
+        let currentCheckpointQuiz = null;
+
+        // Interactive In-Video Quiz Checkpoints
+        const CHECKPOINT_QUIZZES = {
+            "default": [
+                {
+                    time: 15,
+                    question: "What is the primary structural building block of all physical matter?",
+                    options: ["Cell", "Atom", "Molecule", "Electron"],
+                    correct: 1,
+                    explanation: "Correct! The atom is the fundamental building unit of all matter."
+                },
+                {
+                    time: 60,
+                    question: "Which subatomic particles are found clustered inside the nucleus at the very center of an atom?",
+                    options: ["Protons and Electrons", "Neutrons and Electrons", "Protons and Neutrons", "Electrons only"],
+                    correct: 2,
+                    explanation: "Correct! The nucleus contains positively charged protons and neutral neutrons."
+                }
+            ]
+        };
         let tempPostAttachment = null;
         let currentEditingStudentId = null;
         
         // Dynamic Blob wrappers for in-memory video files
         let localUploadedVideos = {}; 
         let loginLogoClickCount = 0;
+
+
+        async function saveVideoProgress(videoId, seconds, duration, completed) {
+            if (!currentUser || currentUser.role === "admin" || !videoId) return;
+
+            try {
+                const res = await apiCall("video-progress", "POST", {
+                    studentId: currentUser.id,
+                    videoId: parseInt(videoId),
+                    seconds: parseFloat(seconds),
+                    duration: parseFloat(duration) || 2700,
+                    completed: !!completed
+                });
+                if (res && res.watched_lessons) {
+                    currentUser.watched_lessons = res.watched_lessons;
+                }
+            } catch(e) {
+                console.error("Failed to sync video progress:", e);
+            }
+        }
 
         // Secure Cloud API Call wrapper
         async function apiCall(endpoint, method = "GET", body = null) {
@@ -609,6 +963,34 @@
         }
 
         window.addEventListener("DOMContentLoaded", async () => {
+
+            // Globally initialize video playback progress synchronization
+            const video = document.getElementById("secure-player");
+            if (video) {
+                let lastProgressSync = 0;
+                video.addEventListener("timeupdate", () => {
+                    const currentTime = video.currentTime;
+                    
+                    // Check for video checkpoint quizzes
+                    // checkVideoCheckpoints(currentTime); // Disabled checkpoint quizzes per user request
+                    // Sync progress to database every 8 seconds
+                    if (activePlayingVideoId && Math.abs(currentTime - lastProgressSync) >= 8) {
+                        lastProgressSync = currentTime;
+                        saveVideoProgress(activePlayingVideoId, currentTime, video.duration || 2700, false);
+                    }
+                });
+                video.addEventListener("ended", () => {
+                    if (activePlayingVideoId) {
+                        saveVideoProgress(activePlayingVideoId, video.currentTime, video.duration || 2700, true);
+                    }
+                });
+                video.addEventListener("pause", () => {
+                    if (activePlayingVideoId) {
+                        saveVideoProgress(activePlayingVideoId, video.currentTime, video.duration || 2700, false);
+                    }
+                });
+            }
+
             if (IS_LOCAL_MOCK) {
                 initMockLocalStorage();
             }
@@ -656,7 +1038,7 @@
             document.addEventListener("contextmenu", e => e.preventDefault());
         });
 
-        function checkDeviceOS() {
+                function checkDeviceOS() {
             // Check if we opened from secure app wrapper with ?app=true
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get("app") === "true") {
@@ -670,11 +1052,24 @@
             
             if (isVerified || isBypassed) return;
 
-            const userAgent = navigator.userAgent || window.opera;
-            const isWindows = /Windows/i.test(userAgent);
+            const userAgent = navigator.userAgent || navigator.platform || "";
+            
+            // Check for iOS (iPhone, iPad, iPod, or iPadOS touch devices)
+            const isIOS = /iPhone|iPad|iPod/i.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            // Check for macOS
+            const isMacOS = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(userAgent) || (!isIOS && /Mac/i.test(navigator.platform));
+
+            if (isIOS || isMacOS) {
+                // iOS or macOS: automatically go to the login screen, NO app forced
+                document.getElementById("os-lock-screen").classList.add("hidden");
+                document.getElementById("app-wrapper").classList.remove("hidden");
+                return;
+            }
+
+            const isWindows = /Windows|Win32|Win64/i.test(userAgent);
             const isAndroid = /Android/i.test(userAgent);
 
-            // Enforce application wrapper if they are opening in normal Windows or Android browser
+            // Force app download on Windows or Android
             if (isWindows || isAndroid) {
                 document.getElementById("os-lock-screen").classList.remove("hidden");
                 document.getElementById("app-wrapper").classList.add("hidden");
@@ -837,7 +1232,8 @@
             document.getElementById("secure-player").classList.add("hidden");
             document.getElementById("secure-player").pause();
             document.getElementById("player-placeholder").classList.remove("hidden");
-            document.getElementById("video-watermark").classList.add("hidden");
+            document.getElementById("video-watermark-teacher")?.classList.add("hidden");
+            document.getElementById("video-watermark-student")?.classList.add("hidden");
             showCustomToast("Session closed.", "info");
         }
 
@@ -857,15 +1253,15 @@
             document.getElementById(`view-${tabId}`).classList.remove("hidden");
             
             document.querySelectorAll(".nav-btn").forEach(btn => {
-                btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 transition";
+                btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 hover:text-white hover:bg-slate-800/40 hover:translate-x-1 transition-all duration-300 ease-out";
             });
             
             const activeBtn = document.getElementById(`nav-${tabId}`);
             if (activeBtn) {
                 if (tabId === "admin") {
-                    activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-red-950/20 text-red-400 border-l-2 border-red-500";
+                    activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-red-950/20 text-red-400 border-l-2 border-red-500 translate-x-1 shadow-md shadow-red-950/10 transition-all duration-300";
                 } else {
-                    activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-indigo-600/15 text-indigo-400 border-l-2 border-indigo-500";
+                    activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-indigo-600/15 text-indigo-400 border-l-2 border-indigo-500 translate-x-1 shadow-md shadow-indigo-600/5 transition-all duration-300";
                 }
             }
 
@@ -911,9 +1307,98 @@
 
             try {
                 const videos = await apiCall("videos");
+                const isStudent = currentUser.role !== "admin";
+                const gradeVideos = isStudent ? videos.filter(v => v.grade === parseInt(currentUser.grade)) : videos;
+                const totalCount = gradeVideos.length;
+                
+                // Parse watched progress from real database json
+                let watched = [];
+                if (currentUser.watched_lessons) {
+                    try {
+                        watched = typeof currentUser.watched_lessons === 'string' ? JSON.parse(currentUser.watched_lessons) : currentUser.watched_lessons;
+                    } catch(e) { watched = []; }
+                }
+
+                let totalSeconds = 0;
+                let completedCount = 0;
+
+                watched.forEach(w => {
+                    totalSeconds += parseFloat(w.seconds || 0);
+                });
+
+                gradeVideos.forEach(v => {
+                    const progress = watched.find(w => w.videoId === v.id);
+                    // Match watch progress of 80% or explicit completion flag
+                    if (progress && (progress.completed || (progress.seconds / (progress.duration || 2700) >= 0.8))) {
+                        completedCount++;
+                    }
+                });
+
+                const totalMinutes = Math.round(totalSeconds / 60);
+                const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+                // 1. Update circular SVG ring
+                const ring = document.getElementById("dashboard-progress-ring");
+                if (ring) {
+                    const circumference = 251.2;
+                    const offset = circumference - (circumference * percent / 100);
+                    ring.style.strokeDashoffset = offset;
+                }
+
+                // 2. Update percentage display
+                const percentText = document.getElementById("dashboard-progress-percent");
+                if (percentText) percentText.innerText = `${percent}%`;
+
+                // 3. Update watch statistics
+                const minEl = document.getElementById("dashboard-total-minutes");
+                if (minEl) minEl.innerText = `${totalMinutes} mins`;
+
+                const finEl = document.getElementById("dashboard-lectures-finished");
+                if (finEl) finEl.innerText = `${completedCount} / ${totalCount}`;
+
+                const syllabusEl = document.getElementById("dashboard-syllabus-status");
+                if (syllabusEl) {
+                    syllabusEl.innerText = percent === 100 ? "Completed 🏆" : percent >= 50 ? "Ahead 🔥" : "On Track ⚡";
+                }
+
+
+                // 5. Update Live Academy Leaderboards
+                await loadLeaderboard();
+
+                // 4. Update Academic Badge dynamically with vibrant colors and icons
+                const badge = document.getElementById("dashboard-rank-badge");
+                if (badge) {
+                    let ratingText = "";
+                    let ratingClass = "";
+                    let ratingIcon = "";
+
+                    if (totalMinutes >= 180) {
+                        ratingText = "Excellent · ممتاز";
+                        ratingClass = "rank-emerald";
+                        ratingIcon = "award";
+                    } else if (totalMinutes >= 90) {
+                        ratingText = "Very Good · جيد جداً";
+                        ratingClass = "rank-blue";
+                        ratingIcon = "zap";
+                    } else if (totalMinutes >= 30) {
+                        ratingText = "Good · جيد";
+                        ratingClass = "rank-amber";
+                        ratingIcon = "thumbs-up";
+                    } else {
+                        ratingText = "Beginner · مبتدئ";
+                        ratingClass = "rank-red";
+                        ratingIcon = "book-open";
+                    }
+
+                    badge.className = `inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black shadow-lg border transition-all duration-300 ${ratingClass}`;
+                    badge.innerHTML = `<i data-lucide="${ratingIcon}" class="w-3.5 h-3.5"></i><span>${ratingText}</span>`;
+                }
+
                 const matchCount = currentUser.role === "admin" ? videos.length : videos.filter(v => v.grade === parseInt(currentUser.grade)).length;
                 document.getElementById("dashboard-lecture-count").innerText = `${matchCount} Available Lectures`;
+                try { lucide.createIcons(); } catch(e) {}
             } catch (err) {
+                console.error("Dashboard render metrics failure:", err);
                 document.getElementById("dashboard-lecture-count").innerText = "Website Active";
             }
         }
@@ -938,7 +1423,7 @@
                 filteredMaterials.forEach((sh, idx) => {
                     const targetGradeText = GRADE_MAPPING[sh.grade] ? GRADE_MAPPING[sh.grade].split(" (")[0] : `Grade ${sh.grade}`;
                     grid.innerHTML += `
-                        <div class="bg-[#0b0f19] border border-[#1f2937] p-5 rounded-2xl flex flex-col justify-between space-y-4 hover:border-slate-700 transition">
+                        <div class="bg-[#0b0f19]/60 backdrop-blur-md border border-[#1f2937] p-5 rounded-2xl flex flex-col justify-between space-y-4 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 ease-out fade-in-item">
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between">
                                     <span class="bg-indigo-950/60 border border-indigo-500/10 text-[9px] text-indigo-400 font-bold px-2 py-0.5 rounded-full uppercase">${sh.type}</span>
@@ -1053,15 +1538,22 @@
 
                 filteredVideos.forEach((v, idx) => {
                     list.innerHTML += `
-                        <button onclick="playLecture('${v.filename}', '${v.title}', ${v.lesson}, ${v.grade})" class="w-full flex items-start gap-3 p-3 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl text-left transition group">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-950/80 text-indigo-400 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition aspect-square rounded-xl object-cover">
-                                <i data-lucide="play" class="w-3.5 h-3.5 ml-0.5"></i>
+                        <div class="w-full flex items-center justify-between p-3 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl text-left transition group">
+                            <div onclick="playLecture('${v.filename}', '${v.title}', ${v.lesson}, ${v.grade}, ${v.id})" class="flex items-start gap-3 cursor-pointer min-w-0 flex-1">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-950/80 text-indigo-400 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition aspect-square rounded-xl object-cover">
+                                    <i data-lucide="play" class="w-3.5 h-3.5 ml-0.5"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="font-bold text-white text-[11px] truncate leading-tight">${v.title}</h4>
+                                    <p class="text-[9px] text-gray-400 mt-1 uppercase font-mono">Lesson ${v.lesson} · Grade ${v.grade}</p>
+                                </div>
                             </div>
-                            <div class="min-w-0">
-                                <h4 class="font-bold text-white text-[11px] truncate leading-tight">${v.title}</h4>
-                                <p class="text-[9px] text-gray-400 mt-1 uppercase font-mono">Lesson ${v.lesson} · Grade ${v.grade}</p>
-                            </div>
-                        </button>
+                            ${isAdmin ? `
+                                <button onclick="deregisterVideo(${v.id})" class="bg-red-950/40 hover:bg-red-900 border border-red-500/10 hover:border-red-500/40 text-red-400 p-2 rounded-lg transition ml-2 shrink-0" title="Delete Lecture">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            ` : ""}
+                        </div>
                     `;
                 });
                 try { lucide.createIcons(); } catch(e) {}
@@ -1130,7 +1622,103 @@
             }
         }
 
-        function playLecture(filename, title, lesson, grade) {
+
+        let currentPlayingVideoId = null;
+
+        async function loadLectureNotes(videoId) {
+            currentPlayingVideoId = videoId;
+            const notesPanel = document.getElementById("video-notes-panel");
+            const list = document.getElementById("lecture-notes-list");
+            if (!notesPanel || !list) return;
+
+            notesPanel.classList.remove("hidden");
+            list.innerHTML = `<div class="text-center py-4 text-gray-500 text-[10px]">Loading study notes...</div>`;
+
+            try {
+                const notes = await apiCall(`lecture-notes?studentId=${currentUser.id}&videoId=${videoId}`);
+                list.innerHTML = "";
+
+                if (notes.length === 0) {
+                    list.innerHTML = `<div class="text-center py-4 text-gray-500 text-[10px]">No personal notes bookmarked for this lecture yet. Add one below!</div>`;
+                    return;
+                }
+
+                notes.forEach(n => {
+                    const formattedTime = formatTime(n.timestamp);
+                    list.innerHTML += `
+                        <div class="p-3 bg-[#05070c]/50 hover:bg-slate-800/20 rounded-xl border border-[#1f2937]/50 flex justify-between items-center gap-3 transition">
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs text-white leading-relaxed font-medium break-words">${n.noteText}</p>
+                                <span onclick="seekToTimestamp(${n.timestamp})" class="inline-flex items-center gap-1 mt-1 text-[9px] text-indigo-400 font-bold hover:text-indigo-300 cursor-pointer uppercase font-mono">
+                                    <i data-lucide="play" class="w-2.5 h-2.5"></i>
+                                    <span>Jump to ${formattedTime}</span>
+                                </span>
+                            </div>
+                            <button onclick="deleteLectureNote(${n.id})" class="text-red-400 hover:text-red-300 p-1 rounded-lg hover:bg-red-950/20 shrink-0" title="Delete Note">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+                try { lucide.createIcons(); } catch(e) {}
+            } catch(error) {
+                list.innerHTML = `<div class="text-center py-4 text-red-400 text-[10px]">Failed to load notes.</div>`;
+            }
+        }
+
+        async function saveLectureNote() {
+            const input = document.getElementById("lecture-note-input");
+            const text = input.value.trim();
+            const video = document.getElementById("secure-player");
+            if (!text || !currentPlayingVideoId) return;
+
+            const timestamp = video ? video.currentTime : 0;
+
+            try {
+                await apiCall("lecture-notes", "POST", {
+                    studentId: currentUser.id,
+                    videoId: currentPlayingVideoId,
+                    noteText: text,
+                    timestamp: timestamp
+                });
+                input.value = "";
+                await loadLectureNotes(currentPlayingVideoId);
+                showCustomToast("Bookmark created!", "success");
+            } catch(error) {
+                showCustomToast(error.message, "error");
+            }
+        }
+
+        async function deleteLectureNote(noteId) {
+            try {
+                await apiCall(`lecture-notes?studentId=${currentUser.id}&noteId=${noteId}&videoId=${currentPlayingVideoId}`, "DELETE");
+                await loadLectureNotes(currentPlayingVideoId);
+                showCustomToast("Bookmark removed.", "success");
+            } catch(error) {
+                showCustomToast(error.message, "error");
+            }
+        }
+
+        function seekToTimestamp(seconds) {
+            const video = document.getElementById("secure-player");
+            if (video) {
+                video.currentTime = parseFloat(seconds);
+                video.play().catch(e => {});
+                showCustomToast("Jumped to timestamp", "info");
+            }
+        }
+
+        function formatTime(secs) {
+            const minutes = Math.floor(secs / 60);
+            const seconds = Math.floor(secs % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function playLecture(filename, title, lesson, grade, videoId) {
+            activePlayingVideoId = videoId;
+            triggeredCheckpoints = []; // Reset checkpoints for this session
+            const overlay = document.getElementById("video-checkpoint-overlay");
+            if (overlay) overlay.classList.add("hidden");
             document.getElementById("player-placeholder").classList.add("hidden");
             const video = document.getElementById("secure-player");
             video.classList.remove("hidden");
@@ -1156,23 +1744,143 @@
             document.getElementById("current-video-desc").innerText = `Lecture code verified locally inside the browser. Encrypted transmission active with floating tracking watermark overlays. Download capabilities strictly disabled.`;
 
             // Active tracking watermarks overlay on top of video
-            const watermark = document.getElementById("video-watermark");
-            watermark.classList.remove("hidden");
-            watermark.innerText = `${currentUser.name} (${currentUser.phone})`;
+            const watermarkT = document.getElementById("video-watermark-teacher");
+            const watermarkS = document.getElementById("video-watermark-student");
+            if (watermarkT) {
+                watermarkT.classList.remove("hidden");
+            }
+            if (watermarkS) {
+                watermarkS.classList.remove("hidden");
+                const gradeLabel = GRADE_MAPPING[currentUser.grade] ? GRADE_MAPPING[currentUser.grade].split(" (")[0] : `Grade ${currentUser.grade}`;
+                watermarkS.innerText = `${currentUser.name} (${currentUser.phone}) · ${gradeLabel}`;
+            }
             updateWatermarkPosition();
             showCustomToast(`Now streaming Lesson ${lesson}`, "info");
+            loadLectureNotes(videoId);
+        }
+
+        function checkVideoCheckpoints(currentTime) {
+            if (!activePlayingVideoId) return;
+            
+            const quizzes = CHECKPOINT_QUIZZES[activePlayingVideoId] || CHECKPOINT_QUIZZES["default"] || [];
+            const sec = Math.floor(currentTime);
+            
+            for (let q of quizzes) {
+                const checkpointKey = `${activePlayingVideoId}-${q.time}`;
+                if (sec === q.time && !triggeredCheckpoints.includes(checkpointKey)) {
+                    triggeredCheckpoints.push(checkpointKey);
+                    triggerVideoCheckpoint(q);
+                    break;
+                }
+            }
+        }
+
+        function triggerVideoCheckpoint(quiz) {
+            currentCheckpointQuiz = quiz;
+            const video = document.getElementById("secure-player");
+            if (video) {
+                video.pause();
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(e => {});
+                }
+            }
+
+            const overlay = document.getElementById("video-checkpoint-overlay");
+            const questionEl = document.getElementById("checkpoint-question");
+            const optionsEl = document.getElementById("checkpoint-options");
+            const feedbackEl = document.getElementById("checkpoint-feedback");
+            const continueBtn = document.getElementById("checkpoint-continue-btn");
+
+            if (!overlay || !questionEl || !optionsEl) return;
+
+            questionEl.innerText = quiz.question;
+            optionsEl.innerHTML = "";
+            feedbackEl.classList.add("hidden");
+            feedbackEl.className = "hidden text-xs font-semibold p-2.5 rounded-xl";
+            continueBtn.classList.add("hidden");
+
+            quiz.options.forEach((opt, idx) => {
+                optionsEl.innerHTML += `
+                    <button onclick="submitCheckpointAnswer(${idx})" class="w-full text-left p-3 rounded-xl bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/50 hover:bg-indigo-950/20 text-xs font-semibold text-gray-300 hover:text-white transition duration-200">
+                        ${String.fromCharCode(65 + idx)}. ${opt}
+                    </button>
+                `;
+            });
+
+            overlay.classList.remove("hidden");
+            try { lucide.createIcons(); } catch(e) {}
+        }
+
+        function submitCheckpointAnswer(selectedIndex) {
+            if (!currentCheckpointQuiz) return;
+
+            const feedbackEl = document.getElementById("checkpoint-feedback");
+            const continueBtn = document.getElementById("checkpoint-continue-btn");
+            const optionsEl = document.getElementById("checkpoint-options");
+
+            if (!feedbackEl || !continueBtn || !optionsEl) return;
+
+            optionsEl.querySelectorAll("button").forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === currentCheckpointQuiz.correct) {
+                    btn.className = "w-full text-left p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs font-semibold text-emerald-400";
+                } else if (idx === selectedIndex) {
+                    btn.className = "w-full text-left p-3 rounded-xl bg-red-950/80 border border-red-500/40 text-xs font-semibold text-red-400";
+                } else {
+                    btn.className = "w-full text-left p-3 rounded-xl bg-[#05070c]/50 border border-[#1f2937]/30 text-xs font-semibold text-gray-600 cursor-not-allowed";
+                }
+            });
+
+            const isCorrect = selectedIndex === currentCheckpointQuiz.correct;
+
+            feedbackEl.classList.remove("hidden");
+            if (isCorrect) {
+                feedbackEl.className = "text-xs font-semibold p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 animate-pulse";
+                feedbackEl.innerText = currentCheckpointQuiz.explanation || "Correct! Keep up the great work.";
+                showCustomToast("Checkpoint passed!", "success");
+            } else {
+                feedbackEl.className = "text-xs font-semibold p-2.5 rounded-xl bg-red-950/40 border border-red-500/20 text-red-400";
+                feedbackEl.innerText = "Incorrect answer, but let's continue learning! " + (currentCheckpointQuiz.explanation || "");
+                showCustomToast("Incorrect answer", "error");
+            }
+
+            continueBtn.classList.remove("hidden");
+        }
+
+        function resumeVideoAfterQuiz() {
+            const overlay = document.getElementById("video-checkpoint-overlay");
+            if (overlay) overlay.classList.add("hidden");
+
+            const video = document.getElementById("secure-player");
+            if (video) {
+                video.play().catch(e => {});
+            }
+            currentCheckpointQuiz = null;
         }
 
         function updateWatermarkPosition() {
             const container = document.getElementById("video-theater");
-            const watermark = document.getElementById("video-watermark");
-            if (container && watermark && !watermark.classList.contains("hidden")) {
-                const maxX = container.clientWidth - watermark.clientWidth - 20;
-                const maxY = container.clientHeight - watermark.clientHeight - 20;
-                const randomX = Math.max(10, Math.floor(Math.random() * maxX));
-                const randomY = Math.max(10, Math.floor(Math.random() * maxY));
-                watermark.style.left = `${randomX}px`;
-                watermark.style.top = `${randomY}px`;
+            const wmTeacher = document.getElementById("video-watermark-teacher");
+            const wmStudent = document.getElementById("video-watermark-student");
+            
+            if (container) {
+                if (wmTeacher && !wmTeacher.classList.contains("hidden")) {
+                    const maxX = container.clientWidth - wmTeacher.clientWidth - 20;
+                    const maxY = container.clientHeight - wmTeacher.clientHeight - 20;
+                    const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+                    const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+                    wmTeacher.style.left = `${randomX}px`;
+                    wmTeacher.style.top = `${randomY}px`;
+                }
+                if (wmStudent && !wmStudent.classList.contains("hidden")) {
+                    const maxX = container.clientWidth - wmStudent.clientWidth - 20;
+                    const maxY = container.clientHeight - wmStudent.clientHeight - 20;
+                    // Independently move to another random spot to avoid stacking
+                    const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+                    const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+                    wmStudent.style.left = `${randomX}px`;
+                    wmStudent.style.top = `${randomY}px`;
+                }
             }
         }
 
@@ -1278,19 +1986,73 @@
                         const hasLikedComment = commentLikes.includes(currentUser.name);
                         const cLikesList = commentLikes.join(", ");
                         
-                        commentsHtml += `
-                            <div class="p-3 bg-[#05070c]/50 rounded-xl border border-[#1f2937]/50 flex justify-between items-start gap-4 hover:border-indigo-500/10 transition">
-                                <div class="space-y-1 min-w-0 flex-1 overflow-hidden">
-                                    <div class="text-[11px] font-extrabold text-indigo-400 tracking-tight block">${c.author}</div>
-                                    <div class="text-xs text-gray-200 leading-relaxed break-words whitespace-pre-wrap">${c.text}</div>
-                                    ${commentLikes.length > 0 ? `
-                                        <div class="text-[9px] text-gray-500 font-medium">Liked by: <span class="text-indigo-400 font-semibold">${cLikesList}</span></div>
-                                    ` : ""}
+                        // Determine the grade badge for the comment author
+                        let cBadgeHtml = "";
+                        if (c.authorRole === "admin") {
+                            cBadgeHtml = `<span class="bg-red-950/60 border border-red-500/10 text-[9px] text-red-400 font-bold px-1.5 py-0.5 rounded-md uppercase ml-1.5 font-mono">Teacher</span>`;
+                        } else if (c.authorGrade) {
+                            cBadgeHtml = `<span class="bg-indigo-950/60 border border-indigo-500/10 text-[9px] text-indigo-400 font-bold px-1.5 py-0.5 rounded-md uppercase ml-1.5 font-mono">Grade ${c.authorGrade}</span>`;
+                        }
+
+                        // Render replies nested inside this comment
+                        let repliesHtml = "";
+                        const replies = c.replies || [];
+                        replies.forEach(rep => {
+                            let repBadgeHtml = "";
+                            if (rep.authorRole === "admin") {
+                                repBadgeHtml = `<span class="bg-red-950/60 border border-red-500/10 text-[8px] text-red-400 font-bold px-1 py-0.5 rounded uppercase ml-1 font-mono">Teacher</span>`;
+                            } else if (rep.authorGrade) {
+                                repBadgeHtml = `<span class="bg-indigo-950/60 border border-indigo-500/10 text-[8px] text-indigo-400 font-bold px-1 py-0.5 rounded uppercase ml-1 font-mono">Grade ${rep.authorGrade}</span>`;
+                            }
+                            repliesHtml += `
+                                <div class="ml-6 mt-2 p-2 bg-[#05070c]/30 rounded-xl border border-[#1f2937]/30 flex justify-between items-start gap-3">
+                                    <div class="space-y-1 min-w-0 flex-1 overflow-hidden">
+                                        <div class="text-[10px] font-extrabold text-indigo-300 tracking-tight flex items-center gap-1">
+                                            <span>${rep.author}</span>
+                                            ${repBadgeHtml}
+                                        </div>
+                                        <div class="text-xs text-gray-300 leading-relaxed break-words whitespace-pre-wrap">${rep.text}</div>
+                                    </div>
                                 </div>
-                                <button onclick="toggleCommentLike(${post.id}, ${c.id})" class="flex items-center gap-1 p-1 hover:bg-slate-800 rounded-lg text-gray-500 hover:text-red-400 transition shrink-0">
-                                    <i data-lucide="heart" class="w-3 h-3 ${hasLikedComment ? 'fill-red-500 text-red-500' : ''}"></i>
-                                    <span class="text-[10px] font-bold font-mono">${commentLikes.length}</span>
-                                </button>
+                            `;
+                        });
+
+                        commentsHtml += `
+                            <div class="p-3 bg-[#05070c]/50 rounded-xl border border-[#1f2937]/50 flex flex-col hover:border-indigo-500/10 transition">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div class="space-y-1 min-w-0 flex-1 overflow-hidden">
+                                        <div class="text-[11px] font-extrabold text-indigo-400 tracking-tight flex items-center gap-1.5">
+                                            <span>${c.author}</span>
+                                            ${cBadgeHtml}
+                                        </div>
+                                        <div class="text-xs text-gray-200 leading-relaxed break-words whitespace-pre-wrap">${c.text}</div>
+                                        ${commentLikes.length > 0 ? `
+                                            <div class="text-[9px] text-gray-500 font-medium">Liked by: <span class="text-indigo-400 font-semibold">${cLikesList}</span></div>
+                                        ` : ""}
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button onclick="toggleReplyForm(${post.id}, ${c.id})" class="flex items-center gap-1 p-1 hover:bg-slate-800 rounded-lg text-gray-500 hover:text-indigo-400 transition" title="Reply to Comment">
+                                            <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                        </button>
+                                        <button onclick="toggleCommentLike(${post.id}, ${c.id})" class="flex items-center gap-1 p-1 hover:bg-slate-800 rounded-lg text-gray-500 hover:text-red-400 transition">
+                                            <i data-lucide="heart" class="w-3 h-3 ${hasLikedComment ? 'fill-red-500 text-red-500' : ''}"></i>
+                                            <span class="text-[10px] font-bold font-mono">${commentLikes.length}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Toggleable Inline Reply Form -->
+                                <div id="reply-form-${post.id}-${c.id}" class="hidden mt-2 pt-2 border-t border-[#1f2937]/20">
+                                    <form onsubmit="handleSendReply(event, ${post.id}, ${c.id})" class="flex gap-2">
+                                        <input type="text" placeholder="Write a reply..." required class="flex-1 bg-[#05070c] border border-[#1f2937] rounded-xl px-3 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500">
+                                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-xl text-[10px] transition shrink-0">
+                                            Reply
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Nested Replies Thread -->
+                                ${repliesHtml ? `<div class="space-y-1.5 mt-2 border-l border-[#1f2937] pl-2">${repliesHtml}</div>` : ""}
                             </div>
                         `;
                     });
@@ -1306,13 +2068,20 @@
                     const pLikesListText = postLikesList.join(", ");
 
                     stream.innerHTML += `
-                        <div class="bg-[#0b0f19] border border-[#1f2937] p-5 rounded-2xl space-y-4 shadow-sm hover:border-slate-800 transition">
+                        <div class="bg-[#0b0f19]/60 backdrop-blur-md border border-[#1f2937] p-5 rounded-2xl space-y-4 shadow-sm hover:border-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-0.5 transition-all duration-300 ease-out fade-in-item">
                             <div class="flex items-center justify-between border-b border-[#1f2937] pb-2">
                                 <div class="flex items-center gap-2">
                                     <div class="w-8 h-8 bg-indigo-950 border border-indigo-500/20 rounded-full flex items-center justify-center text-indigo-400 text-xs font-bold aspect-square rounded-xl object-cover">A</div>
                                     <h4 class="text-xs font-bold text-white">${post.author}</h4>
                                 </div>
-                                <span class="text-[10px] text-gray-500 font-mono">${post.date}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-gray-500 font-mono">${post.date}</span>
+                                    ${currentUser.role === "admin" ? `
+                                        <button onclick="deleteFeedPost(${post.id})" class="text-red-400 hover:text-red-300 transition p-1 rounded-md hover:bg-red-950/20" title="Delete Announcement">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        </button>
+                                    ` : ""}
+                                </div>
                             </div>
                             <p class="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">${post.text}</p>
                             ${imageHtml}
@@ -1408,6 +2177,18 @@
             }
         }
 
+        async function deleteFeedPost(id) {
+            if (confirm("Are you sure you want to permanently delete this announcement from the community feed?")) {
+                try {
+                    await apiCall(`feed?id=${id}`, "DELETE");
+                    renderFeed();
+                    showCustomToast("Announcement deleted successfully.", "success");
+                } catch(error) {
+                    showCustomToast(error.message, "error");
+                }
+            }
+        }
+
         async function handleAddComment(event, postId) {
             event.preventDefault();
             const form = event.target;
@@ -1416,10 +2197,49 @@
             if (!text) return;
 
             try {
-                await apiCall("comments", "POST", { postId, author: currentUser.name, text });
+                await apiCall("comments", "POST", { 
+                    postId, 
+                    author: currentUser.name, 
+                    authorGrade: currentUser.grade,
+                    authorRole: currentUser.role,
+                    text 
+                });
                 input.value = "";
                 renderFeed();
                 showCustomToast("Comment posted!", "success");
+            } catch(err) {
+                showCustomToast(err.message, "error");
+            }
+        }
+
+        function toggleReplyForm(postId, commentId) {
+            const form = document.getElementById(`reply-form-${postId}-${commentId}`);
+            if (form) {
+                form.classList.toggle("hidden");
+                try { lucide.createIcons(); } catch(e) {}
+            }
+        }
+
+        async function handleSendReply(event, postId, commentId) {
+            event.preventDefault();
+            const form = event.target;
+            const input = form.querySelector("input");
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                await apiCall("comments", "POST", { 
+                    postId, 
+                    commentId, 
+                    author: currentUser.name, 
+                    authorGrade: currentUser.grade, 
+                    authorRole: currentUser.role, 
+                    text 
+                });
+                input.value = "";
+                document.getElementById(`reply-form-${postId}-${commentId}`).classList.add("hidden");
+                renderFeed();
+                showCustomToast("Reply posted successfully!", "success");
             } catch(err) {
                 showCustomToast(err.message, "error");
             }
@@ -1436,7 +2256,7 @@
                     const levelName = GRADE_MAPPING[s.grade] ? GRADE_MAPPING[s.grade].split(" (")[0] : s.grade;
                     const isAdmin = s.role === "admin";
                     list.innerHTML += `
-                        <div class="p-3 bg-[#05070c] border border-[#1f2937] rounded-xl flex items-center justify-between text-xs hover:border-slate-800 transition">
+                        <div class="p-3 bg-[#05070c]/50 border border-[#1f2937] rounded-xl flex items-center justify-between text-xs hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 ease-out fade-in-item">
                             <div>
                                 <h4 class="font-bold text-white flex items-center gap-1.5">
                                     <span>${s.name}</span>
@@ -1468,7 +2288,7 @@
                 const videos = await apiCall("videos");
                 videos.forEach(v => {
                     videoCatalog.innerHTML += `
-                        <div class="p-3 bg-[#05070c] border border-[#1f2937] rounded-xl flex items-center justify-between text-xs">
+                        <div class="p-3 bg-[#05070c]/50 border border-[#1f2937] rounded-xl flex items-center justify-between text-xs hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 ease-out fade-in-item">
                             <div>
                                 <h4 class="font-bold text-white">${v.title}</h4>
                                 <p class="text-[9px] text-gray-500 mt-1 font-mono">FILE: ${v.filename} · G${v.grade}</p>
@@ -1625,16 +2445,26 @@ Operation completed successfully.`;
             if (type === "error") color = "bg-red-950/80 border-red-500/40 text-red-400";
             if (type === "success") color = "bg-emerald-950/80 border-emerald-500/40 text-emerald-400";
             
+            const toastId = "toast-" + Date.now();
             const toastHtml = `
-                <div id="toast" class="fixed bottom-6 right-6 ${color} border p-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-bounce">
-                    <div class="text-xs font-bold font-mono">${message}</div>
+                <div id="${toastId}" class="fixed bottom-6 right-6 ${color} border p-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 backdrop-blur-md toast-slide-in">
+                    <div class="text-xs font-bold font-mono flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full ${type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-emerald-500' : 'bg-indigo-500'} animate-ping"></span>
+                        <span>${message}</span>
+                    </div>
                 </div>
             `;
             document.body.insertAdjacentHTML("beforeend", toastHtml);
+            
+            // Set animation transition out
             setTimeout(() => {
-                const toast = document.getElementById("toast");
-                if (toast) toast.remove();
-            }, 3000);
+                const toast = document.getElementById(toastId);
+                if (toast) {
+                    toast.classList.remove("toast-slide-in");
+                    toast.classList.add("toast-slide-out");
+                    setTimeout(() => toast.remove(), 350);
+                }
+            }, 3200);
         }
 
         
@@ -1730,13 +2560,73 @@ Operation completed successfully.`;
         }
     
 
+
+        async function loadLeaderboard() {
+            const grid = document.getElementById("dashboard-leaderboard-grid");
+            if (!grid) return;
+
+            grid.innerHTML = `<div class="col-span-full text-center py-4 text-gray-500 text-[11px]">Loading top learners...</div>`;
+
+            try {
+                const leaderboard = await apiCall("leaderboard", "GET");
+                grid.innerHTML = "";
+
+                if (leaderboard.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full text-center py-4 text-gray-500 text-[11px]">Leaderboard records are empty. Be the first to watch a lecture!</div>`;
+                    return;
+                }
+
+                leaderboard.forEach((s, idx) => {
+                    const isSelf = currentUser && currentUser.id === s.id;
+                    let rankBadge = "";
+                    let itemBorder = "border-[#1f2937]";
+                    let itemBg = "bg-[#05070c]/50";
+
+                    if (idx === 0) {
+                        rankBadge = `<span class="bg-amber-950/80 border border-amber-500/20 text-amber-400 p-1.5 rounded-lg flex items-center justify-center shrink-0"><i data-lucide="crown" class="w-4 h-4"></i></span>`;
+                        itemBorder = "border-amber-500/20";
+                        itemBg = "bg-gradient-to-r from-amber-950/10 to-[#0b0f19]";
+                    } else if (idx === 1) {
+                        rankBadge = `<span class="bg-slate-800/80 border border-slate-500/20 text-slate-300 p-1.5 rounded-lg flex items-center justify-center shrink-0"><i data-lucide="award" class="w-4 h-4"></i></span>`;
+                    } else if (idx === 2) {
+                        rankBadge = `<span class="bg-amber-900/30 border border-amber-800/20 text-amber-600 p-1.5 rounded-lg flex items-center justify-center shrink-0"><i data-lucide="medal" class="w-4 h-4"></i></span>`;
+                    } else {
+                        rankBadge = `<span class="w-7 h-7 rounded-lg bg-slate-900 border border-[#1f2937] text-[11px] font-black text-gray-400 flex items-center justify-center shrink-0">${idx + 1}</span>`;
+                    }
+
+                    grid.innerHTML += `
+                        <div class="p-3 ${itemBg} border ${itemBorder} rounded-2xl flex items-center justify-between hover:border-indigo-500/10 transition duration-300 ${isSelf ? 'ring-1 ring-indigo-500/20' : ''}">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                ${rankBadge}
+                                <div class="min-w-0">
+                                    <h4 class="font-extrabold text-[11px] text-white flex items-center gap-1.5">
+                                        <span class="truncate">${s.name}</span>
+                                        ${isSelf ? '<span class="text-[8px] bg-indigo-950 text-indigo-400 border border-indigo-500/10 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-widest font-mono">You</span>' : ''}
+                                    </h4>
+                                    <p class="text-[9px] text-gray-500 font-semibold uppercase tracking-wider mt-0.5 font-mono">Grade ${s.grade} · ${s.gender === 'female' ? 'Girl 👩' : 'Boy 🧑'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-black text-indigo-400 font-mono tracking-tight">${s.totalMinutes}</span>
+                                <span class="text-[8px] text-gray-500 font-bold uppercase block mt-0.5">Mins Watch</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                try { lucide.createIcons(); } catch(e) {}
+            } catch(error) {
+                console.error("Leaderboard loading exception:", error);
+                grid.innerHTML = `<div class="col-span-full text-center py-4 text-red-400 text-[11px]">Failed to load scoreboard ranking.</div>`;
+            }
+        }
+
         // =====================================================================
         // THE OFFLINE EMBEDDED DEVELOPMENT INTERFACE (MOCK LOCAL STORAGE SQL SERVER)
         // =====================================================================
         function initMockLocalStorage() {
             if (localStorage.getItem("db_version") !== DATABASE_VERSION) {
                 localStorage.setItem("students_table", JSON.stringify([
-                    { id: 1, name: "Admin Staff (Dev)", phone: "admin", password: "admin", grade: "all", role: "admin", gender: "male", grades_record: "[]" }
+                    { id: 1, name: "Admin Staff (Dev)", phone: "admin", password: "admin", grade: "all", role: "admin", gender: "male", grades_record: "[]", watched_lessons: "[]", lecture_notes: "[]" }
                 ]));
                 localStorage.setItem("videos_table", JSON.stringify([]));
                 localStorage.setItem("materials_table", JSON.stringify([]));
@@ -1757,6 +2647,67 @@ Operation completed successfully.`;
             const cleanPath = parsedUrl.pathname.replace(/^\//, "");
             const queryId = parsedUrl.searchParams.get("id");
 
+
+            if (cleanPath === "lecture-notes") {
+                const sId = parsedUrl.searchParams.get("studentId") || (body && body.studentId);
+                const vId = parsedUrl.searchParams.get("videoId") || (body && body.videoId);
+                const target = students.find(s => s.id === parseInt(sId));
+                if (target) {
+                    let notes = [];
+                    try {
+                        notes = typeof target.lecture_notes === "string" ? JSON.parse(target.lecture_notes) : (target.lecture_notes || []);
+                    } catch(e) { notes = []; }
+                    
+                    if (method === "GET") {
+                        const videoNotes = notes.filter(n => n.videoId === parseInt(vId));
+                        return Promise.resolve(videoNotes);
+                    }
+                    if (method === "POST") {
+                        notes.push({
+                            id: Date.now(),
+                            videoId: parseInt(body.videoId),
+                            noteText: body.noteText,
+                            timestamp: parseFloat(body.timestamp)
+                        });
+                        target.lecture_notes = JSON.stringify(notes);
+                        localStorage.setItem("students_table", JSON.stringify(students));
+                        const videoNotes = notes.filter(n => n.videoId === parseInt(body.videoId));
+                        return Promise.resolve(videoNotes);
+                    }
+                    if (method === "DELETE") {
+                        const noteId = parsedUrl.searchParams.get("noteId");
+                        notes = notes.filter(n => n.id !== parseInt(noteId));
+                        target.lecture_notes = JSON.stringify(notes);
+                        localStorage.setItem("students_table", JSON.stringify(students));
+                        const videoNotes = notes.filter(n => n.videoId === parseInt(vId));
+                        return Promise.resolve(videoNotes);
+                    }
+                }
+                return Promise.resolve([]);
+            }
+
+            if (cleanPath === "leaderboard" && method === "GET") {
+                const leaderboard = students.filter(s => s.role === "student").map(s => {
+                    let watched = [];
+                    try {
+                        watched = typeof s.watched_lessons === "string" ? JSON.parse(s.watched_lessons) : (s.watched_lessons || []);
+                    } catch(e) { watched = []; }
+                    let totalSeconds = 0;
+                    watched.forEach(w => {
+                        totalSeconds += parseFloat(w.seconds || 0);
+                    });
+                    return {
+                        id: s.id,
+                        name: s.name,
+                        grade: s.grade,
+                        gender: s.gender,
+                        totalMinutes: Math.round(totalSeconds / 60)
+                    };
+                });
+                leaderboard.sort((a, b) => b.totalMinutes - a.totalMinutes);
+                return Promise.resolve(leaderboard.slice(0, 10));
+            }
+
             if (cleanPath === "login" && method === "POST") {
                 const user = students.find(s => s.role === body.role && s.phone === body.idVal && s.password === body.passVal);
                 if (user) return Promise.resolve(user);
@@ -1766,16 +2717,44 @@ Operation completed successfully.`;
             if (cleanPath === "login-bypass" && method === "POST") {
                 const devAdmin = students.find(s => s.role === "admin");
                 if (devAdmin) return Promise.resolve(devAdmin);
-                const defaultAdmin = { id: 1, name: "Default Administrator", phone: "admin", password: "admin", grade: "all", role: "admin", grades_record: "[]" };
+                const defaultAdmin = { id: 1, name: "Default Administrator", phone: "admin", password: "admin", grade: "all", role: "admin", grades_record: "[]", watched_lessons: "[]" };
                 students.push(defaultAdmin);
                 localStorage.setItem("students_table", JSON.stringify(students));
                 return Promise.resolve(defaultAdmin);
             }
 
+            if (cleanPath === "video-progress" && method === "POST") {
+                const target = students.find(s => s.id === parseInt(body.studentId));
+                if (target) {
+                    let watched = [];
+                    try {
+                        watched = typeof target.watched_lessons === "string" ? JSON.parse(target.watched_lessons) : (target.watched_lessons || []);
+                    } catch(e) { watched = []; }
+                    
+                    const idx = watched.findIndex(w => w.videoId === parseInt(body.videoId));
+                    if (idx !== -1) {
+                        watched[idx].seconds = Math.max(watched[idx].seconds || 0, parseFloat(body.seconds));
+                        watched[idx].duration = parseFloat(body.duration);
+                        if (body.completed) watched[idx].completed = true;
+                    } else {
+                        watched.push({
+                            videoId: parseInt(body.videoId),
+                            seconds: parseFloat(body.seconds),
+                            duration: parseFloat(body.duration),
+                            completed: !!body.completed
+                        });
+                    }
+                    target.watched_lessons = JSON.stringify(watched);
+                    localStorage.setItem("students_table", JSON.stringify(students));
+                    return Promise.resolve({ success: true, watched_lessons: watched });
+                }
+                return Promise.reject(new Error("Mock student not found"));
+            }
+
             if (cleanPath === "students") {
                 if (method === "GET") return Promise.resolve(students);
                 if (method === "POST") {
-                    const newStudent = { id: Date.now(), ...body, role: "student", gender: body.gender || "male", grades_record: "[]" };
+                    const newStudent = { id: Date.now(), ...body, role: "student", gender: body.gender || "male", grades_record: "[]", watched_lessons: "[]" };
                     students.push(newStudent);
                     localStorage.setItem("students_table", JSON.stringify(students));
                     return Promise.resolve(newStudent);
@@ -1883,43 +2862,93 @@ Operation completed successfully.`;
                     localStorage.setItem("feed_table", JSON.stringify(feed));
                     return Promise.resolve(newPost);
                 }
+                if (method === "DELETE") {
+                    const cleanList = feed.filter(f => f.id !== parseInt(queryId));
+                    localStorage.setItem("feed_table", JSON.stringify(cleanList));
+                    return Promise.resolve({ ok: true });
+                }
             }
 
             if (cleanPath === "comments" && method === "POST") {
                 const targetPost = feed.find(p => p.id === body.postId);
                 if (targetPost) {
                     if (!targetPost.comments) targetPost.comments = [];
-                    targetPost.comments.push({
-                        id: Date.now(),
-                        author: body.author,
-                        text: body.text,
-                        likes: []
-                    });
+                    
+                    if (body.commentId) {
+                        const cIdx = targetPost.comments.findIndex(c => c.id === body.commentId);
+                        if (cIdx !== -1) {
+                            if (!targetPost.comments[cIdx].replies) targetPost.comments[cIdx].replies = [];
+                            targetPost.comments[cIdx].replies.push({
+                                id: Date.now(),
+                                author: body.author,
+                                authorGrade: body.authorGrade,
+                                authorRole: body.authorRole,
+                                text: body.text
+                            });
+                        }
+                    } else {
+                        targetPost.comments.push({
+                            id: Date.now(),
+                            author: body.author,
+                            authorGrade: body.authorGrade,
+                            authorRole: body.authorRole,
+                            text: body.text,
+                            likes: [],
+                            replies: []
+                        });
+                    }
                     localStorage.setItem("feed_table", JSON.stringify(feed));
                     return Promise.resolve(targetPost);
                 }
             }
 
             if (cleanPath === "chat" && method === "POST") {
-                const sysPrompt = `You are Help Bot, a professional mathematics and science tutor for MR. Ahmed's academy. The active student is ${body.name}, enrolled in Grade ${body.grade}. Always solve equations and scientific queries step-by-step with clean lists.`;
-                const fullPrompt = `${sysPrompt}\n\nStudent Question: ${body.query}`;
+                const sysPrompt = `You are a helpful AI assistant. Answer the user's math and science queries clearly and step-by-step.`;
                 
-                // Directly call Pollinations GET endpoint locally to bypass CORS restrictions entirely!
-                return fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`)
-                    .then(r => {
-                        if (!r.ok) throw new Error("Pollinations GET failed");
-                        return r.text();
+                // Try Groq first directly (with the new working API key)
+                return fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer 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",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.1-8b-instant",
+                        messages: [
+                            { role: "system", content: sysPrompt },
+                            { role: "user", content: body.query }
+                        ],
+                        temperature: 0.6
                     })
-                    .then(text => {
-                        if (text && text.trim().length > 0) {
-                            return { response: text.trim() };
-                        }
-                        throw new Error("Empty reply");
-                    })
-                    .catch(err => {
-                        console.log("Local AI fetch failed, falling back to built-in scientific database...", err);
-                        return { response: generateFallbackResponse(body.query) };
-                    });
+                })
+                .then(r => {
+                    if (!r.ok) throw new Error("Groq API failed");
+                    return r.json();
+                })
+                .then(data => {
+                    const answer = data.choices && data.choices[0] ? data.choices[0].message.content : "";
+                    if (answer) return { response: answer };
+                    throw new Error("Empty response from Groq");
+                })
+                .catch(err => {
+                    console.log("Local Groq API fetch failed (possibly due to CORS or network). Falling back to Pollinations AI...", err);
+                    const fullPrompt = `${sysPrompt}\n\nStudent Question: ${body.query}`;
+                    return fetch(`https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`)
+                        .then(r => {
+                            if (!r.ok) throw new Error("Pollinations GET failed");
+                            return r.text();
+                        })
+                        .then(text => {
+                            if (text && text.trim().length > 0) {
+                                return { response: text.trim() };
+                            }
+                            throw new Error("Empty reply");
+                        })
+                        .catch(e => {
+                            console.log("Pollinations fallback failed. Falling back to built-in answers.", e);
+                            return { response: generateFallbackResponse(body.query) };
+                        });
+                });
             }
 
             if (cleanPath === "export") {
@@ -1934,4 +2963,4 @@ Operation completed successfully.`;
         }
     </script>
 </body>
-</html>
+</html> 
