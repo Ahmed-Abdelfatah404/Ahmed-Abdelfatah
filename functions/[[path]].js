@@ -1,5 +1,18 @@
 export async function onRequest(context) {
     const { request, env } = context;
+
+function lowercaseKeys(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) {
+        return obj.map(item => lowercaseKeys(item));
+    }
+    const res = {};
+    for (const k in obj) {
+        const val = obj[k];
+        res[k.toLowerCase()] = (typeof val === 'object' && val !== null) ? lowercaseKeys(val) : val;
+    }
+    return res;
+}
     const url = new URL(request.url);
 
     // 🚀 BYPASS ENGINE: If the request is NOT for the API, serve the static frontend index.html!
@@ -44,9 +57,9 @@ export async function onRequest(context) {
             const body = await request.json();
             const { idVal, passVal, role } = body;
 
-            const user = await env.DB.prepare(
+            const user = lowercaseKeys(await env.DB.prepare(
                 "SELECT * FROM students_table WHERE role = ? AND phone = ? AND password = ?"
-            ).bind(role, idVal, passVal).first();
+            ).bind(role, idVal, passVal).first());
 
             if (!user) {
                 return new Response(JSON.stringify({ error: "Access Denied: Invalid credentials." }), {
@@ -59,19 +72,19 @@ export async function onRequest(context) {
 
         if (path === "login-bypass" && method === "POST") {
             // Grab or auto-generate Master Teacher Admin
-            let admin = await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first();
+            let admin = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first());
             if (!admin) {
-                const existingAdminUser = await env.DB.prepare("SELECT * FROM students_table WHERE phone = 'admin'").first();
+                const existingAdminUser = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE phone = 'admin'").first());
                 if (existingAdminUser) {
                     const existingId = existingAdminUser.id !== undefined ? existingAdminUser.id : existingAdminUser.ID;
                     await env.DB.prepare("UPDATE students_table SET role = 'admin', grade = 'all' WHERE id = ?").bind(parseInt(existingId)).run();
-                    admin = await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(existingId)).first();
+                    admin = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(existingId)).first());
                 } else {
                     await env.DB.prepare(
                         "INSERT INTO students_table (name, phone, password, grade, role, grades_record) VALUES (?, ?, ?, ?, ?, ?)"
                     ).bind("Administrator", "admin", "admin", "all", "admin", "[]").run();
                     
-                    admin = await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first();
+                    admin = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first());
                 }
             }
             return new Response(JSON.stringify(admin), { headers: { "Content-Type": "application/json", ...corsHeaders } });
@@ -81,7 +94,7 @@ export async function onRequest(context) {
             const studentId = url.searchParams.get("id");
             if (method === "GET") {
                 const { results } = await env.DB.prepare("SELECT * FROM students_table").all();
-                return new Response(JSON.stringify(results), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+                return new Response(JSON.stringify(lowercaseKeys(results)), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "POST") {
                 const s = await request.json();
@@ -139,7 +152,7 @@ export async function onRequest(context) {
                 });
             }
 
-            const user = await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(studentId)).first();
+            const user = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(studentId)).first());
             if (user) {
                 // Read columns case-insensitively to align with SQLite varying DB environments
                 let currentRole = "student";
@@ -170,7 +183,7 @@ export async function onRequest(context) {
             const body = await request.json();
             const { studentId, videoId, seconds, duration, completed } = body;
             
-            const student = await env.DB.prepare("SELECT watched_lessons FROM students_table WHERE id = ?").bind(parseInt(studentId)).first();
+            const student = lowercaseKeys(await env.DB.prepare("SELECT watched_lessons FROM students_table WHERE id = ?").bind(parseInt(studentId)).first());
             if (student) {
                 let watched = [];
                 try {
@@ -210,7 +223,7 @@ export async function onRequest(context) {
             const videoId = url.searchParams.get("id");
             if (method === "GET") {
                 const { results } = await env.DB.prepare("SELECT * FROM videos_table ORDER BY lesson ASC").all();
-                return new Response(JSON.stringify(results), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+                return new Response(JSON.stringify(lowercaseKeys(results)), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "POST") {
                 const v = await request.json();
@@ -229,7 +242,7 @@ export async function onRequest(context) {
             const matId = url.searchParams.get("id");
             if (method === "GET") {
                 const { results } = await env.DB.prepare("SELECT * FROM materials_table ORDER BY id DESC").all();
-                return new Response(JSON.stringify(results), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+                return new Response(JSON.stringify(lowercaseKeys(results)), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "POST") {
                 const m = await request.json();
@@ -250,7 +263,7 @@ export async function onRequest(context) {
             const commentId = parseInt(parts[3]);
             const body = await request.json();
 
-            const post = await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first();
+            const post = lowercaseKeys(await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first());
             if (!post) {
                 return new Response(JSON.stringify({ error: "Post not found" }), {
                     status: 404,
@@ -288,7 +301,7 @@ export async function onRequest(context) {
         if (path.startsWith("feed/") && !path.includes("/comment/") && path.endsWith("/like") && method === "POST") {
             const postId = parseInt(path.split("/")[1]);
             const body = await request.json(); // Contains current user detail
-            const post = await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first();
+            const post = lowercaseKeys(await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first());
             if (!post) {
                 return new Response(JSON.stringify({ error: "Post not found" }), {
                     status: 404,
@@ -318,7 +331,7 @@ export async function onRequest(context) {
             if (method === "GET") {
                 const studentId = url.searchParams.get("studentId");
                 const videoId = url.searchParams.get("videoId");
-                const student = await env.DB.prepare("SELECT lecture_notes FROM students_table WHERE id = ?").bind(parseInt(studentId)).first();
+                const student = lowercaseKeys(await env.DB.prepare("SELECT lecture_notes FROM students_table WHERE id = ?").bind(parseInt(studentId)).first());
                 if (student) {
                     let notes = [];
                     try {
@@ -334,7 +347,7 @@ export async function onRequest(context) {
             if (method === "POST") {
                 const body = await request.json();
                 const { studentId, videoId, noteText, timestamp } = body;
-                const student = await env.DB.prepare("SELECT lecture_notes FROM students_table WHERE id = ?").bind(parseInt(studentId)).first();
+                const student = lowercaseKeys(await env.DB.prepare("SELECT lecture_notes FROM students_table WHERE id = ?").bind(parseInt(studentId)).first());
                 if (student) {
                     let notes = [];
                     try {
@@ -363,7 +376,7 @@ export async function onRequest(context) {
                 const studentId = url.searchParams.get("studentId");
                 const noteId = url.searchParams.get("noteId");
                 const videoId = url.searchParams.get("videoId");
-                const student = await env.DB.prepare("SELECT lecture_notes FROM students_table WHERE id = ?").bind(parseInt(studentId)).first();
+                const student = lowercaseKeys(await env.DB.prepare("SELECT lecture_notes FROM students_table WHERE id = ?").bind(parseInt(studentId)).first());
                 if (student) {
                     let notes = [];
                     try {
@@ -387,7 +400,8 @@ export async function onRequest(context) {
 
         if (path === "leaderboard" && method === "GET") {
             const { results } = await env.DB.prepare("SELECT id, name, grade, gender, role, watched_lessons FROM students_table WHERE role = 'student'").all();
-            const leaderboard = results.map(s => {
+                const normalizedResults = lowercaseKeys(results);
+            const leaderboard = normalizedResults.map(s => {
                 let watched = [];
                 try {
                     watched = typeof s.watched_lessons === 'string' ? JSON.parse(s.watched_lessons || "[]") : (s.watched_lessons || []);
@@ -414,13 +428,14 @@ export async function onRequest(context) {
         if (path === "feed") {
             if (method === "GET") {
                 const { results } = await env.DB.prepare("SELECT * FROM feed_table ORDER BY id ASC").all();
+                const normalizedResults = lowercaseKeys(results);
                 // Compile comments for each post
-                for (let post of results) {
+                for (let post of normalizedResults) {
                     try {
                         post.comments = JSON.parse(post.comments_json || "[]");
                     } catch(e) { post.comments = []; }
                 }
-                return new Response(JSON.stringify(results), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+                return new Response(JSON.stringify(normalizedResults), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "POST") {
                 const f = await request.json();
@@ -438,7 +453,7 @@ export async function onRequest(context) {
 
         if (path === "comments" && method === "POST") {
             const body = await request.json();
-            const post = await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(body.postId).first();
+            const post = lowercaseKeys(await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(body.postId).first());
             if (post) {
                 let comments = [];
                 try {
@@ -482,10 +497,10 @@ export async function onRequest(context) {
         
 
         if (path === "export" && method === "GET") {
-            const students = (await env.DB.prepare("SELECT * FROM students_table").all()).results;
-            const videos = (await env.DB.prepare("SELECT * FROM videos_table").all()).results;
-            const feed = (await env.DB.prepare("SELECT * FROM feed_table").all()).results;
-            const materials = (await env.DB.prepare("SELECT * FROM materials_table").all()).results;
+            const students = lowercaseKeys((await env.DB.prepare("SELECT * FROM students_table").all()).results);
+            const videos = lowercaseKeys((await env.DB.prepare("SELECT * FROM videos_table").all()).results);
+            const feed = lowercaseKeys((await env.DB.prepare("SELECT * FROM feed_table").all()).results);
+            const materials = lowercaseKeys((await env.DB.prepare("SELECT * FROM materials_table").all()).results);
             return new Response(JSON.stringify({ students, videos, feed, materials }), {
                 headers: { "Content-Type": "application/json", ...corsHeaders }
             });
