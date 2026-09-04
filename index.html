@@ -806,6 +806,7 @@
         // Automatic Local Simulation vs Cloud D1 Detection
         const IS_LOCAL_MOCK = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:";
 
+
         // Case-insensitive key retriever to align with SQLite varying casing
         function getValCI(obj, key) {
             if (!obj) return undefined;
@@ -817,6 +818,20 @@
             }
             return undefined;
         }
+
+        function lowercaseKeys(obj) {
+            if (!obj || typeof obj !== 'object') return obj;
+            if (Array.isArray(obj)) {
+                return obj.map(item => lowercaseKeys(item));
+            }
+            const res = {};
+            for (const k in obj) {
+                const val = obj[k];
+                res[k.toLowerCase()] = (typeof val === 'object' && val !== null) ? lowercaseKeys(val) : val;
+            }
+            return res;
+        }
+
 
 
         
@@ -935,7 +950,7 @@
                 if (!response.ok) {
                     throw new Error((data && data.error) || `Internal Cloud Error (Status ${response.status})`);
                 }
-                return data;
+                return lowercaseKeys(data);
             } catch (error) {
                 console.error("API call failed:", error);
                 throw error;
@@ -2306,13 +2321,13 @@ Operation completed successfully.`;
             currentEditingStudentId = id;
             try {
                 const students = await apiCall("students");
-                const s = students.find(x => x.id === id);
+                const s = students.find(x => parseInt(x.id) === parseInt(id));
                 if (s) {
                     document.getElementById("student-modal-title").innerText = "Modify Student Account";
-                    document.getElementById("modal-student-name").value = s.name;
-                    document.getElementById("modal-student-phone").value = s.phone;
-                    document.getElementById("modal-student-pass").value = s.password;
-                    document.getElementById("modal-student-grade").value = s.grade.toString();
+                    document.getElementById("modal-student-name").value = s.name || "";
+                    document.getElementById("modal-student-phone").value = s.phone || "";
+                    document.getElementById("modal-student-pass").value = s.password || "";
+                    document.getElementById("modal-student-grade").value = s.grade !== undefined && s.grade !== null ? s.grade.toString() : "7";
                     document.getElementById("modal-student-gender").value = s.gender || "male";
                     document.getElementById("student-modal").classList.remove("hidden");
                 }
