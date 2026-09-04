@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ahmed-abdelfatah",
+  "main": "functions/[[path]].js",
+  "compatibility_date": "2024-09-04",
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    },
+    "traces": {
+      "enabled": false,
+      "head_sampling_rate": 1,
+      "persist": true
+    }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ahmed-website-db", 
+      "database_id": "995418cd-83b6-4987-9fac-6acd1e10f1a0"
+    }
+  ]
+}
