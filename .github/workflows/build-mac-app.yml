@@ -1,5 +1,5 @@
 # ============================================================================
-# GITHUB ACTIONS AUTO-BUILDER WORKFLOW (.github/workflows/build-mac-app.yml)
+# GITHUB ACTIONS AUTO-BUILDER WORKFLOW (.github/workflows/build-mac-app.yml) - v2
 # Automatically builds and compiles your macOS App and uploads it to GitHub Releases!
 # ============================================================================
 name: Build and Release macOS App
@@ -22,14 +22,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          # 🚨 FIX: Removed `cache: 'npm'` because there is no pre-existing lockfile (package-lock.json) in your static repo yet!
+          # This allows the setup action to run completely error-free.
 
       - name: Initialize Electron App Structure
         run: |
           # Create package.json if it doesn't exist
           if [ ! -f package.json ]; then
             echo '{
-              "name": "ahmed-abd-elfatah-app",
+              "name": "ahmed-abdelfatah-app",
               "version": "1.0.0",
               "main": "main.js",
               "scripts": {
