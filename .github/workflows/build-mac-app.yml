@@ -1,7 +1,6 @@
 # ============================================================================
-# GITHUB ACTIONS AUTO-BUILDER WORKFLOW (.github/workflows/build-mac-app.yml) - v3
+# GITHUB ACTIONS AUTO-BUILDER WORKFLOW (.github/workflows/build-mac-app.yml) - v4
 # Automatically builds and compiles your macOS App and uploads it to GitHub Releases!
-# Optimized for Node 24 to prevent deprecation warnings!
 # ============================================================================
 name: Build and Release macOS App
 
@@ -22,20 +21,63 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24 # 🍏 Upgraded to Node 24 to match latest GitHub runner standards
-          # 🚨 FIX: Removed `cache: 'npm'` because there is no pre-existing lockfile (package-lock.json) in your static repo yet!
-          # This allows the setup action to run completely error-free.
+          node-version: 24
 
       - name: Initialize Electron App Structure
         run: |
-          # Create package.json if it doesn't exist
+          # Create a clean, syntactically perfect package.json using Heredoc (no escape-character issues!)
           if [ ! -f package.json ]; then
-            echo '{\n              "name": "ahmed-abdelfatah-app",\n              "version": "1.0.0",\n              "main": "main.js",\n              "scripts": {\n                "build": "electron-builder --mac"\n              },\n              "build": {\n                "appId": "com.ahmed.abdelfatah.app",\n                "productName": "Ahmed Abd-Elfatah App",\n                "mac": {\n                  "category": "public.app-category.education",\n                  "target": ["dmg", "zip"]\n                }\n              }\n            }' > package.json
+          cat << 'EOF' > package.json
+          {
+            "name": "ahmed-abdelfatah-app",
+            "version": "1.0.0",
+            "main": "main.js",
+            "scripts": {
+              "build": "electron-builder --mac"
+            },
+            "build": {
+              "appId": "com.ahmed.abdelfatah.app",
+              "productName": "Ahmed Abd-Elfatah App",
+              "mac": {
+                "category": "public.app-category.education",
+                "target": ["dmg", "zip"]
+              }
+            }
+          }
+          EOF
           fi
 
-          # Create main.js if it doesn't exist
+          # Create main.js using Heredoc
           if [ ! -f main.js ]; then
-            echo "const { app, BrowserWindow, session } = require('electron');\n            function createWindow() {\n                session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {\n                    details.requestHeaders['User-Agent'] = 'AhmedAcademySecureApp_SecureVideoSessionEngine';\n                    callback({ cancel: false, requestHeaders: details.requestHeaders });\n                });\n                const mainWindow = new BrowserWindow({\n                    width: 1280,\n                    height: 800,\n                    title: 'Ahmed Abd-Elfatah App',\n                    autoHideMenuBar: true,\n                    webPreferences: {\n                        contextIsolation: true,\n                        nodeIntegration: false\n                    }\n                });\n                mainWindow.loadURL('https://ahmed-abd-elfatah.pages.dev?app=true');\n            }\n            app.whenReady().then(() => {\n                createWindow();\n                app.on('activate', () => {\n                    if (BrowserWindow.getAllWindows().length === 0) createWindow();\n                });\n            });\n            app.on('window-all-closed', () => {\n                if (process.platform !== 'darwin') app.quit();\n            });" > main.js
+          cat << 'EOF' > main.js
+          const { app, BrowserWindow, session } = require('electron');
+          function createWindow() {
+              session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+                  details.requestHeaders['User-Agent'] = 'AhmedAcademySecureApp_SecureVideoSessionEngine';
+                  callback({ cancel: false, requestHeaders: details.requestHeaders });
+              });
+              const mainWindow = new BrowserWindow({
+                  width: 1280,
+                  height: 800,
+                  title: 'Ahmed Abd-Elfatah App',
+                  autoHideMenuBar: true,
+                  webPreferences: {
+                      contextIsolation: true,
+                      nodeIntegration: false
+                  }
+              });
+              mainWindow.loadURL('https://ahmed-abd-elfatah.pages.dev?app=true');
+          }
+          app.whenReady().then(() => {
+              createWindow();
+              app.on('activate', () => {
+                  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+              });
+          });
+          app.on('window-all-closed', () => {
+              if (process.platform !== 'darwin') app.quit();
+          });
+          EOF
           fi
 
       - name: Install Dependencies
