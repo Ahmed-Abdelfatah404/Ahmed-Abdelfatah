@@ -1033,11 +1033,11 @@
             document.addEventListener("contextmenu", e => e.preventDefault());
         });
 
-                function checkDeviceOS() {
+                        function checkDeviceOS() {
             // Check if we opened from secure app wrapper with ?app=true OR have the secure custom User-Agent handshake signature!
             const urlParams = new URLSearchParams(window.location.search);
             const userAgent = navigator.userAgent || navigator.platform || "";
-            const isSecureAppUserAgent = userAgent.includes("AhmedAcademySecureApp_SecureVideoSessionEngine");
+            const isSecureAppUserAgent = userAgent.includes("AhmedAcademySecureApp_SecureVideoSessionEngine") || userAgent.includes("AhmedAcademyMobileAppSecureChannel");
 
             if (urlParams.get("app") === "true" || isSecureAppUserAgent) {
                 localStorage.setItem("app_installed_verified", "true");
@@ -1052,13 +1052,15 @@
             
             if (isVerified || isBypassed) return;
             
-            // Check for iOS (iPhone, iPad, iPod, or iPadOS touch devices)
-            const isIOS = /iPhone|iPad|iPod/i.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            // Check for macOS
-            const isMacOS = /Macintosh|MacIntel|MacPPC|Mac68K/i.test(userAgent) || (!isIOS && /Mac/i.test(navigator.platform));
+            // 🍏 BULLETPROOF iOS, iPadOS & macOS DETECTOR
+            const isAppleDevice = 
+                /iPhone|iPad|iPod|Macintosh|MacIntel|MacPPC|Mac68K/i.test(userAgent) || 
+                /Mac/i.test(navigator.userAgent) || 
+                /Mac/i.test(navigator.platform) || 
+                (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && (userAgent.includes("Macintosh") || userAgent.includes("MacIntel")));
 
-            if (isIOS || isMacOS) {
-                // iOS or macOS: automatically go to the login screen, NO app forced
+            if (isAppleDevice) {
+                // iOS or macOS: automatically bypass lock screen and go straight to login screen, NO app forced!
                 document.getElementById("os-lock-screen").classList.add("hidden");
                 document.getElementById("app-wrapper").classList.remove("hidden");
                 return;
@@ -1067,7 +1069,7 @@
             const isWindows = /Windows|Win32|Win64/i.test(userAgent);
             const isAndroid = /Android/i.test(userAgent);
 
-            // Force app download on Windows or Android
+            // Force app download only on Windows or Android
             if (isWindows || isAndroid) {
                 document.getElementById("os-lock-screen").classList.remove("hidden");
                 document.getElementById("app-wrapper").classList.add("hidden");
@@ -1118,22 +1120,12 @@
         }
 
         function downloadWindowsApp() {
-            const a = document.createElement("a");
-            a.href = "/Ahmed%20Abd-Elfatah%20App%20Setup%201.0.0.exe";
-            a.download = "Ahmed Abd-Elfatah App Setup 1.0.0.exe";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            window.location.href = "/Ahmed%20Abd-Elfatah%20App%20Setup%201.0.0.exe";
             showCustomToast("Windows App download started!", "success");
         }
 
         function downloadAndroidApp() {
-            const a = document.createElement("a");
-            a.href = "/Ahmed%20Abd-Elfatah%20App%201.0.0.apk";
-            a.download = "Ahmed Abd-Elfatah App 1.0.0.apk";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            window.location.href = "/Ahmed%20Abd-Elfatah%20App%201.0.0.apk";
             showCustomToast("Android App download started!", "success");
         }
 
