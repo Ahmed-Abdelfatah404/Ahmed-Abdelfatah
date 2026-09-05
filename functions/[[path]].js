@@ -27,6 +27,13 @@ export async function onRequest(context) {
         return Response.redirect("https://github.com/Ahmed-AbdElfatah-Apps/Ahmed-AbdElfatah-Apps/releases/download/Apps/Ahmed.Abd-Elfatah.App.Setup.1.0.0.exe", 302);
     }
 
+    if (decodedPath.endsWith("/ahmed abd-elfatah app 1.0.0.dmg") || decodedPath.endsWith("/ahmed_abd-elfatah_app-1.0.0-arm64.1.dmg")) {
+        if (env.MACOS_APP_URL) {
+            return Response.redirect(env.MACOS_APP_URL, 302);
+        }
+        return Response.redirect("https://github.com/Ahmed-AbdElfatah-Apps/Ahmed-AbdElfatah-Apps/releases/download/Apps(MacOS)/Ahmed_Abd-Elfatah_App-1.0.0-arm64.1.dmg", 302);
+    }
+
     if (decodedPath.endsWith("/ahmed abd-elfatah app 1.0.0.apk")) {
         if (env.ANDROID_APP_URL) {
             return Response.redirect(env.ANDROID_APP_URL, 302);
