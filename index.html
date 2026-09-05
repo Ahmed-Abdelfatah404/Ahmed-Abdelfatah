@@ -1033,46 +1033,64 @@
             document.addEventListener("contextmenu", e => e.preventDefault());
         });
 
-                        function checkDeviceOS() {
-            // Check if we opened from secure app wrapper with ?app=true OR have the secure custom User-Agent handshake signature!
-            const urlParams = new URLSearchParams(window.location.search);
-            const userAgent = navigator.userAgent || navigator.platform || "";
-            const isSecureAppUserAgent = userAgent.includes("AhmedAcademySecureApp_SecureVideoSessionEngine") || userAgent.includes("AhmedAcademyMobileAppSecureChannel");
+                        
+        function checkDeviceOS() {
+            try {
+                // Check if we opened from secure app wrapper with ?app=true OR have the secure custom User-Agent handshake signature!
+                const urlParams = new URLSearchParams(window.location.search);
+                const rawUA = navigator.userAgent || "";
+                const rawPlatform = navigator.platform || "";
+                const userAgent = rawUA.toLowerCase();
+                const platform = rawPlatform.toLowerCase();
+                
+                // Universal indexOf check for maximum browser compatibility
+                const isSecureAppUserAgent = 
+                    userAgent.indexOf("ahmedacademysecureapp_securevideosessionengine") !== -1 || 
+                    userAgent.indexOf("ahmedacademymobileappsecurechannel") !== -1;
 
-            if (urlParams.get("app") === "true" || isSecureAppUserAgent) {
-                localStorage.setItem("app_installed_verified", "true");
-                // Clean browser URL bar immediately if there's a search param
-                if (urlParams.get("app") === "true") {
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                if (urlParams.get("app") === "true" || isSecureAppUserAgent) {
+                    localStorage.setItem("app_installed_verified", "true");
+                    // Clean browser URL bar immediately if there's a search param
+                    if (urlParams.get("app") === "true") {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
                 }
-            }
 
-            const isVerified = localStorage.getItem("app_installed_verified") === "true";
-            const isBypassed = sessionStorage.getItem("admin_bypass") === "true";
-            
-            if (isVerified || isBypassed) return;
-            
-            // 🍏 BULLETPROOF iOS, iPadOS & macOS DETECTOR
-            const isAppleDevice = 
-                /iPhone|iPad|iPod|Macintosh|MacIntel|MacPPC|Mac68K/i.test(userAgent) || 
-                /Mac/i.test(navigator.userAgent) || 
-                /Mac/i.test(navigator.platform) || 
-                (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && (userAgent.includes("Macintosh") || userAgent.includes("MacIntel")));
+                const isVerified = localStorage.getItem("app_installed_verified") === "true";
+                const isBypassed = sessionStorage.getItem("admin_bypass") === "true";
+                
+                if (isVerified || isBypassed) return;
+                
+                // 🍏 UNIVERSAL APPLE (iOS, iPadOS, macOS) DETECTOR - Case Insensitive & Bulletproof
+                const isAppleDevice = 
+                    /iphone|ipad|ipod|macintosh|macintel|macppc|mac68k|darwin/i.test(userAgent) || 
+                    /mac|iphone|ipad|ipod/i.test(platform) || 
+                    (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && (userAgent.indexOf("macintosh") !== -1 || userAgent.indexOf("macintel") !== -1));
 
-            if (isAppleDevice) {
-                // iOS or macOS: automatically bypass lock screen and go straight to login screen, NO app forced!
+                if (isAppleDevice) {
+                    // iOS or macOS: automatically bypass lock screen and go straight to login screen, NO app forced!
+                    document.getElementById("os-lock-screen").classList.add("hidden");
+                    document.getElementById("app-wrapper").classList.remove("hidden");
+                    return;
+                }
+
+                const isWindows = /windows|win32|win64/i.test(userAgent) || /win/i.test(platform);
+                const isAndroid = /android/i.test(userAgent) || /android/i.test(platform);
+
+                // Force app download only on Windows or Android
+                if (isWindows || isAndroid) {
+                    document.getElementById("os-lock-screen").classList.remove("hidden");
+                    document.getElementById("app-wrapper").classList.add("hidden");
+                } else {
+                    // Fallback for Linux or any other desktop: default to bypass
+                    document.getElementById("os-lock-screen").classList.add("hidden");
+                    document.getElementById("app-wrapper").classList.remove("hidden");
+                }
+            } catch (e) {
+                console.error("OS detection exception:", e);
+                // On any unexpected error, default to bypass so we never lock out legitimate users
                 document.getElementById("os-lock-screen").classList.add("hidden");
                 document.getElementById("app-wrapper").classList.remove("hidden");
-                return;
-            }
-
-            const isWindows = /Windows|Win32|Win64/i.test(userAgent);
-            const isAndroid = /Android/i.test(userAgent);
-
-            // Force app download only on Windows or Android
-            if (isWindows || isAndroid) {
-                document.getElementById("os-lock-screen").classList.remove("hidden");
-                document.getElementById("app-wrapper").classList.add("hidden");
             }
         }
 
