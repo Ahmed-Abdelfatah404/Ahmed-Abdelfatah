@@ -1,6 +1,7 @@
 # ============================================================================
-# GITHUB ACTIONS AUTO-BUILDER WORKFLOW (.github/workflows/build-mac-app.yml) - v4
-# Automatically builds and compiles your macOS App and uploads it to GitHub Releases!
+# GITHUB ACTIONS AUTO-BUILDER WORKFLOW (.github/workflows/build-mac-app.yml) - v6
+# Builds your macOS App and uploads it both to Actions Artifacts & GitHub Releases.
+# Optimized to prevent "universal" architecture compilation crashes on GitHub Runners!
 # ============================================================================
 name: Build and Release macOS App
 
@@ -25,7 +26,7 @@ jobs:
 
       - name: Initialize Electron App Structure
         run: |
-          # Create a clean, syntactically perfect package.json using Heredoc (no escape-character issues!)
+          # Create a clean package.json
           if [ ! -f package.json ]; then
           cat << 'EOF' > package.json
           {
@@ -47,7 +48,7 @@ jobs:
           EOF
           fi
 
-          # Create main.js using Heredoc
+          # Create main.js
           if [ ! -f main.js ]; then
           cat << 'EOF' > main.js
           const { app, BrowserWindow, session } = require('electron');
@@ -86,10 +87,22 @@ jobs:
 
       - name: Build macOS Application
         run: |
-          npx electron-builder --mac --universal
+          # 🍏 FIX: Removed '--universal' flag. Building standard Mac app to bypass lipo-merge/code-signing crashes.
+          npx electron-builder --mac
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false # Disables Apple certificate lookups to prevent build failure on local machines or VM environments!
 
+      # Save compiled app as a workflow artifact
+      - name: Upload Built App to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ahmed-Abd-Elfatah-Mac-App
+          path: |
+            dist/*.dmg
+            dist/*.zip
+
+      # Upload to GitHub Releases (runs ONLY when triggering via tag v1.0.0)
       - name: Upload Binaries to Release Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
