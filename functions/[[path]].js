@@ -18,14 +18,21 @@ export async function onRequest(context) {
     const decodedPath = decodeURIComponent(url.pathname).toLowerCase();
 
     // 🚀 REDIRECT HEAVY STATIC APP FILES TO BYPASS CLOUDFLARE PAGES' 25MB SIZE LIMIT!
+    // Supports custom auto-download URLs (like GitHub Releases) via Cloudflare Dashboard Environment Variables!
     if (decodedPath.endsWith("/ahmed abd-elfatah app setup 1.0.0.exe")) {
+        if (env.WINDOWS_APP_URL) {
+            return Response.redirect(env.WINDOWS_APP_URL, 302);
+        }
         const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
-        return Response.redirect(`https://archive.org/download/${archiveItem}/Ahmed%20Abd-Elfatah%20App%20Setup%201.0.0.exe`, 302);
+        return Response.redirect("https://github.com/Ahmed-AbdElfatah-Apps/Ahmed-AbdElfatah-Apps/releases/download/Apps/Ahmed.Abd-Elfatah.App.Setup.1.0.0.exe", 302);
     }
 
     if (decodedPath.endsWith("/ahmed abd-elfatah app 1.0.0.apk")) {
+        if (env.ANDROID_APP_URL) {
+            return Response.redirect(env.ANDROID_APP_URL, 302);
+        }
         const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
-        return Response.redirect(`https://archive.org/download/${archiveItem}/Ahmed%20Abd-Elfatah%20App%201.0.0.apk`, 302);
+        return Response.redirect("https://github.com/Ahmed-AbdElfatah-Apps/Ahmed-AbdElfatah-Apps/releases/download/Apps/Ahmed.Abd-Elfatah.App.1.0.0.apk", 302);
     }
 
     // 🔒 VIDEO SHIELD: Intercept and securely stream from Archive.org strictly (The Free Storage Hack)!
