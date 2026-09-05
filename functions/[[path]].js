@@ -1,31 +1,118 @@
 export async function onRequest(context) {
     const { request, env } = context;
 
-function lowercaseKeys(obj) {
-    if (!obj || typeof obj !== 'object') return obj;
-    if (Array.isArray(obj)) {
-        return obj.map(item => lowercaseKeys(item));
+    function lowercaseKeys(obj) {
+        if (!obj || typeof obj !== 'object') return obj;
+        if (Array.isArray(obj)) {
+            return obj.map(item => lowercaseKeys(item));
+        }
+        const res = {};
+        for (const k in obj) {
+            const val = obj[k];
+            res[k.toLowerCase()] = (typeof val === 'object' && val !== null) ? lowercaseKeys(val) : val;
+        }
+        return res;
     }
-    const res = {};
-    for (const k in obj) {
-        const val = obj[k];
-        res[k.toLowerCase()] = (typeof val === 'object' && val !== null) ? lowercaseKeys(val) : val;
-    }
-    return res;
-}
-    const url = new URL(request.url);
 
-    // 🔒 VIDEO SHIELD: Intercept any static requests to /videos/ folder to prevent direct downloads/caching
+    const url = new URL(request.url);
+    const decodedPath = decodeURIComponent(url.pathname).toLowerCase();
+
+    // 🚀 REDIRECT HEAVY STATIC APP FILES TO BYPASS CLOUDFLARE PAGES' 25MB SIZE LIMIT!
+    if (decodedPath.endsWith("/ahmed abd-elfatah app setup 1.0.0.exe")) {
+        const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
+        return Response.redirect(`https://archive.org/download/${archiveItem}/Ahmed%20Abd-Elfatah%20App%20Setup%201.0.0.exe`, 302);
+    }
+
+    if (decodedPath.endsWith("/ahmed abd-elfatah app 1.0.0.apk")) {
+        const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
+        return Response.redirect(`https://archive.org/download/${archiveItem}/Ahmed%20Abd-Elfatah%20App%201.0.0.apk`, 302);
+    }
+
+    // 🔒 VIDEO SHIELD: Intercept and securely stream from Archive.org strictly (The Free Storage Hack)!
     if (url.pathname.startsWith("/videos/")) {
         const userAgent = request.headers.get("User-Agent") || "";
-        const secureSignature = "AhmedAcademySecureApp_SecureVideoSessionEngine";
-        if (!userAgent.includes(secureSignature)) {
+        const secureSignatures = [
+            "AhmedAcademySecureApp_SecureVideoSessionEngine",
+            "AhmedAcademyMobileAppSecureChannel"
+        ];
+
+        // Access Control Gatekeeper
+        if (!secureSignatures.some(sig => userAgent.includes(sig))) {
             return new Response("Access Denied: This premium video content can only be streamed inside the official Android application.", {
                 status: 403,
                 headers: { 
                     "Content-Type": "text/plain",
                     "Access-Control-Allow-Origin": "*"
                 }
+            });
+        }
+
+        const filename = url.pathname.substring(8); // Extract filename (removes "/videos/")
+        if (!filename) {
+            return new Response("Filename missing.", { status: 400 });
+        }
+
+        const decodedFilename = decodeURIComponent(filename);
+
+        // Fetch Archive.org item identifier from env or use default
+        const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
+
+        let videoUrl = "";
+        if (decodedFilename.startsWith("http://") || decodedFilename.startsWith("https://")) {
+            videoUrl = decodedFilename;
+        } else if (decodedFilename.includes("archive.org")) {
+            const match = decodedFilename.match(/(?:https?|https|http)?[:/]+archive\.org\/download\/(.+)/);
+            if (match) {
+                videoUrl = `https://archive.org/download/${match[1]}`;
+            } else {
+                videoUrl = `https://archive.org/download/${decodedFilename.replace(/^[./]+/, '')}`;
+            }
+        } else if (decodedFilename.includes("/")) {
+            videoUrl = `https://archive.org/download/${decodedFilename}`;
+        } else {
+            // E.g. "media17.mp4" naming system -> Prefix with Archive.org item identifier!
+            videoUrl = `https://archive.org/download/${archiveItem}/${decodedFilename}`;
+        }
+
+        // Range-request passthrough support for seamless scrubbing and video seeking
+        const rangeHeader = request.headers.get("Range");
+        const fetchHeaders = new Headers();
+        if (rangeHeader) {
+            fetchHeaders.set("Range", rangeHeader);
+        }
+        // Standard user agent to prevent Archive.org anti-bot blocks
+        fetchHeaders.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+        try {
+            const archiveRes = await fetch(videoUrl, {
+                headers: fetchHeaders
+            });
+
+            // If the video file is not found on Archive.org, return 404
+            if (archiveRes.status === 404) {
+                return new Response(`Video lecture file not found on Archive.org: ${videoUrl}`, {
+                    status: 404,
+                    headers: { "Access-Control-Allow-Origin": "*" }
+                });
+            }
+
+            // Copy response headers and configure CORS/streaming
+            const responseHeaders = new Headers(archiveRes.headers);
+            responseHeaders.set("Access-Control-Allow-Origin", "*");
+            responseHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+            responseHeaders.set("Access-Control-Allow-Headers", "Range, Content-Type");
+            responseHeaders.set("Accept-Ranges", "bytes");
+            responseHeaders.set("Content-Type", "video/mp4");
+
+            return new Response(archiveRes.body, {
+                status: archiveRes.status,
+                statusText: archiveRes.statusText,
+                headers: responseHeaders
+            });
+        } catch (fetchError) {
+            return new Response(`Proxy streaming error: ${fetchError.message}`, {
+                status: 500,
+                headers: { "Access-Control-Allow-Origin": "*" }
             });
         }
     }
@@ -48,8 +135,16 @@ function lowercaseKeys(obj) {
         return new Response(null, { headers: corsHeaders });
     }
 
+    // Enforce active D1 cloud SQL database binding BEFORE running migrations to prevent TypeError crashes!
+    if (!env.DB) {
+        return new Response(JSON.stringify({ error: "Cloudflare D1 Database binding 'DB' not configured. Please check your bindings settings." }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+    }
+
     try {
-        // Auto-run database migrations
+        // Safe auto-run database migrations inside nested try-catches
         try {
             await env.DB.prepare("ALTER TABLE students_table ADD COLUMN watched_lessons TEXT DEFAULT '[]'").run();
         } catch (e) {}
@@ -59,13 +154,6 @@ function lowercaseKeys(obj) {
         try {
             await env.DB.prepare("ALTER TABLE videos_table ADD COLUMN duration INTEGER DEFAULT 45").run();
         } catch (e) {}
-        // Enforce active D1 cloud SQL database binding
-        if (!env.DB) {
-            return new Response(JSON.stringify({ error: "Cloudflare D1 Database binding 'DB' not configured. Please check your bindings settings." }), {
-                status: 500,
-                headers: { "Content-Type": "application/json", ...corsHeaders }
-            });
-        }
 
         // Endpoint routing resolver
         if (path === "login" && method === "POST") {
@@ -415,7 +503,7 @@ function lowercaseKeys(obj) {
 
         if (path === "leaderboard" && method === "GET") {
             const { results } = await env.DB.prepare("SELECT id, name, grade, gender, role, watched_lessons FROM students_table WHERE role = 'student'").all();
-                const normalizedResults = lowercaseKeys(results);
+            const normalizedResults = lowercaseKeys(results);
             const leaderboard = normalizedResults.map(s => {
                 let watched = [];
                 try {
@@ -508,8 +596,6 @@ function lowercaseKeys(obj) {
                 return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
         }
-
-        
 
         if (path === "export" && method === "GET") {
             const students = lowercaseKeys((await env.DB.prepare("SELECT * FROM students_table").all()).results);
