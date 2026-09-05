@@ -207,16 +207,21 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button onclick="downloadWindowsApp()" class="flex flex-col items-center justify-center p-4 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl transition group interactive-btn">
                     <i data-lucide="monitor" class="w-6 h-6 text-indigo-400 group-hover:scale-110 transition"></i>
                     <span class="text-[11px] font-bold text-white mt-2">Windows Desktop</span>
-                    <span class="text-[9px] text-gray-500">Ahmed Abd-Elfatah App Setup 1.0.0.exe</span>
+                    <span class="text-[9px] text-gray-500">Setup 1.0.0.exe</span>
+                </button>
+                <button onclick="downloadMacApp()" class="flex flex-col items-center justify-center p-4 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl transition group interactive-btn">
+                    <i data-lucide="laptop" class="w-6 h-6 text-indigo-400 group-hover:scale-110 transition"></i>
+                    <span class="text-[11px] font-bold text-white mt-2">macOS Desktop</span>
+                    <span class="text-[9px] text-gray-500">App 1.0.0.dmg</span>
                 </button>
                 <button onclick="downloadAndroidApp()" class="flex flex-col items-center justify-center p-4 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl transition group interactive-btn">
                     <i data-lucide="smartphone" class="w-6 h-6 text-indigo-400 group-hover:scale-110 transition"></i>
                     <span class="text-[11px] font-bold text-white mt-2">Android Mobile</span>
-                    <span class="text-[9px] text-gray-500">Ahmed Abd-Elfatah App 1.0.0.apk</span>
+                    <span class="text-[9px] text-gray-500">App 1.0.0.apk</span>
                 </button>
             </div>
 
@@ -1067,25 +1072,27 @@
                 const isIPadTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && (userAgent.indexOf("macintosh") !== -1 || platform.indexOf("macintel") !== -1));
                 const isAppleData = (navigator.userAgentData && navigator.userAgentData.platform && (navigator.userAgentData.platform.toLowerCase() === "macos" || navigator.userAgentData.platform.toLowerCase() === "ios"));
 
-                const isAppleDevice = isMac || isIOS || isIPadTouch || isAppleData;
+                const isMacDevice = isMac && !isIOS && !isIPadTouch;
+                const isIOSDevice = isIOS || isIPadTouch;
 
                 console.log("=== SECURE PORTAL DEVICE DIAGNOSTICS ===");
                 console.log("User Agent:", rawUA);
                 console.log("Platform:", rawPlatform);
-                console.log("Is Apple Device:", isAppleDevice);
+                console.log("Is Mac Desktop Device:", isMacDevice);
+                console.log("Is iOS/iPad Mobile Device:", isIOSDevice);
 
-                if (isAppleDevice) {
-                    console.log("Apple macOS/iOS device detected. Automatically bypassing lock screen.");
+                if (isIOSDevice) {
+                    console.log("Apple iOS/iPadOS device detected. Automatically bypassing lock screen.");
                     document.getElementById("os-lock-screen").classList.add("hidden");
                     document.getElementById("app-wrapper").classList.remove("hidden");
-                    return; // EXIT IMMEDIATELY - ABSOLUTELY ZERO LOCK SCREENS ON APPLE MACHINES
+                    return; // EXIT IMMEDIATELY - iOS/iPadOS bypass allowed
                 }
 
                 const isWindows = /windows|win32|win64/i.test(userAgent) || /win32|win64|windows/i.test(platform);
                 const isAndroid = /android/i.test(userAgent) || /android/i.test(platform);
 
-                // Force app download only on Windows or Android
-                if (isWindows || isAndroid) {
+                // Force app download only on Windows, Android, or macOS Desktop
+                if (isWindows || isAndroid || isMacDevice) {
                     document.getElementById("os-lock-screen").classList.remove("hidden");
                     document.getElementById("app-wrapper").classList.add("hidden");
                 } else {
@@ -1147,6 +1154,11 @@
         function downloadWindowsApp() {
             window.location.href = "/Ahmed%20Abd-Elfatah%20App%20Setup%201.0.0.exe";
             showCustomToast("Windows App download started!", "success");
+        }
+
+        function downloadMacApp() {
+            window.location.href = "/Ahmed%20Abd-Elfatah%20App%201.0.0.dmg";
+            showCustomToast("macOS App download started!", "success");
         }
 
         function downloadAndroidApp() {
