@@ -208,15 +208,15 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="downloadSecureApp()" class="flex flex-col items-center justify-center p-4 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl transition group">
+                <button onclick="downloadWindowsApp()" class="flex flex-col items-center justify-center p-4 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl transition group interactive-btn">
                     <i data-lucide="monitor" class="w-6 h-6 text-indigo-400 group-hover:scale-110 transition"></i>
-                    <span class="text-[11px] font-bold text-white mt-2">Windows App</span>
-                    <span class="text-[9px] text-gray-500">Ahmed_Launcher.bat</span>
+                    <span class="text-[11px] font-bold text-white mt-2">Windows Desktop</span>
+                    <span class="text-[9px] text-gray-500">Ahmed Abd-Elfatah App Setup 1.0.0.exe</span>
                 </button>
-                <button onclick="alert('Android App Setup Guide: Open the guide from our setup document, paste the Java template in Android Studio, or compile it on Webintoapp in 10 seconds!')" class="flex flex-col items-center justify-center p-4 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl transition group">
+                <button onclick="downloadAndroidApp()" class="flex flex-col items-center justify-center p-4 bg-[#05070c] border border-[#1f2937] hover:border-indigo-500/30 rounded-xl transition group interactive-btn">
                     <i data-lucide="smartphone" class="w-6 h-6 text-indigo-400 group-hover:scale-110 transition"></i>
-                    <span class="text-[11px] font-bold text-white mt-2">Android App</span>
-                    <span class="text-[9px] text-gray-500">Android Webview App</span>
+                    <span class="text-[11px] font-bold text-white mt-2">Android Mobile</span>
+                    <span class="text-[9px] text-gray-500">Ahmed Abd-Elfatah App 1.0.0.apk</span>
                 </button>
             </div>
 
@@ -717,7 +717,7 @@
                 </div>
                 <div>
                     <label class="block text-gray-400 mb-1">Lesson Number</label>
-                    <input type="number" id="modal-video-lesson" placeholder="e.g. 1" class="w-full bg-[#05070c] border border-[#1f2937] rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-indigo-500">
+                    <input type="number" id="modal-video-lesson" placeholder="e.g. 1" oninput="generateSecureFilename()" class="w-full bg-[#05070c] border border-[#1f2937] rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label class="block text-gray-400 mb-1">Video Title Description</label>
@@ -725,7 +725,7 @@
                 </div>
                 <div>
                     <label class="block text-gray-400 mb-1">Grade Alignment</label>
-                    <select id="modal-video-grade" class="w-full bg-[#05070c] border border-[#1f2937] rounded-xl px-3 py-2 text-white focus:outline-none">
+                    <select id="modal-video-grade" onchange="generateSecureFilename()" class="w-full bg-[#05070c] border border-[#1f2937] rounded-xl px-3 py-2 text-white focus:outline-none">
                         <option value="7">Preparatory 1 (Grade 7)</option>
                         <option value="8">Preparatory 2 (Grade 8)</option>
                         <option value="9">Preparatory 3 (Grade 9)</option>
@@ -1115,6 +1115,26 @@
             } catch(error) {
                 showCustomToast(error.message, "error");
             }
+        }
+
+        function downloadWindowsApp() {
+            const a = document.createElement("a");
+            a.href = "/Ahmed%20Abd-Elfatah%20App%20Setup%201.0.0.exe";
+            a.download = "Ahmed Abd-Elfatah App Setup 1.0.0.exe";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showCustomToast("Windows App download started!", "success");
+        }
+
+        function downloadAndroidApp() {
+            const a = document.createElement("a");
+            a.href = "/Ahmed%20Abd-Elfatah%20App%201.0.0.apk";
+            a.download = "Ahmed Abd-Elfatah App 1.0.0.apk";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showCustomToast("Android App download started!", "success");
         }
 
         function downloadSecureApp() {
@@ -1566,23 +1586,41 @@
             }
         }
 
+        function generateSecureFilename() {
+            const lesson = document.getElementById("modal-video-lesson").value.trim();
+            const grade = document.getElementById("modal-video-grade").value;
+            if (lesson && grade) {
+                document.getElementById("modal-video-filename").value = `media${lesson}${grade}.mp4`;
+            } else {
+                document.getElementById("modal-video-filename").value = "";
+            }
+        }
+
         function autoExtractVideoFilename() {
             const fileInput = document.getElementById("modal-video-file");
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                document.getElementById("modal-video-filename").value = file.name;
                 
                 // Automatically try to extract Lesson and Grade from filename
                 // Pattern matches: "media" followed by Lesson, then Grade (e.g. media110.mp4)
                 const match = file.name.match(/media(\d+)/i);
                 if (match && match[1]) {
                     const digits = match[1];
-                    if (digits.length >= 2) {
-                        const grade = digits.slice(-2);
-                        const lesson = digits.slice(0, -2);
-                        document.getElementById("modal-video-lesson").value = lesson;
-                        document.getElementById("modal-video-grade").value = parseInt(grade).toString();
+                    let grade = "";
+                    let lesson = "";
+                    if (digits.endsWith("10")) {
+                        grade = "10";
+                        lesson = digits.slice(0, -2);
+                    } else {
+                        grade = digits.slice(-1);
+                        lesson = digits.slice(0, -1);
                     }
+                    document.getElementById("modal-video-lesson").value = lesson;
+                    document.getElementById("modal-video-grade").value = grade;
+                    document.getElementById("modal-video-filename").value = file.name;
+                } else {
+                    // If uploaded file name is generic, auto-generate standard naming system
+                    generateSecureFilename();
                 }
             }
         }
