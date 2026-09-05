@@ -15,6 +15,21 @@ function lowercaseKeys(obj) {
 }
     const url = new URL(request.url);
 
+    // 🔒 VIDEO SHIELD: Intercept any static requests to /videos/ folder to prevent direct downloads/caching
+    if (url.pathname.startsWith("/videos/")) {
+        const userAgent = request.headers.get("User-Agent") || "";
+        const secureSignature = "AhmedAcademySecureApp_SecureVideoSessionEngine";
+        if (!userAgent.includes(secureSignature)) {
+            return new Response("Access Denied: This premium video content can only be streamed inside the official Android application.", {
+                status: 403,
+                headers: { 
+                    "Content-Type": "text/plain",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            });
+        }
+    }
+
     // 🚀 BYPASS ENGINE: If the request is NOT for the API, serve the static frontend index.html!
     if (!url.pathname.startsWith("/api/")) {
         return await context.next();
