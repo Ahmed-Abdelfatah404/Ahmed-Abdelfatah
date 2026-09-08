@@ -18,12 +18,10 @@ export async function onRequest(context) {
     const decodedPath = decodeURIComponent(url.pathname).toLowerCase();
 
     // 🚀 REDIRECT HEAVY STATIC APP FILES TO BYPASS CLOUDFLARE PAGES' 25MB SIZE LIMIT!
-    // Supports custom auto-download URLs (like GitHub Releases) via Cloudflare Dashboard Environment Variables!
     if (decodedPath.endsWith("/ahmed abd-elfatah app setup 1.0.0.exe")) {
         if (env.WINDOWS_APP_URL) {
             return Response.redirect(env.WINDOWS_APP_URL, 302);
         }
-        const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
         return Response.redirect("https://github.com/Ahmed-AbdElfatah-Apps/Ahmed-AbdElfatah-Apps/releases/download/Apps/Ahmed.Abd-Elfatah.App.Setup.1.0.0.exe", 302);
     }
 
@@ -38,7 +36,6 @@ export async function onRequest(context) {
         if (env.ANDROID_APP_URL) {
             return Response.redirect(env.ANDROID_APP_URL, 302);
         }
-        const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
         return Response.redirect("https://github.com/Ahmed-AbdElfatah-Apps/Ahmed-AbdElfatah-Apps/releases/download/Apps/Ahmed.Abd-Elfatah.App.1.0.0.apk", 302);
     }
 
@@ -55,7 +52,6 @@ export async function onRequest(context) {
             return new Response("Access Denied: This premium video content can only be streamed inside the official Android application.", {
                 status: 403,
                 headers: { 
-                    "Content-Type": "text/plain",
                     "Access-Control-Allow-Origin": "*"
                 }
             });
@@ -67,8 +63,6 @@ export async function onRequest(context) {
         }
 
         const decodedFilename = decodeURIComponent(filename);
-
-        // Fetch Archive.org item identifier from env or use default
         const archiveItem = env.ARCHIVE_ITEM || "ahmed-academy";
 
         let videoUrl = "";
@@ -84,17 +78,14 @@ export async function onRequest(context) {
         } else if (decodedFilename.includes("/")) {
             videoUrl = `https://archive.org/download/${decodedFilename}`;
         } else {
-            // E.g. "media17.mp4" naming system -> Prefix with Archive.org item identifier!
             videoUrl = `https://archive.org/download/${archiveItem}/${decodedFilename}`;
         }
 
-        // Range-request passthrough support for seamless scrubbing and video seeking
         const rangeHeader = request.headers.get("Range");
         const fetchHeaders = new Headers();
         if (rangeHeader) {
             fetchHeaders.set("Range", rangeHeader);
         }
-        // Standard user agent to prevent Archive.org anti-bot blocks
         fetchHeaders.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
         try {
@@ -102,7 +93,6 @@ export async function onRequest(context) {
                 headers: fetchHeaders
             });
 
-            // If the video file is not found on Archive.org, return 404
             if (archiveRes.status === 404) {
                 return new Response(`Video lecture file not found on Archive.org: ${videoUrl}`, {
                     status: 404,
@@ -110,7 +100,6 @@ export async function onRequest(context) {
                 });
             }
 
-            // Copy response headers and configure CORS/streaming
             const responseHeaders = new Headers(archiveRes.headers);
             responseHeaders.set("Access-Control-Allow-Origin", "*");
             responseHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
@@ -131,7 +120,7 @@ export async function onRequest(context) {
         }
     }
 
-    // 🚀 BYPASS ENGINE: If the request is NOT for the API, serve the static frontend index.html!
+    // Serve static files if not an API request
     if (!url.pathname.startsWith("/api/")) {
         return await context.next();
     }
@@ -149,16 +138,15 @@ export async function onRequest(context) {
         return new Response(null, { headers: corsHeaders });
     }
 
-    // Enforce active D1 cloud SQL database binding BEFORE running migrations to prevent TypeError crashes!
     if (!env.DB) {
-        return new Response(JSON.stringify({ error: "Cloudflare D1 Database binding 'DB' not configured. Please check your bindings settings." }), {
+        return new Response(JSON.stringify({ error: "Cloudflare D1 Database binding 'DB' not configured." }), {
             status: 500,
             headers: { "Content-Type": "application/json", ...corsHeaders }
         });
     }
 
     try {
-        // Safe auto-run database migrations inside nested try-catches
+        // Safe database auto-migrations for v30 matching features
         try {
             await env.DB.prepare("ALTER TABLE students_table ADD COLUMN watched_lessons TEXT DEFAULT '[]'").run();
         } catch (e) {}
@@ -168,8 +156,33 @@ export async function onRequest(context) {
         try {
             await env.DB.prepare("ALTER TABLE videos_table ADD COLUMN duration INTEGER DEFAULT 45").run();
         } catch (e) {}
+        try {
+            await env.DB.prepare("ALTER TABLE students_table ADD COLUMN can_post_feed INTEGER DEFAULT 0").run();
+        } catch (e) {}
+        try {
+            await env.DB.prepare("ALTER TABLE students_table ADD COLUMN custom_style TEXT DEFAULT ''").run();
+        } catch (e) {}
+        try {
+            await env.DB.prepare("ALTER TABLE feed_table ADD COLUMN font_size TEXT DEFAULT '13px'").run();
+        } catch (e) {}
+        try {
+            await env.DB.prepare("ALTER TABLE feed_table ADD COLUMN text_color TEXT DEFAULT ''").run();
+        } catch (e) {}
+        try {
+            await env.DB.prepare(`
+                CREATE TABLE IF NOT EXISTS feedbacks_table (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    author TEXT,
+                    gender TEXT,
+                    id_val TEXT,
+                    rating INTEGER DEFAULT 0,
+                    text TEXT,
+                    date TEXT
+                )
+            `).run();
+        } catch (e) {}
 
-        // Endpoint routing resolver
+        // Routing endpoints
         if (path === "login" && method === "POST") {
             const body = await request.json();
             const { idVal, passVal, role } = body;
@@ -188,7 +201,6 @@ export async function onRequest(context) {
         }
 
         if (path === "login-bypass" && method === "POST") {
-            // Grab or auto-generate Master Teacher Admin
             let admin = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first());
             if (!admin) {
                 const existingAdminUser = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE phone = 'admin'").first());
@@ -198,8 +210,8 @@ export async function onRequest(context) {
                     admin = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(existingId)).first());
                 } else {
                     await env.DB.prepare(
-                        "INSERT INTO students_table (name, phone, password, grade, role, grades_record) VALUES (?, ?, ?, ?, ?, ?)"
-                    ).bind("Administrator", "admin", "admin", "all", "admin", "[]").run();
+                        "INSERT INTO students_table (name, phone, password, grade, role, gender, can_post_feed, custom_style, grades_record) VALUES (?, ?, ?, ?, ?, ?, 1, ?, '[]')"
+                    ).bind("Administrator", "admin", "admin", "all", "admin", "Boy", "").run();
                     
                     admin = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE role = 'admin' LIMIT 1").first());
                 }
@@ -215,32 +227,33 @@ export async function onRequest(context) {
             }
             if (method === "POST") {
                 const s = await request.json();
-                
-                // Extremely safe parameter defaults to guarantee D1 binding is never 'undefined'
                 const name = s.name !== undefined && s.name !== null ? s.name : "";
                 const phone = s.phone !== undefined && s.phone !== null ? s.phone : "";
                 const password = s.password !== undefined && s.password !== null ? s.password : "";
-                const grade = s.grade !== undefined && s.grade !== null ? s.grade : 7;
-                const gender = s.gender !== undefined && s.gender !== null ? s.gender : "male";
+                const grade = s.grade !== undefined && s.grade !== null ? s.grade : "Grade 10 (Secandory 1)";
+                const gender = s.gender !== undefined && s.gender !== null ? s.gender : "Boy";
+                const can_post_feed = s.can_post_feed !== undefined && s.can_post_feed !== null ? parseInt(s.can_post_feed) : 0;
+                const custom_style = s.custom_style !== undefined && s.custom_style !== null ? s.custom_style : "";
 
                 const result = await env.DB.prepare(
-                    "INSERT INTO students_table (name, phone, password, grade, role, gender, grades_record) VALUES (?, ?, ?, ?, 'student', ?, '[]')"
-                ).bind(name, phone, password, grade, gender).run();
+                    "INSERT INTO students_table (name, phone, password, grade, role, gender, can_post_feed, custom_style, grades_record) VALUES (?, ?, ?, ?, 'student', ?, ?, ?, '[]')"
+                ).bind(name, phone, password, grade, gender, can_post_feed, custom_style).run();
                 return new Response(JSON.stringify({ success: true, id: result.meta.last_row_id }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "PUT") {
                 const s = await request.json();
-                
                 const name = s.name !== undefined && s.name !== null ? s.name : "";
                 const phone = s.phone !== undefined && s.phone !== null ? s.phone : "";
                 const password = s.password !== undefined && s.password !== null ? s.password : "";
-                const grade = s.grade !== undefined && s.grade !== null ? s.grade : 7;
-                const gender = s.gender !== undefined && s.gender !== null ? s.gender : "male";
+                const grade = s.grade !== undefined && s.grade !== null ? s.grade : "Grade 10 (Secandory 1)";
+                const gender = s.gender !== undefined && s.gender !== null ? s.gender : "Boy";
+                const can_post_feed = s.can_post_feed !== undefined && s.can_post_feed !== null ? parseInt(s.can_post_feed) : 0;
+                const custom_style = s.custom_style !== undefined && s.custom_style !== null ? s.custom_style : "";
                 const numericId = studentId && !isNaN(parseInt(studentId)) ? parseInt(studentId) : 0;
 
                 await env.DB.prepare(
-                    "UPDATE students_table SET name = ?, phone = ?, password = ?, grade = ?, gender = ? WHERE id = ?"
-                ).bind(name, phone, password, grade, gender, numericId).run();
+                    "UPDATE students_table SET name = ?, phone = ?, password = ?, grade = ?, gender = ?, can_post_feed = ?, custom_style = ? WHERE id = ?"
+                ).bind(name, phone, password, grade, gender, can_post_feed, custom_style, numericId).run();
                 return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "DELETE") {
@@ -252,8 +265,6 @@ export async function onRequest(context) {
 
         if (path === "students-privilege" && method === "POST") {
             const body = await request.json();
-            
-            // Accept ANY casing of ID/id case-insensitively
             let studentId = undefined;
             for (const k in body) {
                 if (k.toLowerCase() === "id") {
@@ -271,23 +282,61 @@ export async function onRequest(context) {
 
             const user = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(studentId)).first());
             if (user) {
-                // Read columns case-insensitively to align with SQLite varying DB environments
                 let currentRole = "student";
-                let currentGrade = 7;
+                let currentGrade = "Grade 10 (Secandory 1)";
                 for (const k in user) {
                     if (k.toLowerCase() === "role") currentRole = user[k] || "student";
-                    if (k.toLowerCase() === "grade") currentGrade = user[k] || 7;
+                    if (k.toLowerCase() === "grade") currentGrade = user[k] || "Grade 10 (Secandory 1)";
                 }
 
                 const nextRole = currentRole === "admin" ? "student" : "admin";
-                const nextGrade = nextRole === "admin" ? "all" : 7;
+                const nextGrade = nextRole === "admin" ? "all" : "Grade 10 (Secandory 1)";
 
-                // Bind strictly non-undefined variables to prevent D1 binding crashes
                 await env.DB.prepare("UPDATE students_table SET role = ?, grade = ? WHERE id = ?")
                     .bind(nextRole, nextGrade, parseInt(studentId))
                     .run();
 
                 return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+            } else {
+                return new Response(JSON.stringify({ error: `Student with ID ${studentId} not found in database.` }), {
+                    status: 404,
+                    headers: { "Content-Type": "application/json", ...corsHeaders }
+                });
+            }
+        }
+
+        // Toggles feed posting permission from backend
+        if (path === "students-feed-privilege" && method === "POST") {
+            const body = await request.json();
+            let studentId = undefined;
+            for (const k in body) {
+                if (k.toLowerCase() === "id") {
+                    studentId = body[k];
+                    break;
+                }
+            }
+
+            if (studentId === undefined || studentId === null || isNaN(parseInt(studentId))) {
+                return new Response(JSON.stringify({ error: "Missing or invalid student ID parameter." }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json", ...corsHeaders }
+                });
+            }
+
+            const user = lowercaseKeys(await env.DB.prepare("SELECT * FROM students_table WHERE id = ?").bind(parseInt(studentId)).first());
+            if (user) {
+                let currentFeedPriv = 0;
+                for (const k in user) {
+                    if (k.toLowerCase() === "can_post_feed") currentFeedPriv = parseInt(user[k]) || 0;
+                }
+
+                const nextFeedPriv = currentFeedPriv === 1 ? 0 : 1;
+
+                await env.DB.prepare("UPDATE students_table SET can_post_feed = ? WHERE id = ?")
+                    .bind(nextFeedPriv, parseInt(studentId))
+                    .run();
+
+                return new Response(JSON.stringify({ success: true, can_post_feed: nextFeedPriv }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             } else {
                 return new Response(JSON.stringify({ error: `Student with ID ${studentId} not found in database.` }), {
                     status: 404,
@@ -377,7 +426,7 @@ export async function onRequest(context) {
         if (path.startsWith("feed/") && path.includes("/comment/") && path.endsWith("/like") && method === "POST") {
             const parts = path.split("/");
             const postId = parseInt(parts[1]);
-            const commentId = parseInt(parts[3]);
+            const commentId = parseFloat(parts[3]);
             const body = await request.json();
 
             const post = lowercaseKeys(await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first());
@@ -417,7 +466,7 @@ export async function onRequest(context) {
 
         if (path.startsWith("feed/") && !path.includes("/comment/") && path.endsWith("/like") && method === "POST") {
             const postId = parseInt(path.split("/")[1]);
-            const body = await request.json(); // Contains current user detail
+            const body = await request.json();
             const post = lowercaseKeys(await env.DB.prepare("SELECT * FROM feed_table WHERE id = ?").bind(postId).first());
             if (!post) {
                 return new Response(JSON.stringify({ error: "Post not found" }), {
@@ -544,9 +593,8 @@ export async function onRequest(context) {
 
         if (path === "feed") {
             if (method === "GET") {
-                const { results } = await env.DB.prepare("SELECT * FROM feed_table ORDER BY id ASC").all();
+                const { results } = await env.DB.prepare("SELECT * FROM feed_table ORDER BY id DESC").all();
                 const normalizedResults = lowercaseKeys(results);
-                // Compile comments for each post
                 for (let post of normalizedResults) {
                     try {
                         post.comments = JSON.parse(post.comments_json || "[]");
@@ -556,9 +604,11 @@ export async function onRequest(context) {
             }
             if (method === "POST") {
                 const f = await request.json();
+                const fontSize = f.fontSize !== undefined && f.fontSize !== null ? f.fontSize : "13px";
+                const textColor = f.textColor !== undefined && f.textColor !== null ? f.textColor : "";
                 const result = await env.DB.prepare(
-                    "INSERT INTO feed_table (author, date, text, attachment_name, image, comments_json) VALUES (?, ?, ?, ?, ?, '[]')"
-                ).bind(f.author, f.date, f.text, f.attachment_name, f.image).run();
+                    "INSERT INTO feed_table (author, date, text, attachment_name, image, font_size, text_color, comments_json) VALUES (?, ?, ?, ?, ?, ?, ?, '[]')"
+                ).bind(f.author, f.date, f.text, f.attachment_name, f.image, fontSize, textColor).run();
                 return new Response(JSON.stringify({ success: true, id: result.meta.last_row_id }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
             }
             if (method === "DELETE") {
@@ -578,28 +628,28 @@ export async function onRequest(context) {
                 } catch(e) { comments = []; }
 
                 if (body.commentId) {
-                    // It is a nested reply to a specific comment
-                    const cIdx = comments.findIndex(c => c.id === body.commentId);
+                    const cIdx = comments.findIndex(c => c.id === parseFloat(body.commentId));
                     if (cIdx !== -1) {
                         if (!comments[cIdx].replies) comments[cIdx].replies = [];
                         comments[cIdx].replies.push({
-                            id: Date.now(),
+                            id: Date.now() + Math.random(),
                             author: body.author,
                             authorGrade: body.authorGrade,
                             authorRole: body.authorRole,
-                            text: body.text
+                            text: body.text,
+                            date: 'Just now'
                         });
                     }
                 } else {
-                    // It is a top-level comment
                     comments.push({
-                        id: Date.now(),
+                        id: Date.now() + Math.random(),
                         author: body.author,
                         authorGrade: body.authorGrade,
                         authorRole: body.authorRole,
                         text: body.text,
                         likes: [],
-                        replies: []
+                        replies: [],
+                        date: 'Just now'
                     });
                 }
                 
@@ -611,12 +661,43 @@ export async function onRequest(context) {
             }
         }
 
+        // New high-fidelity API endpoints for feedbacks matching v30
+        if (path.startsWith("feedbacks")) {
+            const feedbackId = url.searchParams.get("id");
+            if (method === "GET") {
+                const { results } = await env.DB.prepare("SELECT * FROM feedbacks_table ORDER BY id DESC").all();
+                return new Response(JSON.stringify(lowercaseKeys(results)), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+            }
+            if (method === "POST") {
+                const f = await request.json();
+                const author = f.author !== undefined && f.author !== null ? f.author : "";
+                const gender = f.gender !== undefined && f.gender !== null ? f.gender : "Boy";
+                const idVal = f.idVal !== undefined && f.idVal !== null ? f.idVal : "";
+                const rating = f.rating !== undefined && f.rating !== null ? parseInt(f.rating) : 0;
+                const text = f.text !== undefined && f.text !== null ? f.text : "";
+                const date = f.date !== undefined && f.date !== null ? f.date : "";
+
+                const result = await env.DB.prepare(
+                    "INSERT INTO feedbacks_table (author, gender, id_val, rating, text, date) VALUES (?, ?, ?, ?, ?, ?)"
+                ).bind(author, gender, idVal, rating, text, date).run();
+                return new Response(JSON.stringify({ success: true, id: result.meta.last_row_id }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+            }
+            if (method === "DELETE") {
+                await env.DB.prepare("DELETE FROM feedbacks_table WHERE id = ?").bind(parseInt(feedbackId)).run();
+                return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+            }
+        }
+
         if (path === "export" && method === "GET") {
             const students = lowercaseKeys((await env.DB.prepare("SELECT * FROM students_table").all()).results);
             const videos = lowercaseKeys((await env.DB.prepare("SELECT * FROM videos_table").all()).results);
             const feed = lowercaseKeys((await env.DB.prepare("SELECT * FROM feed_table").all()).results);
             const materials = lowercaseKeys((await env.DB.prepare("SELECT * FROM materials_table").all()).results);
-            return new Response(JSON.stringify({ students, videos, feed, materials }), {
+            let feedbacks = [];
+            try {
+                feedbacks = lowercaseKeys((await env.DB.prepare("SELECT * FROM feedbacks_table").all()).results);
+            } catch(e) {}
+            return new Response(JSON.stringify({ students, videos, feed, materials, feedbacks }), {
                 headers: { "Content-Type": "application/json", ...corsHeaders }
             });
         }
