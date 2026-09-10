@@ -68,9 +68,20 @@
             50% { opacity: 0.35; }
         }
 
-        /* Active page animations */
+        /* Active page animations with GPU-composited hardware acceleration */
+        html {
+            scroll-behavior: smooth !important;
+        }
+        .overflow-y-auto, .overflow-y-scroll {
+            scroll-behavior: smooth !important;
+            -webkit-overflow-scrolling: touch !important; /* Premium elastic inertia scrolling */
+        }
+
         .view-panel {
             animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            perspective: 1000px;
         }
 
         /* Modal animate states */
@@ -113,7 +124,7 @@
 
         /* Interactive scaling on click states */
         .interactive-btn {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .interactive-btn:active {
             transform: scale(0.96);
@@ -177,7 +188,7 @@
             background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0) 70%);
             top: -150px;
             right: -150px;
-            filter: blur(80px);
+            /* filter blur replaced with native radial gradient */
             pointer-events: none;
             z-index: 0;
             animation: pulseGlow 10s ease-in-out infinite;
@@ -189,7 +200,7 @@
             background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, rgba(6, 182, 212, 0) 70%);
             bottom: -150px;
             left: -150px;
-            filter: blur(80px);
+            /* filter blur replaced with native radial gradient */
             pointer-events: none;
             z-index: 0;
             animation: pulseGlow 12s ease-in-out infinite;
@@ -201,7 +212,7 @@
             background: radial-gradient(circle, rgba(139, 92, 246, 0.07) 0%, rgba(139, 92, 246, 0) 70%);
             top: 40%;
             left: 20%;
-            filter: blur(60px);
+            /* filter blur replaced with native radial gradient */
             pointer-events: none;
             z-index: 0;
             animation: pulseGlow 8s ease-in-out infinite;
@@ -214,7 +225,7 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .glass-card:hover {
             border-color: rgba(99, 102, 241, 0.25);
@@ -224,8 +235,8 @@
 
         .glass-sidebar {
             background: rgba(11, 15, 25, 0.55) !important;
-            backdrop-filter: blur(30px) !important;
-            -webkit-backdrop-filter: blur(30px) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.45) !important;
             border-radius: 24px !important;
@@ -242,16 +253,16 @@
 
         .glass-modal {
             background: rgba(11, 15, 25, 0.55);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .glass-main-panel {
             background: rgba(11, 15, 25, 0.35) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.35) !important;
             border-radius: 24px !important;
@@ -322,7 +333,7 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-glass) !important;
             box-shadow: var(--neumorphic-flat) !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .glass-panel:hover {
             border-color: rgba(99, 102, 241, 0.35) !important;
@@ -334,7 +345,7 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-glass) !important;
             box-shadow: var(--neumorphic-flat) !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .glass-card:hover {
             border-color: rgba(99, 102, 241, 0.25) !important;
@@ -342,8 +353,8 @@
         }
         .glass-sidebar {
             background: var(--bg-panel) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-right: 1px solid var(--border-glass) !important;
             box-shadow: var(--neumorphic-flat) !important;
         }
@@ -356,8 +367,8 @@
         }
         .glass-modal {
             background: var(--bg-panel) !important;
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid var(--border-glass) !important;
             box-shadow: var(--shadow-soft), var(--neumorphic-flat) !important;
         }
@@ -432,16 +443,16 @@
         /* Ambient glass overrides with high transparency for liquid background */
         .light-theme .glass-sidebar {
             background: rgba(255, 255, 255, 0.45) !important;
-            backdrop-filter: blur(24px) !important;
-            -webkit-backdrop-filter: blur(24px) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
             border: 1px solid rgba(255, 255, 255, 0.5) !important;
             box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.05) !important;
             border-radius: 24px !important;
         }
         .light-theme .glass-main-panel {
             background: rgba(255, 255, 255, 0.35) !important;
-            backdrop-filter: blur(24px) !important;
-            -webkit-backdrop-filter: blur(24px) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
             border: 1px solid rgba(255, 255, 255, 0.4) !important;
             box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.05) !important;
             border-radius: 24px !important;
@@ -1028,18 +1039,19 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background-color: #ffffff;
+            background-color: rgba(99, 102, 241, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             position: fixed;
             top: 0;
             left: 0;
-            transform: translate(-50%, -50%);
             pointer-events: none;
             z-index: 99999;
-            mix-blend-mode: difference;
-            transition: width 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
-                        height 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
-                        opacity 0.2s ease-out;
+            /* mix-blend-mode disabled for GPU performance */
+            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+                        height 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             opacity: 0;
+            transform: translate3d(0, 0, 0);
             will-change: transform, width, height, opacity;
         }
         #custom-cursor.active {
@@ -1056,7 +1068,7 @@
             height: 15px;
             border-radius: 50%;
             background-color: #ffffff;
-            mix-blend-mode: difference;
+            /* mix-blend-mode disabled for GPU performance */
             pointer-events: none;
             z-index: 99998;
             transform: translate(-50%, -50%);
@@ -1086,7 +1098,7 @@
         
         /* Glow and Scale Transform for Client Downloads */
         .download-btn-glow {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         .download-btn-glow:hover {
             transform: scale(1.05) translateY(-2px) !important;
@@ -1099,8 +1111,8 @@
         .dark-theme .glass-card {
             position: relative;
             background: rgba(10, 15, 30, 0.45) !important;
-            backdrop-filter: blur(24px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            backdrop-filter: blur(8px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(180%) !important;
             border: 1px solid transparent !important;
             background-clip: padding-box !important;
             box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4) !important;
@@ -1129,28 +1141,28 @@
         /* Enhanced Glass Navbars & Panes in Dark Theme */
         .dark-theme .glass-sidebar {
             background: rgba(10, 15, 30, 0.6) !important;
-            backdrop-filter: blur(32px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+            backdrop-filter: blur(8px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(180%) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
         }
         .dark-theme .glass-main-panel {
             background: rgba(10, 15, 30, 0.35) !important;
-            backdrop-filter: blur(28px) saturate(170%) !important;
-            -webkit-backdrop-filter: blur(28px) saturate(170%) !important;
+            backdrop-filter: blur(8px) saturate(170%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(170%) !important;
             border: 1px solid rgba(255, 255, 255, 0.06) !important;
             box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4) !important;
         }
         .dark-theme .glass-header {
             background: rgba(10, 15, 30, 0.35) !important;
-            backdrop-filter: blur(20px) saturate(170%) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(170%) !important;
+            backdrop-filter: blur(8px) saturate(170%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(170%) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
         }
         .dark-theme .glass-modal {
             background: rgba(8, 12, 24, 0.75) !important;
-            backdrop-filter: blur(32px) saturate(200%) !important;
-            -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
+            backdrop-filter: blur(8px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(200%) !important;
             border: 1px solid rgba(255, 255, 255, 0.12) !important;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
@@ -1191,8 +1203,8 @@
         .light-theme .glass-card {
             position: relative;
             background: rgba(255, 255, 255, 0.45) !important;
-            backdrop-filter: blur(24px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            backdrop-filter: blur(8px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(180%) !important;
             border: 1px solid rgba(255, 255, 255, 0.5) !important;
             box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.05) !important;
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
@@ -1315,8 +1327,8 @@
         .light-theme .bg-black\/80 {
             background-color: rgba(255, 255, 255, 0.45) !important;
             background-image: none !important;
-            backdrop-filter: blur(24px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            backdrop-filter: blur(8px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(180%) !important;
             border-color: rgba(99, 102, 241, 0.15) !important;
             box-shadow: 0 8px 30px rgba(99, 102, 241, 0.04) !important;
         }
@@ -4713,12 +4725,11 @@
             cursorVisible = false;
         });
 
-        // Smooth cursor lerping
+        // Smooth cursor lerping using GPU translate3d (avoids triggering layout cycles/reflow)
         function animateCursor() {
-            cX += (mX - cX) * 0.15;
-            cY += (mY - cY) * 0.15;
-            customCursor.style.left = `${cX}px`;
-            customCursor.style.top = `${cY}px`;
+            cX += (mX - cX) * 0.18; // Smoother tracking coefficient
+            cY += (mY - cY) * 0.18;
+            customCursor.style.transform = `translate3d(calc(${cX}px - 50%), calc(${cY}px - 50%), 0)`;
             requestAnimationFrame(animateCursor);
         }
         requestAnimationFrame(animateCursor);
@@ -4798,12 +4809,21 @@
         const fCanvas = document.getElementById('fluid-canvas');
         const fCtx = fCanvas.getContext('2d');
         let fParticles = [];
-        let fWidth = fCanvas.width = window.innerWidth;
-        let fHeight = fCanvas.height = window.innerHeight;
+        
+        // 🚀 HIGH FIDELITY PERF-TUNED VIEWPORT BUFFER SCALING (0.75x Downscale for solid 144Hz performance)
+        const fScale = 0.75; 
+        let fWidth = window.innerWidth;
+        let fHeight = window.innerHeight;
+        fCanvas.width = fWidth * fScale;
+        fCanvas.height = fHeight * fScale;
+        fCtx.scale(fScale, fScale);
 
         window.addEventListener('resize', () => {
-            fWidth = fCanvas.width = window.innerWidth;
-            fHeight = fCanvas.height = window.innerHeight;
+            fWidth = window.innerWidth;
+            fHeight = window.innerHeight;
+            fCanvas.width = fWidth * fScale;
+            fCanvas.height = fHeight * fScale;
+            fCtx.scale(fScale, fScale);
         });
 
         class FluidParticle {
