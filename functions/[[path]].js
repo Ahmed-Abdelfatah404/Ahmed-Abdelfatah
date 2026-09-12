@@ -1,7 +1,11 @@
 /**
  * 🚀 CLOUDFLARE PAGES SERVERLESS ROUTER ENGINE (functions/[[path]].js)
- * Architecture: Cloudflare Pages Functions + D1 Database + Secure AI API Proxy + DRM Shield
+ * Architecture: Cloudflare Pages Functions + D1 Database + Secure AI API Proxy
  * Project: MR. Ahmed Abd-ElFatah - Unified Student Workspace Portal
+ * 
+ * 🗄️ D1 Database Binding: env.DB
+ * 🆔 Database ID: ca82b308-d3d0-4f8e-9c41-beb54f0b0413
+ * 📛 Database Name: ahmed-abdelfatah-db
  */
 
 export async function onRequest(context) {
@@ -19,7 +23,6 @@ export async function onRequest(context) {
         'Referrer-Policy': 'strict-origin-when-cross-origin'
     };
 
-    // Helper to produce JSON responses with CORS headers
     const jsonResponse = (data, status = 200) => {
         return new Response(JSON.stringify(data), {
             status,
@@ -30,7 +33,6 @@ export async function onRequest(context) {
         });
     };
 
-    // Handle preflight OPTIONS requests immediately
     if (request.method === 'OPTIONS') {
         return new Response(null, {
             status: 204,
@@ -39,7 +41,6 @@ export async function onRequest(context) {
     }
 
     // 🤖 2. SECURE CEREBRAS & GROQ AI PROXY ENDPOINT (/api/ai/chat)
-    // Proxies LLM requests server-side so API keys are never exposed on the frontend!
     if (pathname === '/api/ai/chat' && request.method === 'POST') {
         try {
             const body = await request.json();
@@ -59,7 +60,6 @@ export async function onRequest(context) {
                 return jsonResponse(data, 200);
             }
 
-            // Fallback to Groq if Cerebras quota is exceeded
             const groqKey = env.GROQ_API_KEY || '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';
             const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
@@ -82,30 +82,29 @@ export async function onRequest(context) {
         }
     }
 
-    // 🗄️ 3. CLOUDFLARE D1 DATABASE API ENDPOINTS (/api/db/* or /api/*)
+    // 🗄️ 3. CLOUDFLARE D1 DATABASE API ENDPOINTS (/api/db/*)
+    // Matches exact table names in D1: students_table, videos_table, materials_table, feed_table, portal_feedbacks
     if (pathname.startsWith('/api/db/')) {
-        const d1 = env.DB; // Cloudflare D1 binding name
+        const d1 = env.DB;
 
-        // --- STUDENTS ENDPOINTS ---
+        // --- STUDENTS TABLE ENDPOINTS ---
         if (pathname === '/api/db/students') {
-            // GET /api/db/students - List all students sorted by EXP and watch time
             if (request.method === 'GET') {
                 if (d1) {
-                    const { results } = await d1.prepare('SELECT * FROM students ORDER BY xp DESC, watch_mins DESC').all();
-                    return jsonResponse(results);
+                    const { results } = await d1.prepare('SELECT * FROM students_table ORDER BY xp DESC, watch_mins DESC').all();
+                    return jsonResponse(results || []);
                 }
                 return jsonResponse([]);
             }
 
-            // POST /api/db/students - Provision new student account or update existing
             if (request.method === 'POST') {
                 try {
                     const student = await request.json();
                     if (d1) {
                         await d1.prepare(`
-                            INSERT INTO students (id, phone, name, password, grade, gender, title, xp, watch_mins, role, can_post_feed)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                            ON CONFLICT(id) DO UPDATE SET
+                            INSERT INTO students_table (phone, name, password, grade, gender, title, xp, watch_mins, role, can_post_feed)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            ON CONFLICT(phone) DO UPDATE SET
                                 name = excluded.name,
                                 password = excluded.password,
                                 grade = excluded.grade,
@@ -116,7 +115,6 @@ export async function onRequest(context) {
                                 role = excluded.role,
                                 can_post_feed = excluded.can_post_feed
                         `).bind(
-                            student.id,
                             student.phone || student.id,
                             student.name,
                             student.password || '123456',
@@ -137,14 +135,13 @@ export async function onRequest(context) {
             }
         }
 
-        // POST /api/db/students/xp - Grant custom EXP to student
         if (pathname === '/api/db/students/xp' && request.method === 'POST') {
             try {
                 const { id, xpAmount } = await request.json();
                 if (d1) {
-                    await d1.prepare('UPDATE students SET xp = MAX(0, xp + ?) WHERE id = ? OR phone = ?')
+                    await d1.prepare('UPDATE students_table SET xp = MAX(0, xp + ?) WHERE phone = ? OR id = ?')
                         .bind(xpAmount, id, id).run();
-                    return jsonResponse({ success: true, message: `Granted ${xpAmount} EXP to student ${id}.` });
+                    return jsonResponse({ success: true, message: `Granted ${xpAmount} EXP to student.` });
                 }
                 return jsonResponse({ success: true, mock: true });
             } catch (err) {
@@ -152,44 +149,39 @@ export async function onRequest(context) {
             }
         }
 
-        // DELETE /api/db/students/:id
         if (pathname.startsWith('/api/db/students/') && request.method === 'DELETE') {
             const studentId = pathname.split('/').pop();
             if (d1 && studentId) {
-                await d1.prepare('DELETE FROM students WHERE id = ? OR phone = ?').bind(studentId, studentId).run();
+                await d1.prepare('DELETE FROM students_table WHERE phone = ? OR id = ?').bind(studentId, studentId).run();
                 return jsonResponse({ success: true, message: 'Student record removed.' });
             }
             return jsonResponse({ success: true });
         }
 
-        // --- LECTURES ENDPOINTS ---
+        // --- VIDEOS / LECTURES ENDPOINTS ---
         if (pathname === '/api/db/lectures') {
-            // GET /api/db/lectures
             if (request.method === 'GET') {
                 if (d1) {
-                    const { results } = await d1.prepare('SELECT * FROM lectures ORDER BY id ASC').all();
-                    return jsonResponse(results);
+                    const { results } = await d1.prepare('SELECT * FROM videos_table ORDER BY id ASC').all();
+                    return jsonResponse(results || []);
                 }
                 return jsonResponse([]);
             }
 
-            // POST /api/db/lectures - Register new lecture
             if (request.method === 'POST') {
                 try {
                     const lec = await request.json();
                     if (d1) {
                         await d1.prepare(`
-                            INSERT INTO lectures (id, title, description, archive_url, duration_mins, grade, watched_mins, completed)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO videos_table (title, lesson, grade, filename, archive_url, duration_mins)
+                            VALUES (?, ?, ?, ?, ?, ?)
                         `).bind(
-                            lec.id || Date.now(),
                             lec.title,
-                            lec.description,
-                            lec.archive_url,
-                            lec.duration_mins || 45,
-                            lec.grade || 'Grade 10 (Secandory 1)',
-                            0,
-                            0
+                            lec.lesson || '1',
+                            parseInt(lec.grade) || 10,
+                            lec.filename || lec.archive_url || 'video.mp4',
+                            lec.archive_url || lec.filename || '',
+                            lec.duration_mins || 45
                         ).run();
                         return jsonResponse({ success: true, message: 'Lecture registered in D1.' });
                     }
@@ -200,11 +192,10 @@ export async function onRequest(context) {
             }
         }
 
-        // DELETE /api/db/lectures/:id
         if (pathname.startsWith('/api/db/lectures/') && request.method === 'DELETE') {
             const lecId = pathname.split('/').pop();
             if (d1 && lecId) {
-                await d1.prepare('DELETE FROM lectures WHERE id = ?').bind(lecId).run();
+                await d1.prepare('DELETE FROM videos_table WHERE id = ?').bind(lecId).run();
                 return jsonResponse({ success: true, message: 'Lecture deleted.' });
             }
             return jsonResponse({ success: true });
@@ -212,30 +203,27 @@ export async function onRequest(context) {
 
         // --- MATERIALS ENDPOINTS ---
         if (pathname === '/api/db/materials') {
-            // GET /api/db/materials
             if (request.method === 'GET') {
                 if (d1) {
-                    const { results } = await d1.prepare('SELECT * FROM materials ORDER BY id DESC').all();
-                    return jsonResponse(results);
+                    const { results } = await d1.prepare('SELECT * FROM materials_table ORDER BY id DESC').all();
+                    return jsonResponse(results || []);
                 }
                 return jsonResponse([]);
             }
 
-            // POST /api/db/materials - Upload/publish material sheet
             if (request.method === 'POST') {
                 try {
                     const mat = await request.json();
                     if (d1) {
                         await d1.prepare(`
-                            INSERT INTO materials (id, title, type, grade, file_url, uploaded_at)
-                            VALUES (?, ?, ?, ?, ?, ?)
+                            INSERT INTO materials_table (title, type, grade, desc, filename)
+                            VALUES (?, ?, ?, ?, ?)
                         `).bind(
-                            mat.id || Date.now(),
                             mat.title,
                             mat.type || 'Worksheet',
-                            mat.grade || 'Grade 10 (Secandory 1)',
-                            mat.file_url,
-                            mat.uploaded_at || new Date().toISOString().split('T')[0]
+                            parseInt(mat.grade) || 10,
+                            mat.desc || mat.type || '',
+                            mat.file_url || mat.filename || 'sheet.pdf'
                         ).run();
                         return jsonResponse({ success: true, message: 'Study material uploaded.' });
                     }
@@ -246,11 +234,10 @@ export async function onRequest(context) {
             }
         }
 
-        // DELETE /api/db/materials/:id
         if (pathname.startsWith('/api/db/materials/') && request.method === 'DELETE') {
             const matId = pathname.split('/').pop();
             if (d1 && matId) {
-                await d1.prepare('DELETE FROM materials WHERE id = ?').bind(matId).run();
+                await d1.prepare('DELETE FROM materials_table WHERE id = ?').bind(matId).run();
                 return jsonResponse({ success: true, message: 'Material deleted.' });
             }
             return jsonResponse({ success: true });
@@ -258,35 +245,31 @@ export async function onRequest(context) {
 
         // --- COMMUNITY FEED ENDPOINTS ---
         if (pathname === '/api/db/feed') {
-            // GET /api/db/feed
             if (request.method === 'GET') {
                 if (d1) {
-                    const { results } = await d1.prepare('SELECT * FROM feed_posts ORDER BY id DESC').all();
-                    return jsonResponse(results);
+                    const { results } = await d1.prepare('SELECT * FROM feed_table ORDER BY id DESC').all();
+                    return jsonResponse(results || []);
                 }
                 return jsonResponse([]);
             }
 
-            // POST /api/db/feed - Broadcast announcement
             if (request.method === 'POST') {
                 try {
                     const post = await request.json();
                     if (d1) {
                         await d1.prepare(`
-                            INSERT INTO feed_posts (id, author, xp, level_title, role, date, text, attachment_type, attachment_name, likes, comments_json)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO feed_table (author, date, text, attachment_name, image, comments_json, likes_json, xp, level_title)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                         `).bind(
-                            post.id || Date.now(),
                             post.author,
-                            post.xp || 0,
-                            post.levelTitle || 'Novice Scientist 🟢',
-                            post.role || 'Student',
                             post.date || 'Today',
                             post.text,
-                            post.attachmentType || null,
                             post.attachmentName || null,
-                            0,
-                            JSON.stringify(post.comments || [])
+                            post.attachmentType === 'image' ? 'uploaded.jpg' : null,
+                            JSON.stringify(post.comments || []),
+                            JSON.stringify(post.likedBy || []),
+                            post.xp || 0,
+                            post.levelTitle || 'Novice Scientist 🟢'
                         ).run();
                         return jsonResponse({ success: true, message: 'Feed post broadcasted.' });
                     }
@@ -297,31 +280,33 @@ export async function onRequest(context) {
             }
         }
 
+        if (pathname.startsWith('/api/db/feed/') && request.method === 'DELETE') {
+            const feedId = pathname.split('/').pop();
+            if (d1 && feedId) {
+                await d1.prepare('DELETE FROM feed_table WHERE id = ?').bind(feedId).run();
+                return jsonResponse({ success: true, message: 'Feed post deleted.' });
+            }
+            return jsonResponse({ success: true });
+        }
+
         // --- PORTAL FEEDBACKS ENDPOINTS ---
         if (pathname === '/api/db/feedbacks') {
-            // GET /api/db/feedbacks
             if (request.method === 'GET') {
                 if (d1) {
                     const { results } = await d1.prepare('SELECT * FROM portal_feedbacks ORDER BY id DESC').all();
-                    return jsonResponse(results);
+                    return jsonResponse(results || []);
                 }
                 return jsonResponse([]);
             }
 
-            // POST /api/db/feedbacks
             if (request.method === 'POST') {
                 try {
                     const fb = await request.json();
                     if (d1) {
                         await d1.prepare(`
-                            INSERT INTO portal_feedbacks (id, author, gender, id_val, rating, text, date)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
-                            ON CONFLICT(id) DO UPDATE SET
-                                rating = excluded.rating,
-                                text = excluded.text,
-                                date = excluded.date
+                            INSERT INTO portal_feedbacks (author, gender, id_val, rating, text, date)
+                            VALUES (?, ?, ?, ?, ?, ?)
                         `).bind(
-                            fb.id || Date.now(),
                             fb.author,
                             fb.gender || 'Boy',
                             fb.idVal || 'guest',
@@ -338,7 +323,6 @@ export async function onRequest(context) {
             }
         }
 
-        // DELETE /api/db/feedbacks/:id
         if (pathname.startsWith('/api/db/feedbacks/') && request.method === 'DELETE') {
             const fbId = pathname.split('/').pop();
             if (d1 && fbId) {
@@ -349,7 +333,6 @@ export async function onRequest(context) {
         }
 
         // --- RAW SQL DIRECTIVE CONSOLE ENDPOINT ---
-        // POST /api/db/query (Execute SQL for Admin Console)
         if (pathname === '/api/db/query' && request.method === 'POST') {
             try {
                 const { sql } = await request.json();
@@ -367,8 +350,6 @@ export async function onRequest(context) {
     // 🌐 4. STATIC ASSET PASS-THROUGH & SPA ROUTING FALLBACK
     try {
         const response = await env.ASSETS.fetch(request);
-        
-        // Inject security headers on static responses
         const newHeaders = new Headers(response.headers);
         Object.entries(corsHeaders).forEach(([key, value]) => {
             newHeaders.set(key, value);
@@ -380,7 +361,6 @@ export async function onRequest(context) {
             headers: newHeaders
         });
     } catch (e) {
-        // Fallback to static index.html for Single Page Application navigation
         return env.ASSETS.fetch(new URL('/', request.url));
     }
 }
