@@ -1,4 +1,4 @@
-export async function onRequest(context) {
+export async function onRequest(context) { 
     const { request, env } = context;
 
     function lowercaseKeys(obj) {
@@ -146,7 +146,7 @@ export async function onRequest(context) {
     }
 
     try {
-        // Safe database auto-migrations for v30 matching features
+        // Safe database auto-migrations
         try {
             await env.DB.prepare("ALTER TABLE students_table ADD COLUMN watched_lessons TEXT DEFAULT '[]'").run();
         } catch (e) {}
@@ -661,7 +661,7 @@ export async function onRequest(context) {
             }
         }
 
-        // New high-fidelity API endpoints for feedbacks matching v30
+        // New high-fidelity API endpoints for feedbacks
         if (path.startsWith("feedbacks")) {
             const feedbackId = url.searchParams.get("id");
             if (method === "GET") {
