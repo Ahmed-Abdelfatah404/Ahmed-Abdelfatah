@@ -2779,7 +2779,21 @@ function getLevelBadgeHTML(xp) {
                 const resStudents = await fetch('/api/db/students');
                 if (resStudents.ok) {
                     const data = await resStudents.json();
-                    if (Array.isArray(data) && data.length > 0) students = data;
+                    if (Array.isArray(data) && data.length > 0) {
+                        students = data.map(s => ({
+                            id: s.phone || String(s.id),
+                            phone: s.phone || String(s.id),
+                            name: s.name,
+                            password: s.password || '123456',
+                            grade: s.grade || 'Grade 10 (Secandory 1)',
+                            gender: s.gender || 'Boy',
+                            title: s.title || null,
+                            xp: s.xp || 0,
+                            watch_mins: s.watch_mins || 0,
+                            role: s.role || 'student',
+                            can_post_feed: !!s.can_post_feed
+                        }));
+                    }
                 }
 
                 // 2. Fetch Community Feed Posts
@@ -2788,26 +2802,68 @@ function getLevelBadgeHTML(xp) {
                     const data = await resFeed.json();
                     if (Array.isArray(data) && data.length > 0) {
                         feedPosts = data.map(p => {
+                            let comments = [];
                             if (typeof p.comments_json === 'string') {
-                                try { p.comments = JSON.parse(p.comments_json); } catch(e) { p.comments = []; }
+                                try { comments = JSON.parse(p.comments_json); } catch(e) { comments = []; }
+                            } else if (Array.isArray(p.comments)) {
+                                comments = p.comments;
                             }
-                            return p;
+                            let likedBy = [];
+                            if (typeof p.likes_json === 'string') {
+                                try { likedBy = JSON.parse(p.likes_json); } catch(e) { likedBy = []; }
+                            } else if (Array.isArray(p.likedBy)) {
+                                likedBy = p.likedBy;
+                            }
+                            return {
+                                id: p.id,
+                                author: p.author,
+                                date: p.date || 'Today',
+                                text: p.text,
+                                attachmentName: p.attachment_name || p.attachmentName || null,
+                                attachmentType: p.image ? 'image' : (p.attachment_name ? 'pdf' : null),
+                                likes: likedBy.length,
+                                likedBy: likedBy,
+                                comments: comments,
+                                xp: p.xp || 0,
+                                levelTitle: p.level_title || p.levelTitle || 'Novice Scientist 🟢',
+                                role: p.role || 'Student'
+                            };
                         });
                     }
                 }
 
-                // 3. Fetch Lectures
+                // 3. Fetch Lectures (from videos_table)
                 const resLectures = await fetch('/api/db/lectures');
                 if (resLectures.ok) {
                     const data = await resLectures.json();
-                    if (Array.isArray(data) && data.length > 0) lectures = data;
+                    if (Array.isArray(data) && data.length > 0) {
+                        lectures = data.map(v => ({
+                            id: v.id,
+                            title: v.title,
+                            description: v.lesson || v.description || 'Lecture lesson',
+                            archive_url: v.archive_url || v.filename || '',
+                            duration_mins: v.duration_mins || 45,
+                            grade: typeof v.grade === 'number' ? `Grade ${v.grade} (Secandory 1)` : (v.grade || 'Grade 10 (Secandory 1)'),
+                            watched_mins: 0,
+                            completed: false
+                        }));
+                    }
                 }
 
-                // 4. Fetch Materials
+                // 4. Fetch Materials (from materials_table)
                 const resMaterials = await fetch('/api/db/materials');
                 if (resMaterials.ok) {
                     const data = await resMaterials.json();
-                    if (Array.isArray(data) && data.length > 0) materials = data;
+                    if (Array.isArray(data) && data.length > 0) {
+                        materials = data.map(m => ({
+                            id: m.id,
+                            title: m.title,
+                            type: m.type || 'Worksheet',
+                            grade: typeof m.grade === 'number' ? `Grade ${m.grade} (Secandory 1)` : (m.grade || 'Grade 10 (Secandory 1)'),
+                            file_url: m.filename || m.file_url || 'sheet.pdf',
+                            uploaded_at: m.uploaded_at || 'Today'
+                        }));
+                    }
                 }
 
                 // 5. Fetch Feedbacks
@@ -2816,25 +2872,6 @@ function getLevelBadgeHTML(xp) {
                     const data = await resFB.json();
                     if (Array.isArray(data) && data.length > 0) feedbacks = data;
                 }
-
-                // Save fresh cloud copy locally
-                syncLocalDB();
-                if (typeof syncFeedbackDB === 'function') syncFeedbackDB();
-
-                // Refresh currently active tab view
-                if (activeTab === 'dashboard') { 
-                    renderDashboard(); 
-                    if (typeof renderFeedbacks === 'function') renderFeedbacks(); 
-                }
-                if (activeTab === 'feed') renderFeed();
-                if (activeTab === 'admin') renderAdmin();
-                if (activeTab === 'materials') renderMaterials();
-                if (activeTab === 'videos') renderVideos();
-
-            } catch (err) {
-                console.warn('D1 Sync notice (using local cache fallback):', err);
-            }
-        }
 
         // Auto-poll Cloudflare D1 every 10 seconds for live updates
         setInterval(() => {
@@ -3231,6 +3268,9 @@ function getLevelBadgeHTML(xp) {
         function deleteMaterial(id) {
             materials = materials.filter(m => m.id !== id);
             syncLocalDB();
+            if (window.fetch) {
+                fetch(`/api/db/materials/${id}`, { method: 'DELETE' }).catch(e => console.warn(e));
+            }
             renderMaterials();
             showToast('Material deleted successfully.', 'info');
         }
@@ -4206,6 +4246,9 @@ function getLevelBadgeHTML(xp) {
         function deleteFeedPost(postId) {
             feedPosts = feedPosts.filter(p => p.id !== postId);
             syncLocalDB();
+            if (window.fetch) {
+                fetch(`/api/db/feed/${postId}`, { method: 'DELETE' }).catch(e => console.warn(e));
+            }
             renderFeed();
             showToast('Feed announcement removed.', 'info');
         }
@@ -4435,8 +4478,11 @@ function getLevelBadgeHTML(xp) {
         }
 
         function deleteStudentAccount(id) {
-            students = students.filter(s => s.id !== id);
+            students = students.filter(s => s.id !== id && s.phone !== id);
             syncLocalDB();
+            if (window.fetch) {
+                fetch(`/api/db/students/${id}`, { method: 'DELETE' }).catch(e => console.warn(e));
+            }
             renderAdmin();
             showToast('Student credentials deleted from Cloud Server Nodes.', 'info');
         }
@@ -4444,6 +4490,9 @@ function getLevelBadgeHTML(xp) {
         function deleteLectureRegistry(id) {
             lectures = lectures.filter(l => l.id !== id);
             syncLocalDB();
+            if (window.fetch) {
+                fetch(`/api/db/lectures/${id}`, { method: 'DELETE' }).catch(e => console.warn(e));
+            }
             renderAdmin();
             showToast('Video resource removed from index registry.', 'info');
         }
@@ -5800,6 +5849,9 @@ function getLevelBadgeHTML(xp) {
         function deleteFeedback(id) {
             feedbacks = feedbacks.filter(item => item.id !== id);
             syncFeedbackDB();
+            if (window.fetch) {
+                fetch(`/api/db/feedbacks/${id}`, { method: 'DELETE' }).catch(e => console.warn(e));
+            }
             renderFeedbacks();
             showToast('Feedback review deleted.', 'info');
         }
