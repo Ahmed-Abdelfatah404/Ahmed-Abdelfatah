@@ -2771,6 +2771,80 @@ function getLevelBadgeHTML(xp) {
         }
 
         // -----------------------------------------------------------------
+        // 🔄 CLOUDFLARE D1 CROSS-BROWSER SYNC ENGINE
+        // -----------------------------------------------------------------
+        async function fetchAllFromD1() {
+            try {
+                // 1. Fetch Students
+                const resStudents = await fetch('/api/db/students');
+                if (resStudents.ok) {
+                    const data = await resStudents.json();
+                    if (Array.isArray(data) && data.length > 0) students = data;
+                }
+
+                // 2. Fetch Community Feed Posts
+                const resFeed = await fetch('/api/db/feed');
+                if (resFeed.ok) {
+                    const data = await resFeed.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        feedPosts = data.map(p => {
+                            if (typeof p.comments_json === 'string') {
+                                try { p.comments = JSON.parse(p.comments_json); } catch(e) { p.comments = []; }
+                            }
+                            return p;
+                        });
+                    }
+                }
+
+                // 3. Fetch Lectures
+                const resLectures = await fetch('/api/db/lectures');
+                if (resLectures.ok) {
+                    const data = await resLectures.json();
+                    if (Array.isArray(data) && data.length > 0) lectures = data;
+                }
+
+                // 4. Fetch Materials
+                const resMaterials = await fetch('/api/db/materials');
+                if (resMaterials.ok) {
+                    const data = await resMaterials.json();
+                    if (Array.isArray(data) && data.length > 0) materials = data;
+                }
+
+                // 5. Fetch Feedbacks
+                const resFB = await fetch('/api/db/feedbacks');
+                if (resFB.ok) {
+                    const data = await resFB.json();
+                    if (Array.isArray(data) && data.length > 0) feedbacks = data;
+                }
+
+                // Save fresh cloud copy locally
+                syncLocalDB();
+                if (typeof syncFeedbackDB === 'function') syncFeedbackDB();
+
+                // Refresh currently active tab view
+                if (activeTab === 'dashboard') { 
+                    renderDashboard(); 
+                    if (typeof renderFeedbacks === 'function') renderFeedbacks(); 
+                }
+                if (activeTab === 'feed') renderFeed();
+                if (activeTab === 'admin') renderAdmin();
+                if (activeTab === 'materials') renderMaterials();
+                if (activeTab === 'videos') renderVideos();
+
+            } catch (err) {
+                console.warn('D1 Sync notice (using local cache fallback):', err);
+            }
+        }
+
+        // Auto-poll Cloudflare D1 every 10 seconds for live updates
+        setInterval(() => {
+            if (currentUser) {
+                fetchAllFromD1();
+            }
+        }, 10000);
+
+
+        // -----------------------------------------------------------------
         // LOGIN MANAGER & SESSION SYSTEMS
         // -----------------------------------------------------------------
         function toggleLoginRole(role) {
@@ -2827,6 +2901,9 @@ function getLevelBadgeHTML(xp) {
         function loadPortal() {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('portal-section').classList.remove('hidden');
+
+            // 🚀 Pull latest data from Cloudflare D1
+            fetchAllFromD1();
 
             // Render details
             document.getElementById('user-name').textContent = currentUser.name;
@@ -2887,6 +2964,8 @@ function getLevelBadgeHTML(xp) {
         // -----------------------------------------------------------------
         function switchTab(tabId) {
             activeTab = tabId;
+            // 🚀 Refresh data from Cloudflare D1 on tab switch
+            fetchAllFromD1();
             // Hide floating trigger inside Co Assistant tab to avoid visual replication
             const floatCont = document.getElementById('floating-co-assistant-container');
             if (floatCont) {
@@ -3949,6 +4028,14 @@ function getLevelBadgeHTML(xp) {
 
             feedPosts.unshift(newPost);
             syncLocalDB();
+
+            if (window.fetch) {
+                fetch('/api/db/feed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newPost)
+                }).then(() => fetchAllFromD1()).catch(err => console.warn('D1 Sync notice:', err));
+            }
             textarea.value = '';
             pendingFeedAttachment = null;
             document.getElementById('feed-attachment-status').classList.add('hidden');
@@ -4326,6 +4413,14 @@ function getLevelBadgeHTML(xp) {
                 }
 
                 student.xp = Math.max(0, (student.xp || 0) + amount);
+
+                if (window.fetch) {
+                    fetch('/api/db/students/xp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: student.id, xpAmount: amount })
+                    }).then(() => fetchAllFromD1()).catch(err => console.warn('D1 Sync notice:', err));
+                }
                 if (currentUser && (currentUser.id === student.id || currentUser.phone === student.phone)) {
                     currentUser.xp = student.xp;
                 }
@@ -4365,8 +4460,17 @@ function getLevelBadgeHTML(xp) {
             const grade = document.getElementById('upload-doc-grade').value;
             const url = document.getElementById('upload-doc-url').value;
 
-            materials.unshift({ id: Date.now(), title, type, grade, file_url: url, uploaded_at: '2026-09-08' });
+            const newMat = { id: Date.now(), title, type, grade, file_url: url, uploaded_at: '2026-09-08' };
+            materials.unshift(newMat);
             syncLocalDB();
+
+            if (window.fetch) {
+                fetch('/api/db/materials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newMat)
+                }).then(() => fetchAllFromD1()).catch(err => console.warn('D1 Sync notice:', err));
+            }
             closeUploadMaterialModal();
             showToast('Document published to Cloud database!', 'success');
             renderMaterials();
@@ -4382,8 +4486,17 @@ function getLevelBadgeHTML(xp) {
             const duration = 45; // Defaulted internally as requested
             const grade = document.getElementById('video-grade').value;
 
-            lectures.push({ id: Date.now(), title, description, archive_url: url, duration_mins: duration, grade, watched_mins: 0, completed: false });
+            const newLec = { id: Date.now(), title, description, archive_url: url, duration_mins: duration, grade, watched_mins: 0, completed: false };
+            lectures.push(newLec);
             syncLocalDB();
+
+            if (window.fetch) {
+                fetch('/api/db/lectures', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newLec)
+                }).then(() => fetchAllFromD1()).catch(err => console.warn('D1 Sync notice:', err));
+            }
             closeAddVideoModal();
             showToast('Secure Video Archive.org URL Indexed!', 'success');
             renderVideos();
@@ -4405,8 +4518,17 @@ function getLevelBadgeHTML(xp) {
                 return;
             }
 
-            students.push({ id, name, grade, gender, title, xp: 0, watch_mins: 0, role: 'student' });
+            const newStudent = { id, phone: id, name, grade, gender, title, xp: 0, watch_mins: 0, role: 'student' };
+            students.push(newStudent);
             syncLocalDB();
+
+            if (window.fetch) {
+                fetch('/api/db/students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newStudent)
+                }).then(() => fetchAllFromD1()).catch(err => console.warn('D1 Sync notice:', err));
+            }
             closeProvisionAccountModal();
 
             // Reset fields
@@ -5630,6 +5752,14 @@ function getLevelBadgeHTML(xp) {
                 };
                 feedbacks.unshift(newFeedback);
                 showToast('Thank you for your feedback and suggestion!', 'success');
+
+                if (window.fetch) {
+                    fetch('/api/db/feedbacks', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newFeedback)
+                    }).then(() => fetchAllFromD1()).catch(err => console.warn('D1 Sync notice:', err));
+                }
             }
 
             syncFeedbackDB();
