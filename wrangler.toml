@@ -4,4 +4,4 @@ pages_build_output_dir = "."
 [[d1_databases]]
 binding = "DB"
 database_name = "ahmed-abdelfatah-db"
-database_id = "995418cd-83b6-4987-9fac-6acd1e10f1a0"
+database_id = "ca82b308-d3d0-4f8e-9c41-beb54f0b0413"
