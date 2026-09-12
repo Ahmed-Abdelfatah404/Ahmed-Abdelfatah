@@ -1035,25 +1035,7 @@
         /* ===================================================================== */
         
         /* 🎨 Custom Cursor in dark mode (blend-mode inverted circle) */
-        #custom-cursor {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: rgba(99, 102, 241, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            position: fixed;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 99999;
-            /* mix-blend-mode disabled for GPU performance */
-            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-                        height 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-                        opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            opacity: 0;
-            transform: translate3d(0, 0, 0);
-            will-change: transform, width, height, opacity;
-        }
+        #custom-cursor { display: none !important; }
         #custom-cursor.active {
             width: 44px;
             height: 44px;
@@ -1168,11 +1150,7 @@
         }
 
         /* 🌓 Light Theme Neumorphic Styles (Clean Disable of custom features for crisp viewing) */
-        .light-theme #custom-cursor {
-            display: block !important;
-            background-color: #0f172a !important;
-            border-color: #0f172a !important;
-        }
+        .light-theme #custom-cursor { display: none !important; }
         .light-theme .touch-ripple {
             display: block !important;
         }
@@ -1482,9 +1460,7 @@
             }
             
             /* Hide non-essential graphics to save mobile vertical scroll */
-            #custom-cursor {
-                display: none !important;
-            }
+            #custom-cursor { display: none !important; }
             #portal-section > main {
                 padding: 16px 12px !important;
             }
@@ -1511,7 +1487,54 @@
             }
         }
 
-    </style>
+    
+        /* 🌗 SYNCHRONIZED SIMULTANEOUS THEME TRANSITION ENGINE */
+        html.theme-transitioning,
+        html.theme-transitioning *,
+        html.theme-transitioning *::before,
+        html.theme-transitioning *::after {
+            transition: background-color 0.25s ease-in-out !important,
+                        border-color 0.25s ease-in-out !important,
+                        color 0.25s ease-in-out !important,
+                        fill 0.25s ease-in-out !important,
+                        stroke 0.25s ease-in-out !important,
+                        box-shadow 0.25s ease-in-out !important,
+                        opacity 0.25s ease-in-out !important;
+        }
+
+        /* Light Mode Contrast Enhancements */
+        .light-theme h1, .light-theme h2, .light-theme h3, .light-theme h4, .light-theme h5, .light-theme h6,
+        .light-theme .font-black, .light-theme #user-name, .light-theme #welcome-message {
+            color: #0f172a !important;
+        }
+        .light-theme p, .light-theme label, .light-theme td, .light-theme th, .light-theme .font-medium {
+            color: #334155 !important;
+        }
+        .light-theme span:not(.text-white):not([class*="bg-"]):not([class*="text-indigo"]):not([class*="text-cyan"]):not([class*="text-emerald"]):not([class*="text-amber"]):not([class*="text-purple"]):not([class*="text-red"]) {
+            color: #475569 !important;
+        }
+        .light-theme .text-gray-400, .light-theme .text-gray-500, .light-theme .text-slate-400, .light-theme .text-slate-500 {
+            color: #475569 !important;
+        }
+        .light-theme input, .light-theme select, .light-theme textarea {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        .light-theme input::placeholder, .light-theme textarea::placeholder {
+            color: #64748b !important;
+        }
+        .light-theme i, .light-theme svg, .light-theme [data-lucide] {
+            stroke: #0f172a !important;
+        }
+        .light-theme .bg-indigo-600 i, .light-theme .bg-indigo-700 i, .light-theme .bg-emerald-600 i, 
+        .light-theme .bg-emerald-500 i, .light-theme .bg-red-600 i, .light-theme .bg-red-500 i,
+        .light-theme .bg-indigo-600 svg, .light-theme .bg-indigo-700 svg, .light-theme .bg-emerald-600 svg, 
+        .light-theme .bg-emerald-500 svg, .light-theme .bg-red-600 svg, .light-theme .bg-red-500 svg {
+            stroke: #ffffff !important;
+        }
+
+</style>
 
 </head>
 <body class="bg-[#05070c] text-white font-sans min-h-screen flex flex-col relative overflow-x-hidden">
@@ -1519,7 +1542,7 @@
     <canvas id="fluid-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
     
     <!-- 👁️ Inverted Blend-Mode Custom Cursor -->
-    <div id="custom-cursor"></div>
+    
 
     <!-- FORCE APP INSTALLATION OVERLAY (DRM SHIELD) -->
     <div id="force-install-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-6 z-[100] hidden">
@@ -1599,7 +1622,10 @@
             
             <!-- Logo & Branding -->
             <div class="text-center space-y-2">
-                <img id="login-logo" src="logo.png" alt="Logo" onerror="this.outerHTML='<div id=\'login-logo\' class=\'w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-extrabold text-2xl mx-auto cursor-pointer select-none aspect-square object-cover\'>MR</div>'" class="w-14 h-14 mx-auto object-cover aspect-square rounded-xl cursor-pointer">
+                <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                <img id="login-logo" src="logo.png" alt="Logo" onerror="this.style.display='none'; document.getElementById('login-logo-fallback').classList.remove('hidden');" class="w-16 h-16 mx-auto object-contain rounded-2xl cursor-pointer">
+                <div id="login-logo-fallback" class="hidden w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl mx-auto cursor-pointer select-none shadow-lg shadow-indigo-600/30">MR</div>
+            </div>
                 <h1 class="text-lg font-black text-white tracking-tight">MR. Ahmed Abd-ElFatah</h1>
                 <p class="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase">Unified Student Workspace</p>
             </div>
@@ -2198,6 +2224,8 @@
                         <!-- Integrated secure video theater container -->
                         <div class="lg:col-span-2 space-y-4">
                             <div id="video-theater" class="relative bg-black rounded-2xl border border-white/10 aspect-video overflow-hidden group shadow-2xl">
+                                <!-- Embedded YouTube Player -->
+                                <iframe id="youtube-player" class="w-full h-full object-cover hidden shadow-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                 
                                 <!-- Embedded Secure Player (Streams Archive.org natively with DRM elements) -->
                                 <video id="secure-player" class="w-full h-full object-cover hidden shadow-2xl" controls controlsList="nodownload" oncontextmenu="return false;" playsinline></video>
@@ -2241,12 +2269,51 @@
                                 </div>
                             </div>
 
-                            <div class="bg-slate-900/30 backdrop-blur-md border border-white/10 p-5 rounded-2xl space-y-1 shadow-2xl">
-                                <div class="flex items-center gap-2">
-                                    <span id="current-video-badge" class="bg-indigo-950 text-indigo-400 border border-indigo-500/10 text-[9px] font-bold px-2 py-0.5 rounded-full">LECTURE</span>
-                                    <h3 id="current-video-title" class="font-extrabold text-white text-sm">No lecture selected</h3>
+                            <div class="bg-slate-900/30 backdrop-blur-md border border-white/10 p-5 rounded-2xl space-y-4 shadow-2xl">
+                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span id="current-video-badge" class="bg-indigo-950 text-indigo-400 border border-indigo-500/10 text-[9px] font-bold px-2 py-0.5 rounded-full">LECTURE</span>
+                                        <h3 id="current-video-title" class="font-extrabold text-white text-sm">No lecture selected</h3>
+                                    </div>
+                                    <div id="video-checkpoint-actions" class="flex items-center gap-2 hidden">
+                                        <button onclick="saveManualCheckpoint()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 text-[10px] font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 interactive-btn" title="Save current timestamp as checkpoint">
+                                            <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+                                            <span>Save Checkpoint</span>
+                                        </button>
+                                        <button id="resume-checkpoint-btn" onclick="resumeVideoCheckpoint()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 hidden interactive-btn shadow-lg shadow-emerald-600/20">
+                                            <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+                                            <span id="resume-checkpoint-text">Resume Checkpoint</span>
+                                        </button>
+                                        <button onclick="triggerQuizCheckpointOverlay()" class="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-[10px] font-bold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 interactive-btn" title="Test Checkpoint Quiz Question">
+                                            <i data-lucide="help-circle" class="w-3.5 h-3.5 text-purple-400"></i>
+                                            <span>Quiz Checkpoint</span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <p id="current-video-desc" class="text-xs text-gray-400 leading-relaxed pt-2">Click on any recorded lesson from your playlist menu to load secure encrypted frames.</p>
+                                <p id="current-video-desc" class="text-xs text-gray-400 leading-relaxed">Click on any recorded lesson from your playlist menu to load secure encrypted frames.</p>
+                                
+                                <!-- 🔖 Bookmarks & Highlights Section -->
+                                <div id="video-bookmarks-container" class="border-t border-white/5 pt-4 space-y-3 hidden">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                                            <i data-lucide="bookmark" class="w-3.5 h-3.5 text-indigo-400"></i>
+                                            <span>Lecture Bookmarks & Highlights</span>
+                                        </h4>
+                                        <span id="active-video-time-display" class="font-mono text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-500/20 px-2 py-0.5 rounded-lg font-bold">00:00</span>
+                                    </div>
+
+                                    <div class="flex gap-2">
+                                        <input type="text" id="bookmark-title-input" onkeydown="if(event.key==='Enter') addBookmarkAtCurrentTime()" placeholder="e.g. Chemistry Part, Important Concept..." class="flex-1 bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 placeholder-gray-500 transition">
+                                        <button onclick="addBookmarkAtCurrentTime()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-3 py-2 rounded-xl transition flex items-center gap-1.5 interactive-btn shrink-0">
+                                            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                                            <span>+ Add Bookmark</span>
+                                        </button>
+                                    </div>
+
+                                    <div id="bookmarks-list-container" class="space-y-1.5 max-h-[180px] overflow-y-auto pr-1">
+                                        <!-- Dynamic bookmarks list -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2463,7 +2530,7 @@
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Direct Archive.org Stream URL (MP4)</label>
-                    <input type="url" id="video-url" required placeholder="https://archive.org/download/.../video.mp4" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <input type="url" id="video-url" required placeholder="https://www.youtube.com/watch?v=... or Archive.org MP4 URL" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
                 </div>
                                 <div class="space-y-1">
                     <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Grade Level</label>
@@ -2533,7 +2600,59 @@
     <!-- 4. FLOATING TOAST SYSTEM CONTAINER        -->
     <!-- ========================================== -->
     <!-- Users Who Liked Modal -->
-    <div id="liked-users-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
+    
+<!-- Student Statistics Inspection Modal (Admins Only) -->
+<div id="student-stats-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
+    <div class="w-full max-w-lg glass-modal p-6 rounded-2xl space-y-5 relative border border-white/10 shadow-2xl">
+        <button onclick="closeStudentStatsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+            <div class="p-2.5 rounded-xl bg-indigo-950 border border-indigo-500/20 text-indigo-400">
+                <i data-lucide="user-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h3 id="stats-student-name" class="text-sm font-black text-white">Student Performance Analytics</h3>
+                <p id="stats-student-info" class="text-[10px] text-gray-400 font-mono">ID: 01012345678 · Grade 10</p>
+            </div>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
+                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Watch Time</span>
+                <span id="stats-total-time" class="text-xs font-black text-[#2dd4bf] font-mono">0 mins</span>
+            </div>
+            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
+                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Total EXP</span>
+                <span id="stats-total-xp" class="text-xs font-black text-amber-400 font-mono">0 XP</span>
+            </div>
+            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
+                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Completed</span>
+                <span id="stats-completed-lectures" class="text-xs font-black text-indigo-400 font-mono">0 / 0</span>
+            </div>
+            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
+                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Feed Likes</span>
+                <span id="stats-feed-likes" class="text-xs font-black text-red-400 font-mono">0 Likes</span>
+            </div>
+        </div>
+
+        <!-- Lecture Progress Breakdown Table -->
+        <div class="space-y-2">
+            <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-wider">Lecture Completion Breakdown</h4>
+            <div id="stats-lectures-breakdown" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                <!-- Dynamically rendered rows -->
+            </div>
+        </div>
+
+        <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[9px] text-gray-500 font-mono">
+            <span>Verified DRM Account Session</span>
+            <button onclick="closeStudentStatsModal()" class="bg-slate-900 border border-white/10 text-white font-bold px-4 py-1.5 rounded-xl hover:bg-slate-800 transition">Close Analytics</button>
+        </div>
+    </div>
+</div>
+
+<div id="liked-users-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
         <div class="w-full max-w-sm glass-modal p-6 rounded-2xl space-y-4 relative border border-white/10 shadow-2xl">
             <button onclick="closeLikedUsersModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
                 <i data-lucide="x" class="w-4 h-4"></i>
@@ -2770,6 +2889,13 @@
         // TAB NAVIGATOR SWITCH SYSTEM
         // -----------------------------------------------------------------
         function switchTab(tabId) {
+            // 🔒 STRICT ADMIN ACCESS CONTROL
+            if (tabId === 'admin') {
+                if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
+                    showToast('Access Denied: Admin Console requires Administrator privileges.', 'error');
+                    return;
+                }
+            }
             activeTab = tabId;
             // Hide floating trigger inside Co Assistant tab to avoid visual replication
             const floatCont = document.getElementById('floating-co-assistant-container');
@@ -2912,9 +3038,22 @@
             toggleMilestone('badge-milestone-3', minutesPlayed >= 250);
             toggleMilestone('badge-milestone-4', minutesPlayed >= 500);
 
-            // Render live students dashboard ranking board
+            // Render live students dashboard ranking board (RESTRICTED TO ADMINS & TEACHERS ONLY)
             const leaderboardGrid = document.getElementById('dashboard-leaderboard-grid');
             leaderboardGrid.innerHTML = '';
+
+            if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
+                leaderboardGrid.innerHTML = `
+                    <div class="col-span-full py-6 px-4 flex flex-col items-center justify-center text-center bg-slate-950/30 border border-dashed border-white/10 rounded-2xl space-y-2 w-full">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 mb-1">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Student Stats Restricted</h4>
+                        <p class="text-[10px] text-gray-400 leading-relaxed max-w-xs">Student rankings and detailed statistics are strictly restricted to Workspace Administrators.</p>
+                    </div>
+                `;
+                return;
+            }
 
             // Sort students by watched minutes limit descending
             const sortedStudents = [...students].sort((a,b) => b.watch_mins - a.watch_mins);
@@ -3133,34 +3272,367 @@
             });
         }
 
-        // Secure Watermark Moving System (Anti-Piracy Screen Recording System)
-        let watermarkTimer = null;
-        function loadSecureLecture(lec) {
+        
+        // -----------------------------------------------------------------
+        // CHECKPOINTS & BOOKMARKS ENGINE
+        // -----------------------------------------------------------------
+        let videoCheckpoints = JSON.parse(localStorage.getItem('video_checkpoints')) || {};
+        let videoBookmarks = JSON.parse(localStorage.getItem('video_bookmarks')) || {};
+        let activeLectureObj = null;
+
+        function formatTimeDisplay(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "00:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateCheckpointUI() {
+            if (!activeLectureObj) return;
+            const key = `lec_${activeLectureObj.id}`;
+            const cp = videoCheckpoints[key];
+            const btn = document.getElementById('resume-checkpoint-btn');
+            const txt = document.getElementById('resume-checkpoint-text');
+
+            if (cp && cp.time > 2 && btn && txt) {
+                txt.textContent = `Resume at ${cp.formatted}`;
+                btn.classList.remove('hidden');
+            } else if (btn) {
+                btn.classList.add('hidden');
+            }
+        }
+
+        function saveManualCheckpoint() {
             const player = document.getElementById('secure-player');
+            if (!activeLectureObj || !player || player.classList.contains('hidden')) {
+                showToast('Please select and play a video lecture first.', 'warning');
+                return;
+            }
+
+            const curTime = player.currentTime;
+            const formatted = formatTimeDisplay(curTime);
+            const key = `lec_${activeLectureObj.id}`;
+
+            videoCheckpoints[key] = {
+                time: curTime,
+                formatted: formatted,
+                updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            localStorage.setItem('video_checkpoints', JSON.stringify(videoCheckpoints));
+            updateCheckpointUI();
+            showToast(`Checkpoint saved at ${formatted}!`, 'success');
+        }
+
+        function resumeVideoCheckpoint() {
+            const player = document.getElementById('secure-player');
+            if (!activeLectureObj || !player) return;
+            const key = `lec_${activeLectureObj.id}`;
+            const cp = videoCheckpoints[key];
+
+            if (cp && cp.time) {
+                player.currentTime = cp.time;
+                player.play();
+                showToast(`Resumed lecture from checkpoint (${cp.formatted}).`, 'info');
+            }
+        }
+
+        function addBookmarkAtCurrentTime() {
+            const player = document.getElementById('secure-player');
+            if (!activeLectureObj || !player || player.classList.contains('hidden')) {
+                showToast('Please load and play a lecture to add bookmarks.', 'warning');
+                return;
+            }
+
+            const curTime = player.currentTime;
+            const timeFormatted = formatTimeDisplay(curTime);
+            const input = document.getElementById('bookmark-title-input');
+            const customTitle = input ? input.value.trim() : '';
+            const bookmarkTitle = customTitle || `Highlight at ${timeFormatted}`;
+
+            const key = `lec_${activeLectureObj.id}`;
+            if (!videoBookmarks[key]) videoBookmarks[key] = [];
+
+            videoBookmarks[key].unshift({
+                id: Date.now(),
+                time: curTime,
+                timeFormatted: timeFormatted,
+                title: bookmarkTitle
+            });
+
+            localStorage.setItem('video_bookmarks', JSON.stringify(videoBookmarks));
+            if (input) input.value = '';
+            renderBookmarks();
+            showToast(`Bookmark "${bookmarkTitle}" added at ${timeFormatted}!`, 'success');
+        }
+
+        function renderBookmarks() {
+            const container = document.getElementById('bookmarks-list-container');
+            if (!container || !activeLectureObj) return;
+
+            const key = `lec_${activeLectureObj.id}`;
+            const items = videoBookmarks[key] || [];
+
+            if (items.length === 0) {
+                container.innerHTML = `<p class="text-[10px] text-gray-500 italic py-1">No bookmarks added yet for this lecture.</p>`;
+                return;
+            }
+
+            container.innerHTML = items.map(bm => `
+                <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950/40 border border-white/5 hover:border-indigo-500/30 transition text-xs">
+                    <div class="flex items-center gap-2 truncate pr-2">
+                        <span onclick="jumpToBookmark(${bm.time})" class="bg-indigo-950 text-indigo-400 border border-indigo-500/20 text-[9px] font-mono font-bold px-2 py-0.5 rounded-md cursor-pointer hover:bg-indigo-900 transition shrink-0">
+                            ${bm.timeFormatted}
+                        </span>
+                        <span class="font-medium text-white text-[11px] truncate" title="${bm.title}">${bm.title}</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="jumpToBookmark(${bm.time})" class="p-1 rounded-lg bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white transition" title="Jump to timestamp">
+                            <i data-lucide="play" class="w-3 h-3"></i>
+                        </button>
+                        <button onclick="renameBookmark(${bm.id})" class="p-1 rounded-lg bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white transition" title="Rename highlight">
+                            <i data-lucide="edit-2" class="w-3 h-3"></i>
+                        </button>
+                        <button onclick="deleteBookmark(${bm.id})" class="p-1 rounded-lg bg-red-950/40 text-red-400 hover:bg-red-600 hover:text-white transition" title="Delete bookmark">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function jumpToBookmark(timeSec) {
+            const player = document.getElementById('secure-player');
+            if (player) {
+                player.currentTime = timeSec;
+                player.play();
+                showToast(`Jumped to ${formatTimeDisplay(timeSec)}.`, 'info');
+            }
+        }
+
+        function renameBookmark(id) {
+            if (!activeLectureObj) return;
+            const key = `lec_${activeLectureObj.id}`;
+            const items = videoBookmarks[key] || [];
+            const item = items.find(b => b.id === id);
+            if (!item) return;
+
+            const newTitle = prompt("Enter new title for this highlight:", item.title);
+            if (newTitle !== null && newTitle.trim() !== '') {
+                item.title = newTitle.trim();
+                localStorage.setItem('video_bookmarks', JSON.stringify(videoBookmarks));
+                renderBookmarks();
+                showToast('Highlight renamed successfully!', 'success');
+            }
+        }
+
+        function deleteBookmark(id) {
+            if (!activeLectureObj) return;
+            const key = `lec_${activeLectureObj.id}`;
+            if (!videoBookmarks[key]) return;
+
+            videoBookmarks[key] = videoBookmarks[key].filter(b => b.id !== id);
+            localStorage.setItem('video_bookmarks', JSON.stringify(videoBookmarks));
+            renderBookmarks();
+            showToast('Bookmark deleted.', 'info');
+        }
+
+
+        
+        // -----------------------------------------------------------------
+        // IN-VIDEO QUIZ CHECKPOINT OVERLAY LOGIC
+        // -----------------------------------------------------------------
+        const checkpointQuizBank = [
+            {
+                q: "What is the primary condition for a function to be continuous at x = a?",
+                options: ["lim x->a f(x) = f(a)", "f(a) = 0", "f'(a) = 1", "f(x) is undefined at a"],
+                correct: 0,
+                explain: "Correct! A function f(x) is continuous at x = a if the limit as x approaches a exists and equals f(a)."
+            },
+            {
+                q: "What is the derivative of sin(x) with respect to x?",
+                options: ["-cos(x)", "cos(x)", "tan(x)", "-sin(x)"],
+                correct: 1,
+                explain: "Correct! d/dx [sin(x)] = cos(x)."
+            },
+            {
+                q: "What is the result of integrating 2x dx?",
+                options: ["x^2 + C", "2x^2 + C", "2 + C", "x + C"],
+                correct: 0,
+                explain: "Correct! Integral of 2x dx = x² + C."
+            }
+        ];
+
+        let currentQuizIndex = 0;
+
+        function triggerQuizCheckpointOverlay() {
+            const player = document.getElementById('secure-player');
+            if (player && !player.paused) {
+                player.pause();
+            }
+
+            const overlay = document.getElementById('video-checkpoint-overlay');
+            const qEl = document.getElementById('checkpoint-question');
+            const optsEl = document.getElementById('checkpoint-options');
+            const feedbackEl = document.getElementById('checkpoint-feedback');
+            const continueBtn = document.getElementById('checkpoint-continue-btn');
+
+            if (!overlay || !qEl || !optsEl) return;
+
+            currentQuizIndex = Math.floor(Math.random() * checkpointQuizBank.length);
+            const quiz = checkpointQuizBank[currentQuizIndex];
+
+            qEl.textContent = quiz.q;
+            feedbackEl.classList.add('hidden');
+            continueBtn.classList.add('hidden');
+
+            optsEl.innerHTML = quiz.options.map((opt, idx) => `
+                <button onclick="handleQuizOptionSelect(${idx})" class="w-full text-left p-3 rounded-xl bg-slate-950/60 border border-white/10 hover:border-indigo-500/50 hover:bg-indigo-950/30 text-xs font-semibold text-white transition flex items-center justify-between group">
+                    <span>${String.fromCharCode(65 + idx)}. ${opt}</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 group-hover:text-indigo-400 transition"></i>
+                </button>
+            `).join('');
+
+            overlay.classList.remove('hidden');
+            lucide.createIcons();
+            showToast('Lesson Checkpoint Quiz Triggered!', 'info');
+        }
+
+        function handleQuizOptionSelect(selectedIdx) {
+            const quiz = checkpointQuizBank[currentQuizIndex];
+            const feedbackEl = document.getElementById('checkpoint-feedback');
+            const continueBtn = document.getElementById('checkpoint-continue-btn');
+
+            if (selectedIdx === quiz.correct) {
+                feedbackEl.textContent = quiz.explain;
+                feedbackEl.className = "text-xs font-bold p-3 rounded-xl text-center bg-emerald-950/80 border border-emerald-500/30 text-emerald-300";
+                feedbackEl.classList.remove('hidden');
+                continueBtn.classList.remove('hidden');
+                showToast('Correct answer! +50 XP awarded!', 'success');
+                if (currentUser && currentUser.role === 'student') {
+                    currentUser.xp = (currentUser.xp || 0) + 50;
+                    syncLocalDB();
+                    renderDashboard();
+                }
+            } else {
+                feedbackEl.textContent = "Incorrect answer. Please review the material and try again!";
+                feedbackEl.className = "text-xs font-bold p-3 rounded-xl text-center bg-red-950/80 border border-red-500/30 text-red-300";
+                feedbackEl.classList.remove('hidden');
+                showToast('Incorrect answer. Try again!', 'error');
+            }
+        }
+
+        function resumeVideoAfterQuiz() {
+            const overlay = document.getElementById('video-checkpoint-overlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            const player = document.getElementById('secure-player');
+            if (player) {
+                player.play();
+            }
+            showToast('Resuming lecture stream!', 'success');
+        }
+
+// Secure Watermark Moving System (Anti-Piracy Screen Recording System)
+        let watermarkTimer = null;
+        
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+    
+        function loadSecureLecture(lec) {
+            activeLectureObj = lec;
+            const player = document.getElementById('secure-player');
+            const youtubePlayer = document.getElementById('youtube-player');
             const placeholder = document.getElementById('player-placeholder');
             const teacherMark = document.getElementById('video-watermark-teacher');
             const studentMark = document.getElementById('video-watermark-student');
 
-            player.classList.remove('hidden');
-            placeholder.classList.add('hidden');
+            if (placeholder) placeholder.classList.add('hidden');
 
-            // Hook direct cloud source (streams Archive.org mp4)
-            player.src = lec.archive_url;
-            player.load();
-            player.play();
+            const actionsDiv = document.getElementById('video-checkpoint-actions');
+            const bookmarksDiv = document.getElementById('video-bookmarks-container');
+            if (actionsDiv) actionsDiv.classList.remove('hidden');
+            if (bookmarksDiv) bookmarksDiv.classList.remove('hidden');
+
+            const ytId = extractYouTubeId(lec.archive_url);
+            if (ytId) {
+                if (player) {
+                    player.pause();
+                    player.classList.add('hidden');
+                }
+                if (youtubePlayer) {
+                    youtubePlayer.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&rel=0`;
+                    youtubePlayer.classList.remove('hidden');
+                }
+            } else {
+                if (youtubePlayer) {
+                    youtubePlayer.classList.add('hidden');
+                    youtubePlayer.src = '';
+                }
+                if (player) {
+                    player.classList.remove('hidden');
+                    player.src = lec.archive_url;
+                    player.load();
+                    player.play();
+                }
+            }
 
             document.getElementById('current-video-title').textContent = lec.title;
             document.getElementById('current-video-desc').textContent = lec.description;
             document.getElementById('current-video-badge').textContent = `LECTURE · ${lec.duration_mins} MINS`;
 
-            // Active digital dynamic watermark loops
-            teacherMark.classList.remove('hidden');
-            studentMark.textContent = `Enrolled ID: ${currentUser.id || '01012345678'}`;
-            studentMark.classList.remove('hidden');
+            updateCheckpointUI();
+            renderBookmarks();
+
+            if (player) {
+                player.ontimeupdate = () => {
+                    const display = document.getElementById('active-video-time-display');
+                    if (display) display.textContent = formatTimeDisplay(player.currentTime);
+
+                    if (player.currentTime > 2 && !player.paused) {
+                        const key = `lec_${activeLectureObj.id}`;
+                        videoCheckpoints[key] = {
+                            time: player.currentTime,
+                            formatted: formatTimeDisplay(player.currentTime),
+                            updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        };
+                        localStorage.setItem('video_checkpoints', JSON.stringify(videoCheckpoints));
+                        updateCheckpointUI();
+                    }
+                };
+
+                player.onended = () => {
+                    if (currentUser && currentUser.role === 'student' && !lec.completed) {
+                        lec.completed = true;
+                        currentUser.xp += 150;
+                        currentUser.watch_mins += lec.duration_mins;
+                        const index = students.findIndex(s => s.id === currentUser.id);
+                        if (index !== -1) {
+                            students[index].xp = currentUser.xp;
+                            students[index].watch_mins = currentUser.watch_mins;
+                        }
+                        syncLocalDB();
+                        showToast("Congratulations! Lecture completed. +150 XP awarded!", "success");
+                        renderDashboard();
+                        renderVideos();
+                    }
+                };
+            }
+
+            if (teacherMark) teacherMark.classList.remove('hidden');
+            if (studentMark) {
+                studentMark.textContent = `Enrolled ID: ${currentUser ? currentUser.id : '01012345678'}`;
+                studentMark.classList.remove('hidden');
+            }
 
             if (watermarkTimer) clearInterval(watermarkTimer);
             
-            // Loop coordinate updater
             watermarkTimer = setInterval(() => {
                 const container = document.getElementById('video-theater');
                 if (!container) return;
@@ -3168,33 +3640,18 @@
                 const limitX = container.clientWidth - 180;
                 const limitY = container.clientHeight - 40;
 
-                teacherMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
-                teacherMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+                if (teacherMark) {
+                    teacherMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
+                    teacherMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+                }
 
-                studentMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
-                studentMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+                if (studentMark) {
+                    studentMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
+                    studentMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+                }
             }, 4000);
 
-            // Increment XP on playback complete simulation
-            player.onended = () => {
-                if (currentUser.role === 'student' && !lec.completed) {
-                    lec.completed = true;
-                    currentUser.xp += 150;
-                    currentUser.watch_mins += lec.duration_mins;
-                    // Update index in registry too
-                    const index = students.findIndex(s => s.id === currentUser.id);
-                    if (index !== -1) {
-                        students[index].xp = currentUser.xp;
-                        students[index].watch_mins = currentUser.watch_mins;
-                    }
-                    syncLocalDB();
-                    showToast(`Congratulations! Complete watched. +150 XP awarded!`, 'success');
-                    renderDashboard();
-                    renderVideos();
-                }
-            };
-
-            showToast(`Loading Secure Media Stream from Archive.org Node...`, 'info');
+            showToast(ytId ? "Streaming YouTube Video..." : "Loading Secure Media Stream from Archive.org Node...", "info");
         }
 
         // -----------------------------------------------------------------
@@ -3661,7 +4118,70 @@
         // -----------------------------------------------------------------
         // ADMIN CONSOLE INTERACTIVE DIRECT D1 SIMULATION ENGINE
         // -----------------------------------------------------------------
-        function renderAdmin() {
+        
+    function inspectStudentAnalytics(studentId) {
+        if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
+            showToast('Access Denied: Only administrators can view student statistics.', 'error');
+            return;
+        }
+
+        const student = students.find(s => s.id === studentId);
+        if (!student) return;
+
+        document.getElementById('stats-student-name').textContent = `${student.name}'s Analytics`;
+        document.getElementById('stats-student-info').textContent = `ID / Phone: ${student.id} · Grade: ${student.grade || 'Grade 10'} · Role: ${student.role || 'Student'}`;
+        document.getElementById('stats-total-time').textContent = `${student.watch_mins || 0} mins`;
+        document.getElementById('stats-total-xp').textContent = `${student.xp || 0} XP`;
+
+        const finished = lectures.filter(l => l.completed).length;
+        document.getElementById('stats-completed-lectures').textContent = `${finished} / ${lectures.length}`;
+
+        let likesCount = 0;
+        feedPosts.forEach(p => {
+            if (p.likedBy && p.likedBy.includes(student.name)) likesCount++;
+        });
+        document.getElementById('stats-feed-likes').textContent = `${likesCount} Likes`;
+
+        const breakdownContainer = document.getElementById('stats-lectures-breakdown');
+        breakdownContainer.innerHTML = '';
+
+        if (lectures.length === 0) {
+            breakdownContainer.innerHTML = '<p class="text-xs text-gray-500 italic text-center py-2">No video lectures registered in catalog.</p>';
+        } else {
+            lectures.forEach(lec => {
+                const isFinished = lec.completed;
+                const statusBadge = isFinished 
+                    ? '<span class="bg-emerald-950/80 border border-emerald-500/20 text-emerald-400 text-[8px] font-bold px-2 py-0.5 rounded-full">Completed 🟢</span>' 
+                    : '<span class="bg-slate-900 border border-white/5 text-gray-400 text-[8px] font-bold px-2 py-0.5 rounded-full">Not Started ⚪</span>';
+
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-950/40 border border-white/5 text-xs";
+                row.innerHTML = `
+                    <div class="truncate max-w-[240px]">
+                        <span class="font-bold text-white block truncate">${lec.title}</span>
+                        <span class="text-[9px] text-gray-500 font-mono">${lec.duration_mins} MINS · ${lec.grade}</span>
+                    </div>
+                    <div>${statusBadge}</div>
+                `;
+                breakdownContainer.appendChild(row);
+            });
+        }
+
+        document.getElementById('student-stats-modal').classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    function closeStudentStatsModal() {
+        document.getElementById('student-stats-modal').classList.add('hidden');
+    }
+
+    function renderAdmin() {
+            // 🔒 STRICT ADMIN ACCESS CONTROL
+            if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
+                showToast('Access Denied: Admin Console requires Administrator privileges.', 'error');
+                switchTab('dashboard');
+                return;
+            }
             const listContainer = document.getElementById('admin-students-list');
             listContainer.innerHTML = '';
 
@@ -3697,7 +4217,8 @@
                             <button onclick="toggleFeedPrivilege('${student.id}')" class="px-2 py-1 ${student.can_post_feed ? 'bg-indigo-950/40 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-900/40' : 'bg-slate-800/40 border border-white/5 text-gray-400 hover:bg-slate-700/40'} rounded-lg text-[10px] font-black transition">
                                 ${student.can_post_feed ? 'Revoke Feed' : 'Grant Feed'}
                             </button>
-                            <button onclick="modifyStudentXP('${student.id}')" class="px-2 py-1 bg-indigo-950/40 border border-indigo-500/20 text-indigo-400 rounded-lg hover:bg-indigo-900/40 transition text-[10px] font-black">Add EXP</button>
+                            <button onclick="inspectStudentAnalytics('${student.id}')" class="px-2 py-1 bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 text-indigo-300 hover:text-white rounded-lg transition text-[10px] font-bold flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3 h-3"></i><span>Inspect Stats</span></button>
+                        <button onclick="modifyStudentXP('${student.id}')" class="px-2 py-1 bg-indigo-950/40 border border-indigo-500/20 text-indigo-400 rounded-lg hover:bg-indigo-900/40 transition text-[10px] font-black">Add EXP</button>
                             <button onclick="deleteStudentAccount('${student.id}')" class="p-1 text-red-400 hover:text-white hover:bg-red-950/40 rounded-lg transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
                     `;
@@ -3936,6 +4457,9 @@
             const html = document.documentElement;
             const isDark = html.classList.contains('dark-theme');
             
+            // Apply synchronized theme transition class to all elements simultaneously
+            html.classList.add('theme-transitioning');
+
             if (isDark) {
                 html.classList.remove('dark-theme');
                 html.classList.add('light-theme');
@@ -3943,7 +4467,7 @@
                 if (document.getElementById('login-theme-icon')) {
                     document.getElementById('login-theme-icon').setAttribute('data-lucide', 'sun');
                 }
-                showToast('Light Theme (High Performance Neumorphic) Enabled.', 'info');
+                showToast('Light Theme Enabled.', 'info');
             } else {
                 html.classList.remove('light-theme');
                 html.classList.add('dark-theme');
@@ -3951,9 +4475,13 @@
                 if (document.getElementById('login-theme-icon')) {
                     document.getElementById('login-theme-icon').setAttribute('data-lucide', 'moon');
                 }
-                showToast('Dark Theme (Premium Glassmorphic Ambient) Enabled.', 'info');
+                showToast('Dark Theme Enabled.', 'info');
             }
             lucide.createIcons();
+
+            setTimeout(() => {
+                html.classList.remove('theme-transitioning');
+            }, 260);
         }
 
         // -----------------------------------------------------------------
@@ -4810,21 +5338,18 @@
         const fCtx = fCanvas.getContext('2d');
         let fParticles = [];
         
-        // 🚀 HIGH FIDELITY PERF-TUNED VIEWPORT BUFFER SCALING (0.75x Downscale for solid 144Hz performance)
-        const fScale = 0.75; 
+        // 🚀 FULL-SCREEN 100% VIEWPORT CANVAS PARTICLE ENGINE
         let fWidth = window.innerWidth;
         let fHeight = window.innerHeight;
-        fCanvas.width = fWidth * fScale;
-        fCanvas.height = fHeight * fScale;
-        fCtx.scale(fScale, fScale);
 
-        window.addEventListener('resize', () => {
+        function resizeFluidCanvas() {
             fWidth = window.innerWidth;
             fHeight = window.innerHeight;
-            fCanvas.width = fWidth * fScale;
-            fCanvas.height = fHeight * fScale;
-            fCtx.scale(fScale, fScale);
-        });
+            fCanvas.width = fWidth;
+            fCanvas.height = fHeight;
+        }
+        resizeFluidCanvas();
+        window.addEventListener('resize', resizeFluidCanvas);
 
         class FluidParticle {
             constructor(x, y, vx, vy, size, color, alpha, decay) {
@@ -4846,6 +5371,12 @@
                 // organic perlin vector noise simulation
                 this.vx += Math.sin(this.y * 0.008 + Date.now() * 0.0008) * 0.04;
                 this.vy += Math.cos(this.x * 0.008 + Date.now() * 0.0008) * 0.04;
+
+                // Full screen edge wrapping so particles float across the entire background
+                if (this.x < 0) this.x = fWidth;
+                if (this.x > fWidth) this.x = 0;
+                if (this.y < 0) this.y = fHeight;
+                if (this.y > fHeight) this.y = 0;
                 
                 this.alpha -= this.decay;
             }
@@ -4934,8 +5465,8 @@
                 }
             }
 
-            // Fill background fluid currents
-            if (fParticles.filter(p => p.decay === 0.001).length < 50) {
+            // Fill background fluid currents across full screen (100vw x 100vh)
+            if (fParticles.filter(p => p.decay <= 0.002).length < 160) {
                 const x = Math.random() * fWidth;
                 const y = Math.random() * fHeight;
                 const size = Math.random() * 2 + 1;
