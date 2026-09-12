@@ -1622,7 +1622,10 @@
             
             <!-- Logo & Branding -->
             <div class="text-center space-y-2">
-                <img id="login-logo" src="logo.png" alt="Logo" onerror="this.outerHTML='<div id=\'login-logo\' class=\'w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-extrabold text-2xl mx-auto cursor-pointer select-none aspect-square object-cover\'>MR</div>'" class="w-14 h-14 mx-auto object-cover aspect-square rounded-xl cursor-pointer">
+                <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                <img id="login-logo" src="logo.png" alt="Logo" onerror="this.style.display='none'; document.getElementById('login-logo-fallback').classList.remove('hidden');" class="w-16 h-16 mx-auto object-contain rounded-2xl cursor-pointer">
+                <div id="login-logo-fallback" class="hidden w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl mx-auto cursor-pointer select-none shadow-lg shadow-indigo-600/30">MR</div>
+            </div>
                 <h1 class="text-lg font-black text-white tracking-tight">MR. Ahmed Abd-ElFatah</h1>
                 <p class="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase">Unified Student Workspace</p>
             </div>
@@ -1870,7 +1873,7 @@
                             
                             <div class="space-y-3 z-10 relative">
                                 <div class="flex items-center justify-between">
-                                    <span id="dashboard-xp-level-title" class="text-xs text-white font-bold tracking-tight">Novice Mathlete</span>
+                                    <span id="dashboard-xp-level-title" class="text-xs text-white font-bold tracking-tight">Novice Scientist</span>
                                     <span id="dashboard-xp-counter" class="text-xs font-bold text-indigo-400 font-mono">0 / 300 XP</span>
                                 </div>
                                 
@@ -2221,19 +2224,38 @@
                         <!-- Integrated secure video theater container -->
                         <div class="lg:col-span-2 space-y-4">
                             <div id="video-theater" class="relative bg-black rounded-2xl border border-white/10 aspect-video overflow-hidden group shadow-2xl">
+                                <!-- Embedded YouTube Player -->
+                                <iframe id="youtube-player" class="w-full h-full object-cover hidden shadow-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                 
-                                <!-- Embedded YouTube Stream Player with Error 153 Fix -->
-                                <iframe id="youtube-player" class="w-full h-full object-cover hidden shadow-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-                                <!-- Embedded Direct MP4 Cloud Player -->
+                                <!-- Embedded Secure Player (Streams Archive.org natively with DRM elements) -->
                                 <video id="secure-player" class="w-full h-full object-cover hidden shadow-2xl" controls controlsList="nodownload" oncontextmenu="return false;" playsinline></video>
                                 
-                                <!-- Floating Active Device Watermarks -->
+                                <!-- Floating Active Device Watermarks (Defense against local screen recorders) -->
                                 <div id="video-watermark-teacher" class="absolute no-select text-white/15 font-black tracking-widest font-mono text-[10px] select-none text-center pointer-events-none z-30 hidden" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: left 1.5s ease-in-out, top 1.5s ease-in-out;">
                                     MR. Ahmed Abd-ElFatah
                                 </div>
                                 <div id="video-watermark-student" class="absolute no-select text-white/20 font-black font-mono text-[10px] select-none text-center pointer-events-none z-30 hidden" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: left 1.5s ease-in-out, top 1.5s ease-in-out;">
                                     STUDENT_DUMMY
+                                </div>
+
+                                <!-- In-Video Quiz Checkpoint Overlay -->
+                                <div id="video-checkpoint-overlay" class="absolute inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-20 hidden">
+                                    <div class="max-w-md w-full bg-[#0b0f19] border border-indigo-500/20 p-6 rounded-2xl shadow-2xl text-center space-y-4">
+                                        <div class="w-12 h-12 bg-indigo-950 border border-indigo-500/20 rounded-xl flex items-center justify-center mx-auto text-indigo-400">
+                                            <i data-lucide="help-circle" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-500/20 font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Lesson Checkpoint Quiz</span>
+                                            <h3 id="checkpoint-question" class="text-xs font-bold text-white mt-3 leading-relaxed">Question text goes here?</h3>
+                                        </div>
+                                        <div id="checkpoint-options" class="grid grid-cols-1 gap-2 text-left pt-2">
+                                            <!-- Dynamic buttons -->
+                                        </div>
+                                        <div id="checkpoint-feedback" class="hidden text-xs font-semibold p-2.5 rounded-xl text-center"></div>
+                                        <button id="checkpoint-continue-btn" onclick="resumeVideoAfterQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition hidden">
+                                            Continue Lecture
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div id="player-placeholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 bg-[#05070c]">
@@ -2507,12 +2529,8 @@
                     <textarea id="video-desc" required placeholder="Detail the concepts covered..." class="w-full h-16 bg-slate-950/60 border border-white/5 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
                 </div>
                 <div class="space-y-1">
-                    <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">YouTube Video URL / Direct Stream Link</label>
-                    <input type="text" id="video-url" required placeholder="https://www.youtube.com/watch?v=... or MP4 URL" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Actual Video Duration (Minutes)</label>
-                    <input type="number" id="video-duration" min="1" max="600" required placeholder="e.g. 35" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
+                    <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Direct Archive.org Stream URL (MP4)</label>
+                    <input type="url" id="video-url" required placeholder="https://www.youtube.com/watch?v=... or Archive.org MP4 URL" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
                 </div>
                                 <div class="space-y-1">
                     <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Grade Level</label>
@@ -2609,6 +2627,55 @@
         localStorage.removeItem('students');
         localStorage.removeItem('feedPosts');
         localStorage.removeItem('force_install_bypass');
+
+// 🏆 10-LEVEL ACADEMIC EXP & LEVELING CONFIGURATION
+// Targets scale per level: 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000.
+// Every level resets the local progress counter (e.g. 0 / 500, then 0 / 1000, 0 / 1500, etc.)
+const LEVEL_CONFIG = [
+    { level: 1, title: "Novice Scientist 🟢", targetXP: 500, cumMinXP: 0, cumMaxXP: 500 },
+    { level: 2, title: "Lab Researcher 🔥", targetXP: 1000, cumMinXP: 500, cumMaxXP: 1500 },
+    { level: 3, title: "Apprentice Scientist 🧠", targetXP: 1500, cumMinXP: 1500, cumMaxXP: 3000 },
+    { level: 4, title: "Elite Experimenter ✨", targetXP: 2000, cumMinXP: 3000, cumMaxXP: 5000 },
+    { level: 5, title: "Science Wizard 🔮", targetXP: 2500, cumMinXP: 5000, cumMaxXP: 7500 },
+    { level: 6, title: "Discovery Master ⚡", targetXP: 3000, cumMinXP: 7500, cumMaxXP: 10500 },
+    { level: 7, title: "Grandmaster Scholar 🏆", targetXP: 3500, cumMinXP: 10500, cumMaxXP: 14000 },
+    { level: 8, title: "Science Specialist 💎", targetXP: 4000, cumMinXP: 14000, cumMaxXP: 18000 },
+    { level: 9, title: "Academy Elite 🌟", targetXP: 4500, cumMinXP: 18000, cumMaxXP: 22500 },
+    { level: 10, title: "Science Legend 👑", targetXP: 5000, cumMinXP: 22500, cumMaxXP: 999999 }
+];
+
+function calculateLevelInfo(totalXP) {
+    const xp = Math.max(0, parseInt(totalXP) || 0);
+    let cfg = LEVEL_CONFIG[0];
+    
+    for (let c of LEVEL_CONFIG) {
+        if (xp >= c.cumMinXP) {
+            cfg = c;
+        } else {
+            break;
+        }
+    }
+    
+    // Calculate progress inside current level
+    const levelXPProgress = Math.max(0, xp - cfg.cumMinXP);
+    const targetXP = cfg.targetXP;
+    const progressPercent = Math.min(Math.round((levelXPProgress / targetXP) * 100), 100);
+    
+    return {
+        level: cfg.level,
+        title: cfg.title,
+        levelXPProgress: cfg.level === 10 ? Math.min(levelXPProgress, targetXP) : Math.min(levelXPProgress, targetXP),
+        targetXP: targetXP,
+        progressPercent: progressPercent,
+        totalXP: xp
+    };
+}
+
+function getLevelBadgeHTML(xp) {
+    const lvl = calculateLevelInfo(xp);
+    return `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-black font-mono inline-block">Lvl ${lvl.level}: ${lvl.title}</span>`;
+}
+
 
         let activeRole = 'student';
         let currentUser = null;
@@ -2819,13 +2886,7 @@
         // TAB NAVIGATOR SWITCH SYSTEM
         // -----------------------------------------------------------------
         function switchTab(tabId) {
-        if (tabId === 'admin') {
-            if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
-                showToast('Access Denied: Admin Console requires Administrator privileges.', 'error');
-                return;
-            }
-        }
-        activeTab = tabId;
+            activeTab = tabId;
             // Hide floating trigger inside Co Assistant tab to avoid visual replication
             const floatCont = document.getElementById('floating-co-assistant-container');
             if (floatCont) {
@@ -2910,14 +2971,13 @@
                 rankBadge.textContent = 'SYSTEM CONSOLE ADMINISTRATOR';
                 rankBadge.className = "inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black shadow-lg border transition-all duration-300 rank-red";
             } else {
-                // Students ranks
-                const watchMins = currentUser.watch_mins || 0;
-                let rank = "Initiate Mathlete";
+                // Display level name directly based on student XP
+                const studentXP = currentUser.xp || 0;
+                const lvlInfo = calculateLevelInfo(studentXP);
+                let rank = `Lvl ${lvlInfo.level}: ${lvlInfo.title}`;
                 let badgeClass = "rank-emerald";
-
-                if (watchMins >= 500) { rank = "Math Legend 👑"; badgeClass = "rank-amber"; }
-                else if (watchMins >= 250) { rank = "Elite Calculator 🧠"; badgeClass = "rank-blue"; }
-                else if (watchMins >= 100) { rank = "Equation Solver 🔥"; badgeClass = "rank-emerald"; }
+                if (lvlInfo.level >= 8) badgeClass = "rank-amber";
+                else if (lvlInfo.level >= 4) badgeClass = "rank-blue";
 
                 rankBadge.textContent = rank;
                 rankBadge.className = `inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black shadow-lg border transition-all duration-300 ${badgeClass}`;
@@ -2943,16 +3003,16 @@
             document.getElementById('dashboard-hours-watched').textContent = `${hoursWatched} hrs`;
             document.getElementById('dashboard-hours-remaining').textContent = `${hoursRemaining} hrs`;
 
-            // EXP systems
+            // EXP systems & 10-Level progression
             const studentXP = currentUser.xp || 0;
-            const maxLevelXP = 1000;
-            const progressRatio = Math.min((studentXP / maxLevelXP) * 100, 100);
+            const lvlInfo = calculateLevelInfo(studentXP);
             
-            document.getElementById('dashboard-xp-badge-level').textContent = `LEVEL ${Math.floor(studentXP / 300) + 1}`;
+            document.getElementById('dashboard-xp-badge-level').textContent = `LEVEL ${lvlInfo.level}`;
             document.getElementById('dashboard-xp-badge-level').className = "bg-amber-950/40 border border-amber-500/20 text-amber-400 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider font-mono";
+            document.getElementById('dashboard-xp-level-title').textContent = lvlInfo.title;
             document.getElementById('dashboard-xp-counter').className = "text-xs font-black text-[#2dd4bf] font-mono";
-            document.getElementById('dashboard-xp-counter').textContent = `${studentXP} / ${maxLevelXP} XP`;
-            document.getElementById('dashboard-xp-progress-bar').style.width = `${progressRatio}%`;
+            document.getElementById('dashboard-xp-counter').textContent = `${lvlInfo.levelXPProgress} / ${lvlInfo.targetXP} XP`;
+            document.getElementById('dashboard-xp-progress-bar').style.width = `${lvlInfo.progressPercent}%`;
             document.getElementById('dashboard-xp-total-info').textContent = `Total: ${studentXP} EXP (${currentUser.watch_mins || 0} Mins Studied)`;
 
             // Learning analytics numbers
@@ -2967,22 +3027,9 @@
             toggleMilestone('badge-milestone-3', minutesPlayed >= 250);
             toggleMilestone('badge-milestone-4', minutesPlayed >= 500);
 
-            // Render live students dashboard ranking board (ADMINS & TEACHERS ONLY)
-        const leaderboardGrid = document.getElementById('dashboard-leaderboard-grid');
-        leaderboardGrid.innerHTML = '';
-
-        if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
-            leaderboardGrid.innerHTML = `
-                <div class="col-span-full py-6 px-4 flex flex-col items-center justify-center text-center bg-slate-950/30 border border-dashed border-white/10 rounded-2xl space-y-2 w-full">
-                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 mb-1">
-                        <i data-lucide="lock" class="w-4 h-4"></i>
-                    </div>
-                    <h4 class="text-xs font-bold text-white">Student Stats Restricted</h4>
-                    <p class="text-[10px] text-gray-400 leading-relaxed max-w-xs">Student rankings and detailed statistics are strictly restricted to Workspace Administrators.</p>
-                </div>
-            `;
-            return;
-        }
+            // Render live students dashboard ranking board
+            const leaderboardGrid = document.getElementById('dashboard-leaderboard-grid');
+            leaderboardGrid.innerHTML = '';
 
             // Sort students by watched minutes limit descending
             const sortedStudents = [...students].sort((a,b) => b.watch_mins - a.watch_mins);
@@ -3000,6 +3047,8 @@
                     else if (index === 1) medal = "🥈";
                     else if (index === 2) medal = "🥉";
 
+                    const lvlInfo = calculateLevelInfo(student.xp || 0);
+                    const levelBadge = `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.2 rounded-lg font-bold ml-1.5 inline-block">Lvl ${lvlInfo.level}: ${lvlInfo.title}</span>`;
                     const titleBadge = student.title ? `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.2 rounded-lg font-bold ml-1.5 inline-block">${student.title}</span>` : '';
                     const roleBadge = student.role === 'admin' ? `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.2 rounded-lg font-bold ml-1.5 inline-block">Admin</span>` : '';
 
@@ -3009,8 +3058,9 @@
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-mono shrink-0">${medal}</span>
                             <div>
-                                <div class="flex items-center">
+                                <div class="flex items-center flex-wrap gap-1">
                                     <h4 class="text-xs font-bold text-white">${student.name}</h4>
+                                    ${levelBadge}
                                     ${titleBadge}
                                     ${roleBadge}
                                 </div>
@@ -3426,7 +3476,7 @@
 
             overlay.classList.remove('hidden');
             lucide.createIcons();
-            
+            showToast('Lesson Checkpoint Quiz Triggered!', 'info');
         }
 
         function handleQuizOptionSelect(selectedIdx) {
@@ -3466,118 +3516,122 @@
 
 // Secure Watermark Moving System (Anti-Piracy Screen Recording System)
         let watermarkTimer = null;
-        function loadSecureLecture(lec) {
-        activeLectureObj = lec;
-        const player = document.getElementById('secure-player');
-        const youtubePlayer = document.getElementById('youtube-player');
-        const placeholder = document.getElementById('player-placeholder');
-        const teacherMark = document.getElementById('video-watermark-teacher');
-        const studentMark = document.getElementById('video-watermark-student');
-
-        if (placeholder) placeholder.classList.add('hidden');
-
-        // Show Checkpoint and Bookmark containers
-        const actionsDiv = document.getElementById('video-checkpoint-actions');
-        const bookmarksDiv = document.getElementById('video-bookmarks-container');
-        if (actionsDiv) actionsDiv.classList.remove('hidden');
-        if (bookmarksDiv) bookmarksDiv.classList.remove('hidden');
-
-        // Check for YouTube URL & embed with Error 153 fix
-        const ytId = extractYouTubeId(lec.archive_url);
-        if (ytId) {
-            if (player) {
-                player.pause();
-                player.classList.add('hidden');
-            }
-            if (youtubePlayer) {
-                youtubePlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
-                youtubePlayer.classList.remove('hidden');
-            }
-        } else {
-            if (youtubePlayer) {
-                youtubePlayer.classList.add('hidden');
-                youtubePlayer.src = '';
-            }
-            if (player) {
-                player.classList.remove('hidden');
-                player.src = lec.archive_url;
-                player.load();
-                player.play();
-            }
-        }
-
-        document.getElementById('current-video-title').textContent = lec.title;
-        document.getElementById('current-video-desc').textContent = lec.description;
-        document.getElementById('current-video-badge').textContent = `LECTURE · ${lec.duration_mins || 30} MINS`;
-
-        updateCheckpointUI();
-        renderBookmarks();
-
-        // Continuous timeupdate listener for auto-checkpoint tracking
-        if (player) {
-            player.ontimeupdate = () => {
-                const display = document.getElementById('active-video-time-display');
-                if (display) display.textContent = formatTimeDisplay(player.currentTime);
-
-                if (player.currentTime > 2 && !player.paused) {
-                    const key = `lec_${activeLectureObj.id}`;
-                    videoCheckpoints[key] = {
-                        time: player.currentTime,
-                        formatted: formatTimeDisplay(player.currentTime),
-                        updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    };
-                    localStorage.setItem('video_checkpoints', JSON.stringify(videoCheckpoints));
-                    updateCheckpointUI();
-                }
-            };
-
-            player.onended = () => {
-                if (currentUser && currentUser.role === 'student' && !lec.completed) {
-                    lec.completed = true;
-                    currentUser.xp += 150;
-                    currentUser.watch_mins += (lec.duration_mins || 30);
-                    const index = students.findIndex(s => s.id === currentUser.id);
-                    if (index !== -1) {
-                        students[index].xp = currentUser.xp;
-                        students[index].watch_mins = currentUser.watch_mins;
-                    }
-                    syncLocalDB();
-                    showToast("Congratulations! Lecture completed. +150 XP awarded!", "success");
-                    renderDashboard();
-                    renderVideos();
-                }
-            };
-        }
-
-        // Active digital dynamic watermark loops
-        if (teacherMark) teacherMark.classList.remove('hidden');
-        if (studentMark) {
-            studentMark.textContent = `Enrolled ID: ${currentUser ? currentUser.id : '01012345678'}`;
-            studentMark.classList.remove('hidden');
-        }
-
-        if (watermarkTimer) clearInterval(watermarkTimer);
         
-        watermarkTimer = setInterval(() => {
-            const container = document.getElementById('video-theater');
-            if (!container) return;
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+    
+        function loadSecureLecture(lec) {
+            activeLectureObj = lec;
+            const player = document.getElementById('secure-player');
+            const youtubePlayer = document.getElementById('youtube-player');
+            const placeholder = document.getElementById('player-placeholder');
+            const teacherMark = document.getElementById('video-watermark-teacher');
+            const studentMark = document.getElementById('video-watermark-student');
 
-            const limitX = container.clientWidth - 180;
-            const limitY = container.clientHeight - 40;
+            if (placeholder) placeholder.classList.add('hidden');
 
-            if (teacherMark) {
-                teacherMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
-                teacherMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+            const actionsDiv = document.getElementById('video-checkpoint-actions');
+            const bookmarksDiv = document.getElementById('video-bookmarks-container');
+            if (actionsDiv) actionsDiv.classList.remove('hidden');
+            if (bookmarksDiv) bookmarksDiv.classList.remove('hidden');
+
+            const ytId = extractYouTubeId(lec.archive_url);
+            if (ytId) {
+                if (player) {
+                    player.pause();
+                    player.classList.add('hidden');
+                }
+                if (youtubePlayer) {
+                    youtubePlayer.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&rel=0`;
+                    youtubePlayer.classList.remove('hidden');
+                }
+            } else {
+                if (youtubePlayer) {
+                    youtubePlayer.classList.add('hidden');
+                    youtubePlayer.src = '';
+                }
+                if (player) {
+                    player.classList.remove('hidden');
+                    player.src = lec.archive_url;
+                    player.load();
+                    player.play();
+                }
             }
 
+            document.getElementById('current-video-title').textContent = lec.title;
+            document.getElementById('current-video-desc').textContent = lec.description;
+            document.getElementById('current-video-badge').textContent = `LECTURE · ${lec.duration_mins} MINS`;
+
+            updateCheckpointUI();
+            renderBookmarks();
+
+            if (player) {
+                player.ontimeupdate = () => {
+                    const display = document.getElementById('active-video-time-display');
+                    if (display) display.textContent = formatTimeDisplay(player.currentTime);
+
+                    if (player.currentTime > 2 && !player.paused) {
+                        const key = `lec_${activeLectureObj.id}`;
+                        videoCheckpoints[key] = {
+                            time: player.currentTime,
+                            formatted: formatTimeDisplay(player.currentTime),
+                            updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        };
+                        localStorage.setItem('video_checkpoints', JSON.stringify(videoCheckpoints));
+                        updateCheckpointUI();
+                    }
+                };
+
+                player.onended = () => {
+                    if (currentUser && currentUser.role === 'student' && !lec.completed) {
+                        lec.completed = true;
+                        currentUser.xp += 150;
+                        currentUser.watch_mins += lec.duration_mins;
+                        const index = students.findIndex(s => s.id === currentUser.id);
+                        if (index !== -1) {
+                            students[index].xp = currentUser.xp;
+                            students[index].watch_mins = currentUser.watch_mins;
+                        }
+                        syncLocalDB();
+                        showToast("Congratulations! Lecture completed. +150 XP awarded!", "success");
+                        renderDashboard();
+                        renderVideos();
+                    }
+                };
+            }
+
+            if (teacherMark) teacherMark.classList.remove('hidden');
             if (studentMark) {
-                studentMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
-                studentMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+                studentMark.textContent = `Enrolled ID: ${currentUser ? currentUser.id : '01012345678'}`;
+                studentMark.classList.remove('hidden');
             }
-        }, 4000);
 
-        showToast(ytId ? "Streaming YouTube Video..." : "Loading Direct Media Stream...", "info");
-    }
+            if (watermarkTimer) clearInterval(watermarkTimer);
+            
+            watermarkTimer = setInterval(() => {
+                const container = document.getElementById('video-theater');
+                if (!container) return;
+
+                const limitX = container.clientWidth - 180;
+                const limitY = container.clientHeight - 40;
+
+                if (teacherMark) {
+                    teacherMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
+                    teacherMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+                }
+
+                if (studentMark) {
+                    studentMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
+                    studentMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+                }
+            }, 4000);
+
+            showToast(ytId ? "Streaming YouTube Video..." : "Loading Secure Media Stream from Archive.org Node...", "info");
+        }
 
         // -----------------------------------------------------------------
         // ANNOUNCEMENTS & FEED PLATFORM (INTERACTIVE THREADED DISCUSSION)
@@ -3622,7 +3676,21 @@
                 const postLikedByMe = post.likedBy && post.likedBy.includes(currentUser.name);
                 const heartIconClass = postLikedByMe ? "fill-red-500 text-red-500" : "text-gray-400 hover:text-red-400";
                 
-                // Render custom titles as rounded rectangles
+                // Render custom titles & level badges as rounded rectangles
+                let authorLevelBadge = '';
+                const postStudent = students.find(s => s.name === post.author);
+                if (postStudent) {
+                    authorLevelBadge = getLevelBadgeHTML(postStudent.xp || 0);
+                } else if (post.role === 'Teacher' || post.role === 'Admin') {
+                    authorLevelBadge = `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.5 rounded-lg ml-1.5 font-mono font-bold inline-block">Staff</span>`;
+                } else if (post.xp !== undefined) {
+                    authorLevelBadge = getLevelBadgeHTML(post.xp);
+                } else if (post.levelTitle) {
+                    authorLevelBadge = `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg ml-1.5 font-mono font-bold inline-block">${post.levelTitle}</span>`;
+                } else {
+                    authorLevelBadge = getLevelBadgeHTML(0);
+                }
+
                 const titleBadge = post.title ? `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg ml-1.5 font-bold inline-block">${post.title}</span>` : '';
                 const roleBadge = post.role === 'Teacher' || post.role === 'Admin' ? `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.5 rounded-lg ml-1.5 font-bold inline-block">Staff</span>` : '';
 
@@ -3657,6 +3725,20 @@
                         commentAvatar = "WD.png";
                     }
 
+                    let commentLevelBadge = '';
+                    const commentStudent = students.find(s => s.name === comment.author);
+                    if (commentStudent) {
+                        commentLevelBadge = getLevelBadgeHTML(commentStudent.xp || 0);
+                    } else if (comment.role === 'Teacher' || comment.role === 'Admin') {
+                        commentLevelBadge = `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-mono font-bold inline-block">Staff</span>`;
+                    } else if (comment.xp !== undefined) {
+                        commentLevelBadge = getLevelBadgeHTML(comment.xp);
+                    } else if (comment.levelTitle) {
+                        commentLevelBadge = `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-mono font-bold inline-block">${comment.levelTitle}</span>`;
+                    } else {
+                        commentLevelBadge = getLevelBadgeHTML(0);
+                    }
+
                     const commentTitleBadge = comment.title ? `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-bold inline-block">${comment.title}</span>` : '';
                     const commentRoleBadge = comment.role === 'Teacher' || comment.role === 'Admin' ? `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-bold inline-block">Staff</span>` : '';
 
@@ -3682,6 +3764,20 @@
                             replyAvatar = "WD.png";
                         }
 
+                        let replyLevelBadge = '';
+                        const replyStudent = students.find(s => s.name === reply.author);
+                        if (replyStudent) {
+                            replyLevelBadge = getLevelBadgeHTML(replyStudent.xp || 0);
+                        } else if (reply.role === 'Teacher' || reply.role === 'Admin') {
+                            replyLevelBadge = `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-mono font-bold inline-block">Staff</span>`;
+                        } else if (reply.xp !== undefined) {
+                            replyLevelBadge = getLevelBadgeHTML(reply.xp);
+                        } else if (reply.levelTitle) {
+                            replyLevelBadge = `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-mono font-bold inline-block">${reply.levelTitle}</span>`;
+                        } else {
+                            replyLevelBadge = getLevelBadgeHTML(0);
+                        }
+
                         const replyTitleBadge = reply.title ? `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-bold inline-block">${reply.title}</span>` : '';
                         const replyRoleBadge = reply.role === 'Teacher' || reply.role === 'Admin' ? `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.5 rounded-lg ml-1 font-bold inline-block">Staff</span>` : '';
 
@@ -3700,6 +3796,7 @@
                                     <div class="flex items-center gap-1.5">
                                         <img src="${replyAvatar}" class="w-4 h-4 rounded-full border border-white/10 shrink-0">
                                         <span class="text-[10px] font-black text-white">${reply.author}</span>
+                                        ${replyLevelBadge}
                                         ${replyTitleBadge}
                                         ${replyRoleBadge}
                                     </div>
@@ -3721,9 +3818,10 @@
                     commentsHTML += `
                         <div class="p-3 rounded-xl bg-slate-950/35 border border-white/5 space-y-2 hover:border-white/10 transition-all">
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center flex-wrap gap-1.5">
                                     <img src="${commentAvatar}" class="w-5 h-5 rounded-full border border-white/10 shrink-0">
                                     <span class="text-[11px] font-black text-white">${comment.author}</span>
+                                    ${commentLevelBadge}
                                     ${commentTitleBadge}
                                     ${commentRoleBadge}
                                 </div>
@@ -3760,8 +3858,9 @@
                         <div class="flex items-center gap-2.5">
                             <img src="${authorAvatar}" class="w-9 h-9 rounded-xl border border-white/10 shrink-0">
                             <div>
-                                <div class="flex items-center">
+                                <div class="flex items-center flex-wrap gap-1">
                                     <h4 class="text-xs font-extrabold text-white">${post.author}</h4>
+                                    ${authorLevelBadge}
                                     ${titleBadge}
                                     ${roleBadge}
                                 </div>
@@ -3834,6 +3933,8 @@
                 textColor: textColor,
                 id: Date.now(),
                 author: currentUser.name,
+                xp: currentUser.xp || 0,
+                levelTitle: calculateLevelInfo(currentUser.xp || 0).title,
                 role: currentUser.role === 'teacher' ? 'Teacher' : (currentUser.role === 'admin' ? 'Admin' : 'Student'),
                 gender: currentUser.gender || 'Boy',
                 title: currentUser.title || null,
@@ -3889,6 +3990,8 @@
                 post.comments.push({
                     id: Date.now() + Math.random(),
                     author: currentUser.name,
+                    xp: currentUser.xp || 0,
+                    levelTitle: calculateLevelInfo(currentUser.xp || 0).title,
                     role: currentUser.role === 'teacher' ? 'Teacher' : (currentUser.role === 'admin' ? 'Admin' : 'Student'),
                     gender: currentUser.gender || 'Boy',
                     title: currentUser.title || null,
@@ -3944,6 +4047,8 @@
                     comment.replies.push({
                         id: Date.now() + Math.random(),
                         author: currentUser.name,
+                        xp: currentUser.xp || 0,
+                        levelTitle: calculateLevelInfo(currentUser.xp || 0).title,
                         role: currentUser.role === 'teacher' ? 'Teacher' : (currentUser.role === 'admin' ? 'Admin' : 'Student'),
                         gender: currentUser.gender || 'Boy',
                         title: currentUser.title || null,
@@ -4043,63 +4148,7 @@
         // -----------------------------------------------------------------
         // ADMIN CONSOLE INTERACTIVE DIRECT D1 SIMULATION ENGINE
         // -----------------------------------------------------------------
-        
-    // 📺 YouTube URL Parser Helper (Fixes Error 153 Embeds)
-    function extractYouTubeId(url) {
-        if (!url) return null;
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2] && match[2].length === 11) ? match[2] : null;
-    }
-
-    // 📊 Admin Student Analytics Inspector Function
-    function inspectStudentAnalytics(studentId) {
-        if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
-            showToast('Access Denied: Only administrators can inspect student statistics.', 'error');
-            return;
-        }
-
-        const student = students.find(s => s.id === studentId);
-        if (!student) return;
-
-        document.getElementById('stats-student-name').textContent = `${student.name}'s Analytics`;
-        document.getElementById('stats-student-info').textContent = `ID / Phone: ${student.id} · Grade: ${student.grade || 'Grade 10'} · Role: ${student.role || 'Student'}`;
-        document.getElementById('stats-total-time').textContent = `${student.watch_mins || 0} mins`;
-        document.getElementById('stats-total-xp').textContent = `${student.xp || 0} XP`;
-        document.getElementById('stats-role-status').textContent = student.role === 'admin' ? 'Admin 👑' : 'Student';
-        document.getElementById('stats-feed-status').textContent = student.can_post_feed ? 'Allowed 🟢' : 'Revoked 🔴';
-
-        const breakdownContainer = document.getElementById('stats-lectures-breakdown');
-        breakdownContainer.innerHTML = '';
-
-        if (lectures.length === 0) {
-            breakdownContainer.innerHTML = '<p class="text-[10px] text-gray-500 py-2 italic text-center">No lectures registered in database.</p>';
-        } else {
-            lectures.forEach(lec => {
-                const isFinished = lec.completed;
-                const statusBadge = isFinished 
-                    ? '<span class="bg-emerald-950/80 border border-emerald-500/20 text-emerald-400 text-[8px] font-bold px-2 py-0.5 rounded-full">Completed 🟢</span>' 
-                    : '<span class="bg-slate-900 border border-white/5 text-gray-400 text-[8px] font-bold px-2 py-0.5 rounded-full">Not Started ⚪</span>';
-
-                const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-white/5 text-xs";
-                row.innerHTML = `
-                    <div class="truncate max-w-[280px]">
-                        <span class="font-bold text-white block truncate">${lec.title}</span>
-                        <span class="text-[9px] text-gray-500 font-mono">${lec.duration_mins} MINS · ${lec.grade}</span>
-                    </div>
-                    <div>${statusBadge}</div>
-                `;
-                breakdownContainer.appendChild(row);
-            });
-        }
-
-        document.getElementById('student-stats-modal').classList.remove('hidden');
-        lucide.createIcons();
-    }
-
-
-    function renderAdmin() {
+        function renderAdmin() {
             const listContainer = document.getElementById('admin-students-list');
             listContainer.innerHTML = '';
 
@@ -4112,6 +4161,8 @@
             } else {
                 students.forEach(student => {
                     const isAdmin = student.role === 'admin';
+                    const lvlInfo = calculateLevelInfo(student.xp || 0);
+                    const levelBadge = `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg inline-block font-mono font-black">Lvl ${lvlInfo.level}: ${lvlInfo.title}</span>`;
                     const titleBadge = student.title ? `<span class="bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[8px] px-1.5 py-0.5 rounded-lg inline-block font-mono font-black">${student.title}</span>` : '';
                     const roleBadge = isAdmin ? `<span class="bg-red-500/20 border border-red-500/30 text-red-400 text-[8px] px-1.5 py-0.5 rounded-lg inline-block font-mono font-black">Admin</span>` : '';
                     const genderBadge = `<span class="bg-slate-500/20 border border-slate-500/30 text-slate-300 text-[8px] px-1.5 py-0.5 rounded-lg inline-block font-mono font-bold">${student.gender || 'Boy'}</span>`;
@@ -4120,8 +4171,9 @@
                     row.className = "flex items-center justify-between p-3 rounded-xl bg-slate-950/40 border border-white/5 text-[11px] hover:border-indigo-500/20 transition-all";
                     row.innerHTML = `
                         <div class="space-y-1">
-                            <div class="flex items-center gap-1.5">
+                            <div class="flex items-center flex-wrap gap-1.5">
                                 <h4 class="font-extrabold text-white">${student.name}</h4>
+                                ${levelBadge}
                                 ${titleBadge}
                                 ${roleBadge}
                                 ${genderBadge}
@@ -4129,8 +4181,7 @@
                             <p class="text-[9px] text-gray-500">ID/Phone: ${student.id} · Grade: ${student.grade}</p>
                         </div>
                                                 <div class="flex items-center gap-2">
-                            <button onclick="inspectStudentAnalytics('${student.id}')" class="px-2 py-1 bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-900/60 rounded-lg text-[10px] font-black transition">Inspect Stats 📊</button>
-                        <button onclick="toggleAdminPrivilege('${student.id}')" class="px-2 py-1 ${isAdmin ? 'bg-red-950/40 border border-red-500/20 text-red-400 hover:bg-red-900/40' : 'bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-900/40'} rounded-lg text-[10px] font-black transition">
+                            <button onclick="toggleAdminPrivilege('${student.id}')" class="px-2 py-1 ${isAdmin ? 'bg-red-950/40 border border-red-500/20 text-red-400 hover:bg-red-900/40' : 'bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-900/40'} rounded-lg text-[10px] font-black transition">
                                 ${isAdmin ? 'Revoke Admin' : 'Grant Admin'}
                             </button>
                             <button onclick="toggleFeedPrivilege('${student.id}')" class="px-2 py-1 ${student.can_post_feed ? 'bg-indigo-950/40 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-900/40' : 'bg-slate-800/40 border border-white/5 text-gray-400 hover:bg-slate-700/40'} rounded-lg text-[10px] font-black transition">
@@ -4264,12 +4315,27 @@
         }
 
         function modifyStudentXP(id) {
-            const student = students.find(s => s.id === id);
+            const student = students.find(s => s.id === id || s.phone === id);
             if (student) {
-                student.xp += 100;
+                const inputVal = prompt(`Enter custom EXP amount to grant to ${student.name}:`, "250");
+                if (inputVal === null) return;
+                const amount = parseInt(inputVal);
+                if (isNaN(amount)) {
+                    showToast('Please enter a valid number for EXP.', 'warning');
+                    return;
+                }
+
+                student.xp = Math.max(0, (student.xp || 0) + amount);
+                if (currentUser && (currentUser.id === student.id || currentUser.phone === student.phone)) {
+                    currentUser.xp = student.xp;
+                }
+
+                const lvlInfo = calculateLevelInfo(student.xp);
+
                 syncLocalDB();
                 renderAdmin();
-                showToast(`Injected 100 EXP to ${student.name}.`, 'success');
+                if (activeTab === 'dashboard') renderDashboard();
+                showToast(`Injected ${amount >= 0 ? '+' : ''}${amount} EXP to ${student.name}! Level: Lvl ${lvlInfo.level} (${lvlInfo.title})`, 'success');
             }
         }
 
@@ -4309,21 +4375,20 @@
         function openAddVideoModal() { document.getElementById('video-modal').classList.remove('hidden'); }
         function closeAddVideoModal() { document.getElementById('video-modal').classList.add('hidden'); }
         function handleVideoUploadSubmit(e) {
-        e.preventDefault();
-        const title = document.getElementById('video-title').value.trim();
-        const description = document.getElementById('video-desc').value.trim();
-        const url = document.getElementById('video-url').value.trim();
-        const durationInput = document.getElementById('video-duration');
-        const duration = durationInput ? (parseInt(durationInput.value) || 30) : 30;
-        const grade = document.getElementById('video-grade').value;
+            e.preventDefault();
+            const title = document.getElementById('video-title').value;
+            const description = document.getElementById('video-desc').value;
+            const url = document.getElementById('video-url').value;
+            const duration = 45; // Defaulted internally as requested
+            const grade = document.getElementById('video-grade').value;
 
-        lectures.push({ id: Date.now(), title, description, archive_url: url, duration_mins: duration, grade, watched_mins: 0, completed: false });
-        syncLocalDB();
-        closeAddVideoModal();
-        showToast('Video Lecture Registered Successfully!', 'success');
-        renderVideos();
-        if (activeTab === 'admin') renderAdmin();
-    }
+            lectures.push({ id: Date.now(), title, description, archive_url: url, duration_mins: duration, grade, watched_mins: 0, completed: false });
+            syncLocalDB();
+            closeAddVideoModal();
+            showToast('Secure Video Archive.org URL Indexed!', 'success');
+            renderVideos();
+            if (activeTab === 'admin') renderAdmin();
+        }
 
         function openProvisionAccountModal() { document.getElementById('student-modal').classList.remove('hidden'); }
         function closeProvisionAccountModal() { document.getElementById('student-modal').classList.add('hidden'); }
@@ -5614,57 +5679,6 @@
         fluidRenderLoop();
     </script>
 
-
-
-<!-- Student Analytics Inspector Modal (Admins Only) -->
-<div id="student-stats-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
-    <div class="w-full max-w-2xl glass-modal p-6 rounded-3xl space-y-5 relative border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <button onclick="document.getElementById('student-stats-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-white transition p-1">
-            <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-        
-        <div class="flex items-center gap-3 border-b border-white/10 pb-3">
-            <div class="w-10 h-10 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-            </div>
-            <div>
-                <h3 id="stats-student-name" class="text-sm font-black text-white">Student Analytics Inspector</h3>
-                <p id="stats-student-info" class="text-[10px] text-gray-400 font-mono">ID / Phone: -- · Grade: --</p>
-            </div>
-        </div>
-
-        <!-- KPI Metrics Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
-                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Watch Mins</span>
-                <span id="stats-total-time" class="text-sm font-black text-[#2dd4bf] font-mono">0 mins</span>
-            </div>
-            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
-                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Academic XP</span>
-                <span id="stats-total-xp" class="text-sm font-black text-amber-400 font-mono">0 XP</span>
-            </div>
-            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
-                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Role Status</span>
-                <span id="stats-role-status" class="text-xs font-bold text-indigo-400">Student</span>
-            </div>
-            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
-                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Feed Posting</span>
-                <span id="stats-feed-status" class="text-xs font-bold text-emerald-400">Allowed</span>
-            </div>
-        </div>
-
-        <!-- Lectures Watch Breakdown -->
-        <div class="space-y-2">
-            <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <i data-lucide="film" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>Lecture Completion Status</span>
-            </h4>
-            <div id="stats-lectures-breakdown" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                <!-- Dynamic rows -->
-            </div>
-        </div>
-    </div>
-</div>
 
 </body>
 </html>
