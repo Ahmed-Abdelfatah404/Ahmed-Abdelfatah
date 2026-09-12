@@ -1622,10 +1622,7 @@
             
             <!-- Logo & Branding -->
             <div class="text-center space-y-2">
-                <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
-                <img id="login-logo" src="logo.png" alt="Logo" onerror="this.style.display='none'; document.getElementById('login-logo-fallback').classList.remove('hidden');" class="w-16 h-16 mx-auto object-contain rounded-2xl cursor-pointer">
-                <div id="login-logo-fallback" class="hidden w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl mx-auto cursor-pointer select-none shadow-lg shadow-indigo-600/30">MR</div>
-            </div>
+                <img id="login-logo" src="logo.png" alt="Logo" onerror="this.outerHTML='<div id=\'login-logo\' class=\'w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-extrabold text-2xl mx-auto cursor-pointer select-none aspect-square object-cover\'>MR</div>'" class="w-14 h-14 mx-auto object-cover aspect-square rounded-xl cursor-pointer">
                 <h1 class="text-lg font-black text-white tracking-tight">MR. Ahmed Abd-ElFatah</h1>
                 <p class="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase">Unified Student Workspace</p>
             </div>
@@ -2224,38 +2221,19 @@
                         <!-- Integrated secure video theater container -->
                         <div class="lg:col-span-2 space-y-4">
                             <div id="video-theater" class="relative bg-black rounded-2xl border border-white/10 aspect-video overflow-hidden group shadow-2xl">
-                                <!-- Embedded YouTube Player -->
-                                <iframe id="youtube-player" class="w-full h-full object-cover hidden shadow-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                 
-                                <!-- Embedded Secure Player (Streams Archive.org natively with DRM elements) -->
+                                <!-- Embedded YouTube Stream Player with Error 153 Fix -->
+                                <iframe id="youtube-player" class="w-full h-full object-cover hidden shadow-2xl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+                                <!-- Embedded Direct MP4 Cloud Player -->
                                 <video id="secure-player" class="w-full h-full object-cover hidden shadow-2xl" controls controlsList="nodownload" oncontextmenu="return false;" playsinline></video>
                                 
-                                <!-- Floating Active Device Watermarks (Defense against local screen recorders) -->
+                                <!-- Floating Active Device Watermarks -->
                                 <div id="video-watermark-teacher" class="absolute no-select text-white/15 font-black tracking-widest font-mono text-[10px] select-none text-center pointer-events-none z-30 hidden" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: left 1.5s ease-in-out, top 1.5s ease-in-out;">
                                     MR. Ahmed Abd-ElFatah
                                 </div>
                                 <div id="video-watermark-student" class="absolute no-select text-white/20 font-black font-mono text-[10px] select-none text-center pointer-events-none z-30 hidden" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: left 1.5s ease-in-out, top 1.5s ease-in-out;">
                                     STUDENT_DUMMY
-                                </div>
-
-                                <!-- In-Video Quiz Checkpoint Overlay -->
-                                <div id="video-checkpoint-overlay" class="absolute inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-20 hidden">
-                                    <div class="max-w-md w-full bg-[#0b0f19] border border-indigo-500/20 p-6 rounded-2xl shadow-2xl text-center space-y-4">
-                                        <div class="w-12 h-12 bg-indigo-950 border border-indigo-500/20 rounded-xl flex items-center justify-center mx-auto text-indigo-400">
-                                            <i data-lucide="help-circle" class="w-6 h-6"></i>
-                                        </div>
-                                        <div>
-                                            <span class="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-500/20 font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Lesson Checkpoint Quiz</span>
-                                            <h3 id="checkpoint-question" class="text-xs font-bold text-white mt-3 leading-relaxed">Question text goes here?</h3>
-                                        </div>
-                                        <div id="checkpoint-options" class="grid grid-cols-1 gap-2 text-left pt-2">
-                                            <!-- Dynamic buttons -->
-                                        </div>
-                                        <div id="checkpoint-feedback" class="hidden text-xs font-semibold p-2.5 rounded-xl text-center"></div>
-                                        <button id="checkpoint-continue-btn" onclick="resumeVideoAfterQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition hidden">
-                                            Continue Lecture
-                                        </button>
-                                    </div>
                                 </div>
 
                                 <div id="player-placeholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 bg-[#05070c]">
@@ -2529,8 +2507,12 @@
                     <textarea id="video-desc" required placeholder="Detail the concepts covered..." class="w-full h-16 bg-slate-950/60 border border-white/5 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
                 </div>
                 <div class="space-y-1">
-                    <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Direct Archive.org Stream URL (MP4)</label>
-                    <input type="url" id="video-url" required placeholder="https://www.youtube.com/watch?v=... or Archive.org MP4 URL" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">YouTube Video URL / Direct Stream Link</label>
+                    <input type="text" id="video-url" required placeholder="https://www.youtube.com/watch?v=... or MP4 URL" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Actual Video Duration (Minutes)</label>
+                    <input type="number" id="video-duration" min="1" max="600" required placeholder="e.g. 35" class="w-full bg-slate-950/60 border border-white/5 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
                 </div>
                                 <div class="space-y-1">
                     <label class="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Grade Level</label>
@@ -2600,59 +2582,7 @@
     <!-- 4. FLOATING TOAST SYSTEM CONTAINER        -->
     <!-- ========================================== -->
     <!-- Users Who Liked Modal -->
-    
-<!-- Student Statistics Inspection Modal (Admins Only) -->
-<div id="student-stats-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
-    <div class="w-full max-w-lg glass-modal p-6 rounded-2xl space-y-5 relative border border-white/10 shadow-2xl">
-        <button onclick="closeStudentStatsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
-            <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-        <div class="flex items-center gap-3 border-b border-white/5 pb-3">
-            <div class="p-2.5 rounded-xl bg-indigo-950 border border-indigo-500/20 text-indigo-400">
-                <i data-lucide="user-check" class="w-5 h-5"></i>
-            </div>
-            <div>
-                <h3 id="stats-student-name" class="text-sm font-black text-white">Student Performance Analytics</h3>
-                <p id="stats-student-info" class="text-[10px] text-gray-400 font-mono">ID: 01012345678 · Grade 10</p>
-            </div>
-        </div>
-
-        <!-- KPI Metrics Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
-                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Watch Time</span>
-                <span id="stats-total-time" class="text-xs font-black text-[#2dd4bf] font-mono">0 mins</span>
-            </div>
-            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
-                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Total EXP</span>
-                <span id="stats-total-xp" class="text-xs font-black text-amber-400 font-mono">0 XP</span>
-            </div>
-            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
-                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Completed</span>
-                <span id="stats-completed-lectures" class="text-xs font-black text-indigo-400 font-mono">0 / 0</span>
-            </div>
-            <div class="p-3 bg-slate-950/40 border border-white/5 rounded-xl">
-                <span class="text-[8px] text-gray-400 uppercase font-bold tracking-wider block">Feed Likes</span>
-                <span id="stats-feed-likes" class="text-xs font-black text-red-400 font-mono">0 Likes</span>
-            </div>
-        </div>
-
-        <!-- Lecture Progress Breakdown Table -->
-        <div class="space-y-2">
-            <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-wider">Lecture Completion Breakdown</h4>
-            <div id="stats-lectures-breakdown" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                <!-- Dynamically rendered rows -->
-            </div>
-        </div>
-
-        <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[9px] text-gray-500 font-mono">
-            <span>Verified DRM Account Session</span>
-            <button onclick="closeStudentStatsModal()" class="bg-slate-900 border border-white/10 text-white font-bold px-4 py-1.5 rounded-xl hover:bg-slate-800 transition">Close Analytics</button>
-        </div>
-    </div>
-</div>
-
-<div id="liked-users-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
+    <div id="liked-users-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
         <div class="w-full max-w-sm glass-modal p-6 rounded-2xl space-y-4 relative border border-white/10 shadow-2xl">
             <button onclick="closeLikedUsersModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
                 <i data-lucide="x" class="w-4 h-4"></i>
@@ -2889,14 +2819,13 @@
         // TAB NAVIGATOR SWITCH SYSTEM
         // -----------------------------------------------------------------
         function switchTab(tabId) {
-            // 🔒 STRICT ADMIN ACCESS CONTROL
-            if (tabId === 'admin') {
-                if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
-                    showToast('Access Denied: Admin Console requires Administrator privileges.', 'error');
-                    return;
-                }
+        if (tabId === 'admin') {
+            if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
+                showToast('Access Denied: Admin Console requires Administrator privileges.', 'error');
+                return;
             }
-            activeTab = tabId;
+        }
+        activeTab = tabId;
             // Hide floating trigger inside Co Assistant tab to avoid visual replication
             const floatCont = document.getElementById('floating-co-assistant-container');
             if (floatCont) {
@@ -3038,22 +2967,22 @@
             toggleMilestone('badge-milestone-3', minutesPlayed >= 250);
             toggleMilestone('badge-milestone-4', minutesPlayed >= 500);
 
-            // Render live students dashboard ranking board (RESTRICTED TO ADMINS & TEACHERS ONLY)
-            const leaderboardGrid = document.getElementById('dashboard-leaderboard-grid');
-            leaderboardGrid.innerHTML = '';
+            // Render live students dashboard ranking board (ADMINS & TEACHERS ONLY)
+        const leaderboardGrid = document.getElementById('dashboard-leaderboard-grid');
+        leaderboardGrid.innerHTML = '';
 
-            if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
-                leaderboardGrid.innerHTML = `
-                    <div class="col-span-full py-6 px-4 flex flex-col items-center justify-center text-center bg-slate-950/30 border border-dashed border-white/10 rounded-2xl space-y-2 w-full">
-                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 mb-1">
-                            <i data-lucide="lock" class="w-4 h-4"></i>
-                        </div>
-                        <h4 class="text-xs font-bold text-white">Student Stats Restricted</h4>
-                        <p class="text-[10px] text-gray-400 leading-relaxed max-w-xs">Student rankings and detailed statistics are strictly restricted to Workspace Administrators.</p>
+        if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
+            leaderboardGrid.innerHTML = `
+                <div class="col-span-full py-6 px-4 flex flex-col items-center justify-center text-center bg-slate-950/30 border border-dashed border-white/10 rounded-2xl space-y-2 w-full">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20 mb-1">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
                     </div>
-                `;
-                return;
-            }
+                    <h4 class="text-xs font-bold text-white">Student Stats Restricted</h4>
+                    <p class="text-[10px] text-gray-400 leading-relaxed max-w-xs">Student rankings and detailed statistics are strictly restricted to Workspace Administrators.</p>
+                </div>
+            `;
+            return;
+        }
 
             // Sort students by watched minutes limit descending
             const sortedStudents = [...students].sort((a,b) => b.watch_mins - a.watch_mins);
@@ -3497,7 +3426,7 @@
 
             overlay.classList.remove('hidden');
             lucide.createIcons();
-            showToast('Lesson Checkpoint Quiz Triggered!', 'info');
+            
         }
 
         function handleQuizOptionSelect(selectedIdx) {
@@ -3537,122 +3466,118 @@
 
 // Secure Watermark Moving System (Anti-Piracy Screen Recording System)
         let watermarkTimer = null;
-        
-        function extractYouTubeId(url) {
-            if (!url) return null;
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-    
         function loadSecureLecture(lec) {
-            activeLectureObj = lec;
-            const player = document.getElementById('secure-player');
-            const youtubePlayer = document.getElementById('youtube-player');
-            const placeholder = document.getElementById('player-placeholder');
-            const teacherMark = document.getElementById('video-watermark-teacher');
-            const studentMark = document.getElementById('video-watermark-student');
+        activeLectureObj = lec;
+        const player = document.getElementById('secure-player');
+        const youtubePlayer = document.getElementById('youtube-player');
+        const placeholder = document.getElementById('player-placeholder');
+        const teacherMark = document.getElementById('video-watermark-teacher');
+        const studentMark = document.getElementById('video-watermark-student');
 
-            if (placeholder) placeholder.classList.add('hidden');
+        if (placeholder) placeholder.classList.add('hidden');
 
-            const actionsDiv = document.getElementById('video-checkpoint-actions');
-            const bookmarksDiv = document.getElementById('video-bookmarks-container');
-            if (actionsDiv) actionsDiv.classList.remove('hidden');
-            if (bookmarksDiv) bookmarksDiv.classList.remove('hidden');
+        // Show Checkpoint and Bookmark containers
+        const actionsDiv = document.getElementById('video-checkpoint-actions');
+        const bookmarksDiv = document.getElementById('video-bookmarks-container');
+        if (actionsDiv) actionsDiv.classList.remove('hidden');
+        if (bookmarksDiv) bookmarksDiv.classList.remove('hidden');
 
-            const ytId = extractYouTubeId(lec.archive_url);
-            if (ytId) {
-                if (player) {
-                    player.pause();
-                    player.classList.add('hidden');
-                }
-                if (youtubePlayer) {
-                    youtubePlayer.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&rel=0`;
-                    youtubePlayer.classList.remove('hidden');
-                }
-            } else {
-                if (youtubePlayer) {
-                    youtubePlayer.classList.add('hidden');
-                    youtubePlayer.src = '';
-                }
-                if (player) {
-                    player.classList.remove('hidden');
-                    player.src = lec.archive_url;
-                    player.load();
-                    player.play();
-                }
-            }
-
-            document.getElementById('current-video-title').textContent = lec.title;
-            document.getElementById('current-video-desc').textContent = lec.description;
-            document.getElementById('current-video-badge').textContent = `LECTURE · ${lec.duration_mins} MINS`;
-
-            updateCheckpointUI();
-            renderBookmarks();
-
+        // Check for YouTube URL & embed with Error 153 fix
+        const ytId = extractYouTubeId(lec.archive_url);
+        if (ytId) {
             if (player) {
-                player.ontimeupdate = () => {
-                    const display = document.getElementById('active-video-time-display');
-                    if (display) display.textContent = formatTimeDisplay(player.currentTime);
-
-                    if (player.currentTime > 2 && !player.paused) {
-                        const key = `lec_${activeLectureObj.id}`;
-                        videoCheckpoints[key] = {
-                            time: player.currentTime,
-                            formatted: formatTimeDisplay(player.currentTime),
-                            updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        };
-                        localStorage.setItem('video_checkpoints', JSON.stringify(videoCheckpoints));
-                        updateCheckpointUI();
-                    }
-                };
-
-                player.onended = () => {
-                    if (currentUser && currentUser.role === 'student' && !lec.completed) {
-                        lec.completed = true;
-                        currentUser.xp += 150;
-                        currentUser.watch_mins += lec.duration_mins;
-                        const index = students.findIndex(s => s.id === currentUser.id);
-                        if (index !== -1) {
-                            students[index].xp = currentUser.xp;
-                            students[index].watch_mins = currentUser.watch_mins;
-                        }
-                        syncLocalDB();
-                        showToast("Congratulations! Lecture completed. +150 XP awarded!", "success");
-                        renderDashboard();
-                        renderVideos();
-                    }
-                };
+                player.pause();
+                player.classList.add('hidden');
             }
-
-            if (teacherMark) teacherMark.classList.remove('hidden');
-            if (studentMark) {
-                studentMark.textContent = `Enrolled ID: ${currentUser ? currentUser.id : '01012345678'}`;
-                studentMark.classList.remove('hidden');
+            if (youtubePlayer) {
+                youtubePlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
+                youtubePlayer.classList.remove('hidden');
             }
-
-            if (watermarkTimer) clearInterval(watermarkTimer);
-            
-            watermarkTimer = setInterval(() => {
-                const container = document.getElementById('video-theater');
-                if (!container) return;
-
-                const limitX = container.clientWidth - 180;
-                const limitY = container.clientHeight - 40;
-
-                if (teacherMark) {
-                    teacherMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
-                    teacherMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
-                }
-
-                if (studentMark) {
-                    studentMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
-                    studentMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
-                }
-            }, 4000);
-
-            showToast(ytId ? "Streaming YouTube Video..." : "Loading Secure Media Stream from Archive.org Node...", "info");
+        } else {
+            if (youtubePlayer) {
+                youtubePlayer.classList.add('hidden');
+                youtubePlayer.src = '';
+            }
+            if (player) {
+                player.classList.remove('hidden');
+                player.src = lec.archive_url;
+                player.load();
+                player.play();
+            }
         }
+
+        document.getElementById('current-video-title').textContent = lec.title;
+        document.getElementById('current-video-desc').textContent = lec.description;
+        document.getElementById('current-video-badge').textContent = `LECTURE · ${lec.duration_mins || 30} MINS`;
+
+        updateCheckpointUI();
+        renderBookmarks();
+
+        // Continuous timeupdate listener for auto-checkpoint tracking
+        if (player) {
+            player.ontimeupdate = () => {
+                const display = document.getElementById('active-video-time-display');
+                if (display) display.textContent = formatTimeDisplay(player.currentTime);
+
+                if (player.currentTime > 2 && !player.paused) {
+                    const key = `lec_${activeLectureObj.id}`;
+                    videoCheckpoints[key] = {
+                        time: player.currentTime,
+                        formatted: formatTimeDisplay(player.currentTime),
+                        updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    };
+                    localStorage.setItem('video_checkpoints', JSON.stringify(videoCheckpoints));
+                    updateCheckpointUI();
+                }
+            };
+
+            player.onended = () => {
+                if (currentUser && currentUser.role === 'student' && !lec.completed) {
+                    lec.completed = true;
+                    currentUser.xp += 150;
+                    currentUser.watch_mins += (lec.duration_mins || 30);
+                    const index = students.findIndex(s => s.id === currentUser.id);
+                    if (index !== -1) {
+                        students[index].xp = currentUser.xp;
+                        students[index].watch_mins = currentUser.watch_mins;
+                    }
+                    syncLocalDB();
+                    showToast("Congratulations! Lecture completed. +150 XP awarded!", "success");
+                    renderDashboard();
+                    renderVideos();
+                }
+            };
+        }
+
+        // Active digital dynamic watermark loops
+        if (teacherMark) teacherMark.classList.remove('hidden');
+        if (studentMark) {
+            studentMark.textContent = `Enrolled ID: ${currentUser ? currentUser.id : '01012345678'}`;
+            studentMark.classList.remove('hidden');
+        }
+
+        if (watermarkTimer) clearInterval(watermarkTimer);
+        
+        watermarkTimer = setInterval(() => {
+            const container = document.getElementById('video-theater');
+            if (!container) return;
+
+            const limitX = container.clientWidth - 180;
+            const limitY = container.clientHeight - 40;
+
+            if (teacherMark) {
+                teacherMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
+                teacherMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+            }
+
+            if (studentMark) {
+                studentMark.style.left = `${Math.floor(Math.random() * limitX)}px`;
+                studentMark.style.top = `${Math.floor(Math.random() * limitY)}px`;
+            }
+        }, 4000);
+
+        showToast(ytId ? "Streaming YouTube Video..." : "Loading Direct Media Stream...", "info");
+    }
 
         // -----------------------------------------------------------------
         // ANNOUNCEMENTS & FEED PLATFORM (INTERACTIVE THREADED DISCUSSION)
@@ -4119,9 +4044,18 @@
         // ADMIN CONSOLE INTERACTIVE DIRECT D1 SIMULATION ENGINE
         // -----------------------------------------------------------------
         
+    // 📺 YouTube URL Parser Helper (Fixes Error 153 Embeds)
+    function extractYouTubeId(url) {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2] && match[2].length === 11) ? match[2] : null;
+    }
+
+    // 📊 Admin Student Analytics Inspector Function
     function inspectStudentAnalytics(studentId) {
         if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
-            showToast('Access Denied: Only administrators can view student statistics.', 'error');
+            showToast('Access Denied: Only administrators can inspect student statistics.', 'error');
             return;
         }
 
@@ -4132,21 +4066,14 @@
         document.getElementById('stats-student-info').textContent = `ID / Phone: ${student.id} · Grade: ${student.grade || 'Grade 10'} · Role: ${student.role || 'Student'}`;
         document.getElementById('stats-total-time').textContent = `${student.watch_mins || 0} mins`;
         document.getElementById('stats-total-xp').textContent = `${student.xp || 0} XP`;
-
-        const finished = lectures.filter(l => l.completed).length;
-        document.getElementById('stats-completed-lectures').textContent = `${finished} / ${lectures.length}`;
-
-        let likesCount = 0;
-        feedPosts.forEach(p => {
-            if (p.likedBy && p.likedBy.includes(student.name)) likesCount++;
-        });
-        document.getElementById('stats-feed-likes').textContent = `${likesCount} Likes`;
+        document.getElementById('stats-role-status').textContent = student.role === 'admin' ? 'Admin 👑' : 'Student';
+        document.getElementById('stats-feed-status').textContent = student.can_post_feed ? 'Allowed 🟢' : 'Revoked 🔴';
 
         const breakdownContainer = document.getElementById('stats-lectures-breakdown');
         breakdownContainer.innerHTML = '';
 
         if (lectures.length === 0) {
-            breakdownContainer.innerHTML = '<p class="text-xs text-gray-500 italic text-center py-2">No video lectures registered in catalog.</p>';
+            breakdownContainer.innerHTML = '<p class="text-[10px] text-gray-500 py-2 italic text-center">No lectures registered in database.</p>';
         } else {
             lectures.forEach(lec => {
                 const isFinished = lec.completed;
@@ -4155,9 +4082,9 @@
                     : '<span class="bg-slate-900 border border-white/5 text-gray-400 text-[8px] font-bold px-2 py-0.5 rounded-full">Not Started ⚪</span>';
 
                 const row = document.createElement('div');
-                row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-950/40 border border-white/5 text-xs";
+                row.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-950/40 border border-white/5 text-xs";
                 row.innerHTML = `
-                    <div class="truncate max-w-[240px]">
+                    <div class="truncate max-w-[280px]">
                         <span class="font-bold text-white block truncate">${lec.title}</span>
                         <span class="text-[9px] text-gray-500 font-mono">${lec.duration_mins} MINS · ${lec.grade}</span>
                     </div>
@@ -4171,17 +4098,8 @@
         lucide.createIcons();
     }
 
-    function closeStudentStatsModal() {
-        document.getElementById('student-stats-modal').classList.add('hidden');
-    }
 
     function renderAdmin() {
-            // 🔒 STRICT ADMIN ACCESS CONTROL
-            if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'admin')) {
-                showToast('Access Denied: Admin Console requires Administrator privileges.', 'error');
-                switchTab('dashboard');
-                return;
-            }
             const listContainer = document.getElementById('admin-students-list');
             listContainer.innerHTML = '';
 
@@ -4211,14 +4129,14 @@
                             <p class="text-[9px] text-gray-500">ID/Phone: ${student.id} · Grade: ${student.grade}</p>
                         </div>
                                                 <div class="flex items-center gap-2">
-                            <button onclick="toggleAdminPrivilege('${student.id}')" class="px-2 py-1 ${isAdmin ? 'bg-red-950/40 border border-red-500/20 text-red-400 hover:bg-red-900/40' : 'bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-900/40'} rounded-lg text-[10px] font-black transition">
+                            <button onclick="inspectStudentAnalytics('${student.id}')" class="px-2 py-1 bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-900/60 rounded-lg text-[10px] font-black transition">Inspect Stats 📊</button>
+                        <button onclick="toggleAdminPrivilege('${student.id}')" class="px-2 py-1 ${isAdmin ? 'bg-red-950/40 border border-red-500/20 text-red-400 hover:bg-red-900/40' : 'bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-900/40'} rounded-lg text-[10px] font-black transition">
                                 ${isAdmin ? 'Revoke Admin' : 'Grant Admin'}
                             </button>
                             <button onclick="toggleFeedPrivilege('${student.id}')" class="px-2 py-1 ${student.can_post_feed ? 'bg-indigo-950/40 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-900/40' : 'bg-slate-800/40 border border-white/5 text-gray-400 hover:bg-slate-700/40'} rounded-lg text-[10px] font-black transition">
                                 ${student.can_post_feed ? 'Revoke Feed' : 'Grant Feed'}
                             </button>
-                            <button onclick="inspectStudentAnalytics('${student.id}')" class="px-2 py-1 bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 text-indigo-300 hover:text-white rounded-lg transition text-[10px] font-bold flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3 h-3"></i><span>Inspect Stats</span></button>
-                        <button onclick="modifyStudentXP('${student.id}')" class="px-2 py-1 bg-indigo-950/40 border border-indigo-500/20 text-indigo-400 rounded-lg hover:bg-indigo-900/40 transition text-[10px] font-black">Add EXP</button>
+                            <button onclick="modifyStudentXP('${student.id}')" class="px-2 py-1 bg-indigo-950/40 border border-indigo-500/20 text-indigo-400 rounded-lg hover:bg-indigo-900/40 transition text-[10px] font-black">Add EXP</button>
                             <button onclick="deleteStudentAccount('${student.id}')" class="p-1 text-red-400 hover:text-white hover:bg-red-950/40 rounded-lg transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                         </div>
                     `;
@@ -4391,20 +4309,21 @@
         function openAddVideoModal() { document.getElementById('video-modal').classList.remove('hidden'); }
         function closeAddVideoModal() { document.getElementById('video-modal').classList.add('hidden'); }
         function handleVideoUploadSubmit(e) {
-            e.preventDefault();
-            const title = document.getElementById('video-title').value;
-            const description = document.getElementById('video-desc').value;
-            const url = document.getElementById('video-url').value;
-            const duration = 45; // Defaulted internally as requested
-            const grade = document.getElementById('video-grade').value;
+        e.preventDefault();
+        const title = document.getElementById('video-title').value.trim();
+        const description = document.getElementById('video-desc').value.trim();
+        const url = document.getElementById('video-url').value.trim();
+        const durationInput = document.getElementById('video-duration');
+        const duration = durationInput ? (parseInt(durationInput.value) || 30) : 30;
+        const grade = document.getElementById('video-grade').value;
 
-            lectures.push({ id: Date.now(), title, description, archive_url: url, duration_mins: duration, grade, watched_mins: 0, completed: false });
-            syncLocalDB();
-            closeAddVideoModal();
-            showToast('Secure Video Archive.org URL Indexed!', 'success');
-            renderVideos();
-            if (activeTab === 'admin') renderAdmin();
-        }
+        lectures.push({ id: Date.now(), title, description, archive_url: url, duration_mins: duration, grade, watched_mins: 0, completed: false });
+        syncLocalDB();
+        closeAddVideoModal();
+        showToast('Video Lecture Registered Successfully!', 'success');
+        renderVideos();
+        if (activeTab === 'admin') renderAdmin();
+    }
 
         function openProvisionAccountModal() { document.getElementById('student-modal').classList.remove('hidden'); }
         function closeProvisionAccountModal() { document.getElementById('student-modal').classList.add('hidden'); }
@@ -5695,6 +5614,57 @@
         fluidRenderLoop();
     </script>
 
+
+
+<!-- Student Analytics Inspector Modal (Admins Only) -->
+<div id="student-stats-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md items-center justify-center p-4 z-50 flex hidden">
+    <div class="w-full max-w-2xl glass-modal p-6 rounded-3xl space-y-5 relative border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <button onclick="document.getElementById('student-stats-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-white transition p-1">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        
+        <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h3 id="stats-student-name" class="text-sm font-black text-white">Student Analytics Inspector</h3>
+                <p id="stats-student-info" class="text-[10px] text-gray-400 font-mono">ID / Phone: -- · Grade: --</p>
+            </div>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
+                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Watch Mins</span>
+                <span id="stats-total-time" class="text-sm font-black text-[#2dd4bf] font-mono">0 mins</span>
+            </div>
+            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
+                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Academic XP</span>
+                <span id="stats-total-xp" class="text-sm font-black text-amber-400 font-mono">0 XP</span>
+            </div>
+            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
+                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Role Status</span>
+                <span id="stats-role-status" class="text-xs font-bold text-indigo-400">Student</span>
+            </div>
+            <div class="bg-slate-950/50 p-3 rounded-2xl border border-white/5 text-center">
+                <span class="text-[8px] text-gray-500 font-bold uppercase tracking-wider block">Feed Posting</span>
+                <span id="stats-feed-status" class="text-xs font-bold text-emerald-400">Allowed</span>
+            </div>
+        </div>
+
+        <!-- Lectures Watch Breakdown -->
+        <div class="space-y-2">
+            <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="film" class="w-3.5 h-3.5 text-indigo-400"></i>
+                <span>Lecture Completion Status</span>
+            </h4>
+            <div id="stats-lectures-breakdown" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                <!-- Dynamic rows -->
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
